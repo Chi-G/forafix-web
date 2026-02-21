@@ -1,0 +1,72 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+const Footer = () => {
+    return (
+        <footer className="bg-neutral-900 text-neutral-400 py-20 border-t border-white/5">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-20">
+                    <div className="col-span-2 lg:col-span-1">
+                        <Link to="/" className="text-2xl font-bold text-white tracking-tighter mb-6 block">Forafix</Link>
+                        <p className="text-sm leading-relaxed mb-6 font-medium">Abuja's #1 marketplace for local household services and skilled pros.</p>
+                        <div className="flex gap-4">
+                            <div className="w-8 h-8 rounded-full bg-white/10 hover:bg-[#14a800] transition-colors cursor-pointer" />
+                            <div className="w-8 h-8 rounded-full bg-white/10 hover:bg-[#14a800] transition-colors cursor-pointer" />
+                            <div className="w-8 h-8 rounded-full bg-white/10 hover:bg-[#14a800] transition-colors cursor-pointer" />
+                        </div>
+                    </div>
+                    <div>
+                        <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">For Clients</h4>
+                        <ul className="space-y-4 text-sm font-medium">
+                            <li><Link to="/cl/find-service" className="hover:text-white transition-colors">Find a Service</Link></li>
+                            <li><Link to="#" className="hover:text-white transition-colors">How to Hire</Link></li>
+                            <li><Link to="#" className="hover:text-white transition-colors">Secure Payments</Link></li>
+                            <li><Link to="#" className="hover:text-white transition-colors">Forafix Plus</Link></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">For Pros</h4>
+                        <ul className="space-y-4 text-sm font-medium">
+                            <li><Link to="/register/agent" className="hover:text-white transition-colors">Become a Pro</Link></li>
+                            <li><Link to="#" className="hover:text-white transition-colors">How to Earn</Link></li>
+                            <li><Link to="#" className="hover:text-white transition-colors">Trust & Safety</Link></li>
+                            <li><Link to="#" className="hover:text-white transition-colors">Abuja Markets</Link></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">Resource</h4>
+                        <ul className="space-y-4 text-sm font-medium">
+                            <li><Link to="#" className="hover:text-white transition-colors">Help Center</Link></li>
+                            <li><Link to="#" className="hover:text-white transition-colors">Community</Link></li>
+                            <li><Link to="#" className="hover:text-white transition-colors">Safety Tips</Link></li>
+                            <li><Link to="#" className="hover:text-white transition-colors">Success Stories</Link></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">Company</h4>
+                        <ul className="space-y-4 text-sm font-medium">
+                            <li><Link to="#" className="hover:text-white transition-colors">About Us</Link></li>
+                            <li><Link to="#" className="hover:text-white transition-colors">Careers</Link></li>
+                            <li><Link to="#" className="hover:text-white transition-colors">Partnerships</Link></li>
+                            <li><Link to="#" className="hover:text-white transition-colors">Contact</Link></li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-xs font-bold uppercase tracking-widest">
+                    <div className="flex flex-wrap justify-center gap-8">
+                        <span>&copy; 2026 Forafix Global Inc.</span>
+                        <Link to="#" className="hover:text-white">Terms of Service</Link>
+                        <Link to="#" className="hover:text-white">Privacy Policy</Link>
+                        <Link to="#" className="hover:text-white">Cookie Settings</Link>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <span className="text-white/40">Proudly made in Abuja</span>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    );
+};
+
+export default Footer;
