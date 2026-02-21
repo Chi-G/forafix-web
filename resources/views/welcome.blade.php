@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' https://js.paystack.co https://checkout.paystack.com https://checkout.gointerpay.net https://checkout.rch.io https://www.googletagmanager.com https://s3-eu-west-1.amazonaws.com https://applepay.cdn-apple.com; script-src-elem 'self' 'unsafe-inline' https://js.paystack.co https://checkout.paystack.com https://checkout.gointerpay.net https://checkout.rch.io https://www.googletagmanager.com https://s3-eu-west-1.amazonaws.com https://applepay.cdn-apple.com;">
+        <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.paystack.co https://checkout.paystack.com https://checkout.gointerpay.net https://checkout.rch.io https://www.googletagmanager.com https://s3-eu-west-1.amazonaws.com https://applepay.cdn-apple.com http://127.0.0.1:5173; script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://js.paystack.co https://checkout.paystack.com https://checkout.gointerpay.net https://checkout.rch.io https://www.googletagmanager.com https://s3-eu-west-1.amazonaws.com https://applepay.cdn-apple.com http://127.0.0.1:5173; connect-src 'self' ws://127.0.0.1:5173 http://127.0.0.1:5173 https://api.paystack.co https://stats.g.doubleclick.net; img-src 'self' data: https://paystack.com https://www.googletagmanager.com;">
 
         <title>Forafix - Home Services Marketplace</title>
 
