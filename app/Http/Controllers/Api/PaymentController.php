@@ -66,15 +66,21 @@ class PaymentController extends Controller
                 if ($booking) {
                     $booking->update(['status' => 'ACCEPTED']); // Or something like 'PAID'
                     
-                    // Send Email Notification to Client
+                    // Send Emails
                     try {
+                        // To Client: Receipt
                         \Illuminate\Support\Facades\Mail::to($booking->client->email)
                             ->send(new \App\Mail\BookingPaid($booking));
+                        
+                        // To Agent: New Job Notification
+                        \Illuminate\Support\Facades\Mail::to($booking->agent->email)
+                            ->send(new \App\Mail\NewBookingForAgent($booking));
+
                     } catch (\Exception $e) {
-                        Log::error('Failed to send booking paid email: ' . $e->getMessage());
+                        Log::error('Failed to send booking notifications: ' . $e->getMessage());
                     }
 
-                    // Dispatch notification for real-time UI updates
+                    // Dispatch real-time Pusher events for both Client and Agent
                     event(new \App\Events\BookingStatusChanged($booking->load(['client', 'agent', 'service'])));
                 }
             }
