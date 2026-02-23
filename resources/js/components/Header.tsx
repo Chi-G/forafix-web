@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import { useHeaderStore } from '../store/useHeaderStore';
+import { useNotificationStore } from '../store/useNotificationStore';
 import { cn } from '../lib/utils';
 
 const Header = () => {
@@ -31,11 +32,20 @@ const Header = () => {
     const [profileOpen, setProfileOpen] = useState(false);
     const profileRef = useRef<HTMLDivElement>(null);
 
+    // Notification dropdown
+    const { notifications, markAllAsRead, clearNotifications, unreadCount } = useNotificationStore();
+    const [notifOpen, setNotifOpen] = useState(false);
+    const notifRef = useRef<HTMLDivElement>(null);
+    const count = unreadCount();
+
     // Close profile dropdown on outside click
     useEffect(() => {
         const handle = (e: MouseEvent) => {
             if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
                 setProfileOpen(false);
+            }
+            if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+                setNotifOpen(false);
             }
         };
         document.addEventListener('mousedown', handle);
@@ -112,10 +122,68 @@ const Header = () => {
                         {isAuthenticated ? (
                             <>
                                 {/* Bell */}
-                                <button className="hidden sm:flex text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors relative">
-                                    <Bell className="w-5 h-5" />
-                                    <div className="absolute top-0 right-0 w-2 h-2 bg-[#14a800] rounded-full border-2 border-white dark:border-neutral-900" />
-                                </button>
+                                <div className="hidden sm:block relative" ref={notifRef}>
+                                    <button 
+                                        onClick={() => {
+                                            setNotifOpen(o => !o);
+                                            if (!notifOpen) markAllAsRead();
+                                        }}
+                                        className="flex text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors relative p-1"
+                                    >
+                                        <Bell className="w-5 h-5" />
+                                        {count > 0 && (
+                                            <div className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-black flex items-center justify-center rounded-full border-2 border-white dark:border-neutral-900 px-1 animation-pulse">
+                                                {count > 9 ? '9+' : count}
+                                            </div>
+                                        )}
+                                    </button>
+
+                                    {notifOpen && (
+                                        <div className="absolute right-0 mt-3 w-80 bg-white dark:bg-neutral-800 rounded-2xl shadow-2xl border border-neutral-100 dark:border-neutral-700 overflow-hidden z-[60] animate-in fade-in slide-in-from-top-1">
+                                            <div className="px-5 py-4 border-b border-neutral-50 dark:border-neutral-700 flex items-center justify-between bg-neutral-50/50 dark:bg-neutral-900/50">
+                                                <h3 className="font-black text-sm text-neutral-900 dark:text-neutral-100 uppercase tracking-widest">Notifications</h3>
+                                                <button onClick={clearNotifications} className="text-[10px] font-black text-neutral-400 hover:text-red-500 uppercase tracking-widest transition-colors">Clear all</button>
+                                            </div>
+                                            <div className="max-h-[400px] overflow-y-auto">
+                                                {notifications.length === 0 ? (
+                                                    <div className="px-5 py-10 text-center">
+                                                        <div className="w-12 h-12 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mx-auto mb-3">
+                                                            <Bell className="w-5 h-5 text-neutral-400" />
+                                                        </div>
+                                                        <p className="text-sm font-bold text-neutral-500 dark:text-neutral-400">All caught up!</p>
+                                                        <p className="text-[10px] text-neutral-400 mt-1 uppercase tracking-widest font-black">No new notifications</p>
+                                                    </div>
+                                                ) : (
+                                                    notifications.map((n) => (
+                                                        <div key={n.id} className={cn(
+                                                            "px-5 py-4 border-b border-neutral-50 dark:border-neutral-700 transition-colors hover:bg-neutral-50/50 dark:hover:bg-neutral-900/50",
+                                                            !n.read && "bg-brand-50/30 dark:bg-[#14a800]/5"
+                                                        )}>
+                                                            <div className="flex gap-3">
+                                                                <div className={cn(
+                                                                    "w-2 h-2 rounded-full mt-1.5 shrink-0",
+                                                                    !n.read ? "bg-[#14a800]" : "bg-neutral-200 dark:bg-neutral-700"
+                                                                )} />
+                                                                <div>
+                                                                    <p className="text-sm font-bold text-neutral-900 dark:text-neutral-100 leading-snug">{n.title}</p>
+                                                                    <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 line-clamp-2">{n.message}</p>
+                                                                    <p className="text-[9px] font-black text-neutral-300 dark:text-neutral-500 uppercase tracking-widest mt-2">
+                                                                        {new Date(n.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))
+                                                )}
+                                            </div>
+                                            {notifications.length > 0 && (
+                                                <Link to="/cl/notifications" className="block py-3 text-center text-xs font-black text-[#14a800] uppercase tracking-widest border-t border-neutral-50 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors">
+                                                    View All Activity
+                                                </Link>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
 
                                 {/* Avatar + dropdown — desktop only, click-based */}
                                 <div className="hidden lg:block relative" ref={profileRef}>
@@ -223,6 +291,25 @@ const Header = () => {
                                 {link.label}
                             </Link>
                         ))}
+                        <Link
+                            to="/cl/notifications"
+                            className={cn(
+                                'flex items-center justify-between px-3 py-3.5 rounded-xl font-bold text-sm transition-all mb-1',
+                                location.pathname === '/cl/notifications'
+                                    ? 'bg-[#14a800]/10 text-[#14a800]'
+                                    : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800'
+                            )}
+                        >
+                            <div className="flex items-center gap-3">
+                                <Bell className="w-4 h-4 shrink-0" />
+                                Notifications
+                            </div>
+                            {count > 0 && (
+                                <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-black min-w-[18px] text-center">
+                                    {count}
+                                </span>
+                            )}
+                        </Link>
                     </div>
 
                     {/* Profile section */}
