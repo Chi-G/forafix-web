@@ -7,8 +7,8 @@ import { Loader2, AlertCircle } from 'lucide-react';
 const LoginPage = () => {
     const setAuth = useAuthStore((state) => state.setAuth);
     const navigate = useNavigate();
-    const [email, setEmail] = useState('client@forafix.com');
-    const [password, setPassword] = useState('password');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
