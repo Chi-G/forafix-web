@@ -6,6 +6,7 @@
         <!-- <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.paystack.co https://checkout.paystack.com https://checkout.gointerpay.net https://checkout.rch.io https://www.googletagmanager.com https://s3-eu-west-1.amazonaws.com https://applepay.cdn-apple.com http://127.0.0.1:5173; script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://js.paystack.co https://checkout.paystack.com https://checkout.gointerpay.net https://checkout.rch.io https://www.googletagmanager.com https://s3-eu-west-1.amazonaws.com https://applepay.cdn-apple.com http://127.0.0.1:5173; connect-src 'self' ws://127.0.0.1:5173 http://127.0.0.1:5173 ws://localhost:8080 wss://localhost:8080 https://api.paystack.co https://stats.g.doubleclick.net; img-src 'self' data: https://paystack.com https://www.googletagmanager.com;"> -->
 
         <title>Forafix - Home Services Marketplace</title>
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
