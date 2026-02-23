@@ -9,7 +9,7 @@ interface AuthState {
     setAuth: (user: User, token: string) => void;
     clearAuth: () => void;
     fetchUser: () => Promise<void>;
-    updateProfile: (data: { name: string; email: string }) => Promise<void>;
+    updateProfile: (data: { name: string; email: string; phone?: string }) => Promise<void>;
     updateAgentProfile: (data: { bio?: string; skills?: string[]; location_base?: string; is_available?: boolean }) => Promise<void>;
     uploadAvatar: (file: File) => Promise<void>;
 }

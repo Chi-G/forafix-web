@@ -43,6 +43,7 @@ const ClientProfileViewPage = () => {
     const [skillsString, setSkillsString] = useState(
         currentUser?.agent_profile?.skills?.join(', ') || ''
     );
+    const [phone, setPhone] = useState(currentUser?.phone || '');
     const [avatarPreview, setAvatarPreview] = useState(currentUser?.avatar_url || '');
 
     const { data: profile, isLoading, isError, refetch } = useQuery({
@@ -116,7 +117,7 @@ const ClientProfileViewPage = () => {
         setIsSaving(true);
         setMessage(null);
         try {
-            await updateProfile({ name, email });
+            await updateProfile({ name, email, phone });
             if (isAgent) {
                 const skills = skillsString.split(',').map(s => s.trim()).filter(Boolean);
                 await updateAgentProfile({ bio, location_base: location, skills });
@@ -215,6 +216,20 @@ const ClientProfileViewPage = () => {
                 <h3 className="font-black text-neutral-900 text-sm uppercase tracking-widest">Basic Information</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
+                        <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">User ID</label>
+                        <input
+                            type="text" value={currentUser?.uuid || ''} disabled
+                            className="w-full px-4 py-3 border-2 border-neutral-100 rounded-2xl bg-neutral-50 text-neutral-400 font-bold text-sm outline-none"
+                        />
+                    </div>
+                    <div className="space-y-1.5">
+                        <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Role</label>
+                        <input
+                            type="text" value={currentUser?.role || ''} disabled
+                            className="w-full px-4 py-3 border-2 border-neutral-100 rounded-2xl bg-neutral-50 text-neutral-400 font-bold text-sm outline-none"
+                        />
+                    </div>
+                    <div className="space-y-1.5">
                         <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Full Name</label>
                         <div className="relative">
                             <UserIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
@@ -230,6 +245,17 @@ const ClientProfileViewPage = () => {
                             <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
                             <input
                                 type="email" value={email} onChange={e => setEmail(e.target.value)} required
+                                className="w-full pl-10 pr-4 py-3 border-2 border-neutral-100 rounded-2xl focus:border-[#14a800]/50 outline-none font-bold text-sm transition-all"
+                            />
+                        </div>
+                    </div>
+                    <div className="space-y-1.5 md:col-span-2">
+                        <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Phone Number</label>
+                        <div className="relative">
+                            <Zap className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                            <input
+                                type="tel" value={phone} onChange={e => setPhone(e.target.value)}
+                                placeholder="+234 000 000 0000"
                                 className="w-full pl-10 pr-4 py-3 border-2 border-neutral-100 rounded-2xl focus:border-[#14a800]/50 outline-none font-bold text-sm transition-all"
                             />
                         </div>
@@ -323,7 +349,7 @@ const ClientProfileViewPage = () => {
                     className="flex items-center gap-2 px-8 py-3 bg-[#14a800] text-white rounded-2xl font-black text-sm hover:bg-[#118b00] transition-all shadow-lg shadow-green-200 active:scale-95 disabled:opacity-50"
                 >
                     {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                    {isSaving ? 'Saving...' : 'Save Changes'}
+                    {isSaving ? 'Saving...' : 'Save Profile Changes'}
                 </button>
             </div>
         </form>
@@ -331,8 +357,8 @@ const ClientProfileViewPage = () => {
 
     // ─── MAIN RENDER ──────────────────────────────────────────────────────
     return (
-        <div className="min-h-screen bg-neutral-50 pb-20">
-            <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 pb-20">
+            <main className="max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-12 py-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
                 {/* Profile Header Card */}
                 <section className="bg-white rounded-3xl border border-neutral-200 shadow-sm overflow-hidden mb-6">
