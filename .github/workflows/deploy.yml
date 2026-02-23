@@ -27,10 +27,15 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Install Node dependencies and build
+      - name: Install NPM Dependencies & Build
         run: |
           npm install --legacy-peer-deps
           npm run build
+        env:
+          VITE_REVERB_APP_KEY: ${{ secrets.VITE_REVERB_APP_KEY }}
+          VITE_REVERB_HOST: ${{ secrets.VITE_REVERB_HOST }}
+          VITE_REVERB_PORT: ${{ secrets.VITE_REVERB_PORT }}
+          VITE_REVERB_SCHEME: ${{ secrets.VITE_REVERB_SCHEME }}
 
       - name: Deploy to Server via SCP
         uses: appleboy/scp-action@v0.1.7
