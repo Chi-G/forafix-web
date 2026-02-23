@@ -41,7 +41,7 @@ jobs:
           port: ${{ secrets.WHOGOHOST_SSH_PORT }}
           source: "."
           target: "/home/forahiao/public_html/forafix/"
-          rm: false   # Set to true if you want to delete existing files first
+          rm: false 
           strip_components: 0
           ignore_list: ".git*,node_modules,storage/*.key,storage/logs/*.log,.env"
 
