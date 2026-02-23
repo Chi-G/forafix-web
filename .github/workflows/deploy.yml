@@ -32,16 +32,18 @@ jobs:
           npm install --legacy-peer-deps
           npm run build
 
-      - name: Deploy to Server via Rsync
-        uses: AEnterprise/rsync-deploy@v1.0.2
-        env:
-          DEPLOY_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          ARGS: "-avz --delete --exclude='.git*' --exclude='node_modules' --exclude='storage/*.key' --exclude='storage/logs/*.log' --exclude='.env'"
-          SERVER_PORT: ${{ secrets.WHOGOHOST_SSH_PORT }}
-          SERVER_IP: ${{ secrets.WHOGOHOST_SSH_HOST }}
-          USERNAME: ${{ secrets.WHOGOHOST_SSH_USER }}
-          SERVER_DESTINATION: "/home/forahiao/public_html/forafix/"
-          FOLDER: "./"
+      - name: Deploy to Server via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.WHOGOHOST_SSH_HOST }}
+          username: ${{ secrets.WHOGOHOST_SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.WHOGOHOST_SSH_PORT }}
+          source: "."
+          target: "/home/forahiao/public_html/forafix/"
+          rm: false   # Set to true if you want to delete existing files first
+          strip_components: 0
+          ignore_list: ".git*,node_modules,storage/*.key,storage/logs/*.log,.env"
 
       - name: Execute Post-Deployment Commands
         uses: appleboy/ssh-action@master
