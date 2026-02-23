@@ -91,8 +91,10 @@ const Header = () => {
 
                     {/* Left: Logo + Desktop Nav */}
                     <div className="flex items-center gap-10">
-                        <Link to="/" className="text-2xl font-black text-brand-600 tracking-tighter hover:opacity-80 transition-opacity">
-                            Forafix
+                        <Link to="/" className="hover:opacity-80 transition-opacity flex items-center">
+                            <div className="bg-neutral-800 dark:bg-transparent p-2 sm:p-2.5 rounded-2xl shadow-sm border border-neutral-700 dark:border-transparent transition-colors">
+                                <img src="/logo.png" alt="Forafix Logo" className="h-10 sm:h-12 w-auto object-contain" />
+                            </div>
                         </Link>
 
                         {/* Desktop nav */}
@@ -263,7 +265,9 @@ const Header = () => {
             )}>
                 {/* Drawer header */}
                 <div className="flex items-center justify-between px-6 h-16 sm:h-20 border-b border-neutral-100 dark:border-neutral-800 shrink-0">
-                    <span className="text-xl font-black text-brand-600 tracking-tighter">Forafix</span>
+                    <div className="bg-neutral-800 dark:bg-transparent p-1.5 rounded-xl transition-colors">
+                        <img src="/logo.png" alt="Forafix Logo" className="h-8 w-auto object-contain" />
+                    </div>
                     <button
                         onClick={() => setMobileOpen(false)}
                         className="w-9 h-9 rounded-xl border border-neutral-200 dark:border-neutral-700 flex items-center justify-center text-neutral-500 dark:text-neutral-400"

@@ -7,7 +7,9 @@ const Footer = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-20">
                     <div className="col-span-2 lg:col-span-1">
-                        <Link to="/" className="text-2xl font-bold text-white tracking-tighter mb-6 block">Forafix</Link>
+                        <Link to="/" className="mb-6 block hover:opacity-80 transition-opacity">
+                            <img src="/logo-no-char.png" alt="Forafix Icon" className="h-12 w-auto" />
+                        </Link>
                         <p className="text-sm leading-relaxed mb-6 font-medium">Abuja's #1 marketplace for local household services and skilled pros.</p>
                         <div className="flex gap-4">
                             <div className="w-8 h-8 rounded-full bg-white/10 hover:bg-[#14a800] transition-colors cursor-pointer" />

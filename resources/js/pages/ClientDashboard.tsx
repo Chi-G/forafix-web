@@ -371,7 +371,7 @@ const ClientDashboard = () => {
     return (
         <>
         {ratingTarget && <RatingModal agent={ratingTarget} onClose={() => setRatingTarget(null)} />}
-        <div className="max-w-[1400px] mx-auto pb-20 dark:bg-neutral-950">
+        <div className="max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-12 pb-20 dark:bg-neutral-950">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 {/* Main Feed Column */}
                 <div className="lg:col-span-8 space-y-8">

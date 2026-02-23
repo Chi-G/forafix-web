@@ -5,6 +5,7 @@ export interface User {
     uuid: string;
     name: string;
     email: string;
+    phone?: string;
     role: UserRole;
     is_vetted?: boolean;
     loyalty_points?: number;

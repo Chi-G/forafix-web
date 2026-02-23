@@ -53,21 +53,8 @@ const Btn = ({ children, variant = 'primary', className = '', ...props }: { chil
 
 // ── 1. Account Info ──────────────────────────────────────────────────────────
 const AccountInfo = ({ user }: { user: any }) => (
-    <Section title="Account Info" subtitle="Manage your personal information">
+    <Section title="Account Info">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <Field label="User ID"><Input value={user?.uuid || '—'} disabled /></Field>
-            <Field label="Role"><Input value={user?.role || '—'} disabled /></Field>
-            <Field label="Full Name"><Input defaultValue={user?.name || ''} /></Field>
-            <Field label="Email Address"><Input type="email" defaultValue={user?.email || ''} /></Field>
-            <Field label="Phone Number"><Input type="tel" placeholder="+234 000 000 0000" /></Field>
-            <Field label="Time Zone">
-                <Select defaultValue="Africa/Lagos">
-                    <option value="Africa/Lagos">Africa/Lagos (WAT, UTC+1)</option>
-                    <option value="UTC">UTC</option>
-                    <option value="America/New_York">America/New_York (EST)</option>
-                    <option value="Europe/London">Europe/London (GMT)</option>
-                </Select>
-            </Field>
             <div className="md:col-span-2">
                 <Field label="Address"><Input placeholder="Street address" /></Field>
             </div>
@@ -660,7 +647,7 @@ const ClientSettingsPage = () => {
     };
 
     return (
-        <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 pt-20">
+        <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
             {/* Mobile tab bar */}
             <div className="md:hidden overflow-x-auto flex border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 sticky top-16 z-10">
                 {SECTIONS.map(s => (
@@ -671,7 +658,7 @@ const ClientSettingsPage = () => {
                 ))}
             </div>
 
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-12 py-8">
                 <div className="flex gap-8">
                     {/* Sidebar — desktop */}
                     <aside className="hidden md:flex flex-col w-60 shrink-0">
