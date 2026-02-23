@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 const LoginPage = () => {
     const setAuth = useAuthStore((state) => state.setAuth);
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -18,6 +19,9 @@ const LoginPage = () => {
         setError('');
         
         try {
+            // loading state of 4 seconds
+            await new Promise(resolve => setTimeout(resolve, 4000));
+            
             const response = await axios.post('/login', { email, password });
             const { user, access_token } = response.data;
             setAuth(user, access_token);
@@ -69,13 +73,27 @@ const LoginPage = () => {
                                 <label className="block text-sm font-bold text-neutral-700 font-inter">Password</label>
                                 <a href="#" className="text-xs font-bold text-brand-600 hover:text-brand-700 font-inter">Forgot password?</a>
                             </div>
-                            <input
-                                type="password"
-                                required
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="block w-full border border-neutral-200 rounded-xl shadow-sm py-3 px-4 focus:ring-brand-500 focus:border-brand-500 font-inter transition-all outline-none"
-                            />
+                            <div className="relative">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    required
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="••••••••"
+                                    className="block w-full border border-neutral-200 rounded-xl shadow-sm py-3 px-4 pr-12 focus:ring-brand-500 focus:border-brand-500 font-inter transition-all outline-none"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 transition-colors p-1"
+                                >
+                                    {showPassword ? (
+                                        <EyeOff className="w-5 h-5" />
+                                    ) : (
+                                        <Eye className="w-5 h-5" />
+                                    )}
+                                </button>
+                            </div>
                         </div>
 
                         <div className="pt-2">
