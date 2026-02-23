@@ -42,52 +42,32 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // 3. Create 40 Agents (20 per category)
-        $abujaDistricts = ['Maitama', 'Asokoro', 'Wuse 2', 'Garki 1', 'Garki 2', 'Jabi', 'Utako', 'Guzape', 'Lugbe', 'Kubwa', 'Gwarinpa', 'Apo'];
-        $cleaningSkills = ['Deep Cleaning', 'Organization', 'Laundry', 'Ironing', 'Gardening', 'Window Cleaning'];
-        $repairSkills = ['AC Repair', 'Plumbing', 'Electrical', 'Wiring', 'Generator Servicing', 'Painting'];
+        // 3. Create a Test Agent
+        $agentUser = User::updateOrCreate(
+            ['email' => 'agent@forafix.com'],
+            [
+                'name' => 'Test Agent',
+                'password' => bcrypt('password'),
+                'role' => 'AGENT',
+                'is_vetted' => true,
+                'balance' => 10000,
+                'uuid' => (string) Str::uuid(),
+            ]
+        );
 
-        $categories = [
-            'CLEANING' => 20,
-            'REPAIR' => 20
-        ];
+        AgentProfile::updateOrCreate(
+            ['user_id' => $agentUser->id],
+            [
+                'bio' => 'Top-rated service provider in Abuja.',
+                'skills' => 'Home Cleaning, AC Maintenance',
+                'location_base' => 'Maitama, Abuja',
+                'is_available' => true,
+            ]
+        );
 
-        foreach ($categories as $categoryType => $count) {
-            $relevantServices = array_filter($serviceModels, fn($s) => $s->category === $categoryType);
-            
-            for ($i = 1; $i <= $count; $i++) {
-                $name = fake()->name();
-                $email = strtolower(str_replace(' ', '.', $name)) . $i . "@forafix.com";
-                
-                $agent = User::create([
-                    'name' => $name,
-                    'email' => $email,
-                    'password' => bcrypt('password'),
-                    'role' => 'AGENT',
-                    'is_vetted' => fake()->boolean(80), // 80% chance being vetted
-                    'balance' => fake()->randomFloat(2, 5000, 100000),
-                    'uuid' => (string) Str::uuid(),
-                ]);
-
-                $district = $abujaDistricts[array_rand($abujaDistricts)];
-                $skillsArray = $categoryType === 'CLEANING' 
-                    ? fake()->randomElements($cleaningSkills, 3) 
-                    : fake()->randomElements($repairSkills, 3);
-
-                AgentProfile::create([
-                    'user_id' => $agent->id,
-                    'bio' => fake()->paragraph(),
-                    'skills' => implode(', ', $skillsArray),
-                    'location_base' => "$district, Abuja",
-                    'is_available' => true,
-                ]);
-
-                // Attach to 1-2 relevant services
-                $agentServices = fake()->randomElements($relevantServices, fake()->numberBetween(1, 2));
-                foreach ($agentServices as $svc) {
-                    $agent->services()->attach($svc->id);
-                }
-            }
+        // Attach to first service
+        if (!empty($serviceModels)) {
+            $agentUser->services()->sync([$serviceModels[0]->id]);
         }
     }
 }
