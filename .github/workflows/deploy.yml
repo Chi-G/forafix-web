@@ -28,7 +28,7 @@ jobs:
 
       - name: Install Node dependencies and build
         run: |
-          npm install
+          npm install --legacy-peer-deps
           npm run build
 
       - name: Deploy to Server via Rsync
