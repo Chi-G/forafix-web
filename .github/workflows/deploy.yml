@@ -40,6 +40,7 @@ jobs:
           SERVER_IP: ${{ secrets.WHOGOHOST_SSH_HOST }}
           USERNAME: ${{ secrets.WHOGOHOST_SSH_USER }}
           SERVER_DESTINATION: "/home/forahiao/public_html/forafix/"
+          FOLDER: "./"
 
       - name: Execute Post-Deployment Commands
         uses: appleboy/ssh-action@master
