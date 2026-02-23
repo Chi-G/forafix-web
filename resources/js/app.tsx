@@ -97,6 +97,10 @@ const App = () => {
 
 const container = document.getElementById('app');
 if (container) {
+    console.log("React App: Mounting started...");
     const root = createRoot(container);
     root.render(<App />);
+    console.log("React App: Mount call finished.");
+} else {
+    console.error("React App: Could not find #app container!");
 }
