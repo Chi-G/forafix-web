@@ -21,6 +21,8 @@ import MessagesPage from './pages/MessagesPage';
 import ClientProfileViewPage from './pages/ClientProfileViewPage';
 import ClientSettingsPage from './pages/ClientSettingsPage';
 import PaymentSuccessPage from './pages/PaymentSuccessPage';
+import TermsOfServicePage from './pages/TermsOfServicePage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 
 // Components
 import ProtectedRoute from './components/ProtectedRoute';
@@ -69,6 +71,8 @@ const App = () => {
 
                                 {/* Public but accessible while logged in */}
                                 <Route path="/services/:slug" element={<ServiceDetailPage />} />
+                                <Route path="/terms" element={<TermsOfServicePage />} />
+                                <Route path="/privacy" element={<PrivacyPolicyPage />} />
 
                                 {/* Protected Routes */}
                                 <Route element={<ProtectedRoute />}>
