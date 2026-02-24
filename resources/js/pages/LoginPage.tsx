@@ -9,6 +9,7 @@ const LoginPage = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
@@ -19,6 +20,9 @@ const LoginPage = () => {
         setError('');
         
         try {
+            // loading state of 4 seconds
+            await new Promise(resolve => setTimeout(resolve, 4000));
+            
             const response = await axios.post('/login', { email, password });
             const { user, access_token } = response.data;
             setAuth(user, access_token);
@@ -76,14 +80,19 @@ const LoginPage = () => {
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="••••••••"
                                     className="block w-full border border-neutral-200 rounded-xl shadow-sm py-3 px-4 pr-12 focus:ring-brand-500 focus:border-brand-500 font-inter transition-all outline-none"
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-neutral-400 hover:text-neutral-600 transition-colors"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 transition-colors p-1"
                                 >
-                                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                    {showPassword ? (
+                                        <EyeOff className="w-5 h-5" />
+                                    ) : (
+                                        <Eye className="w-5 h-5" />
+                                    )}
                                 </button>
                             </div>
                         </div>

@@ -15,92 +15,121 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Create Services
-        $services = [
-            ['name' => 'Home Cleaning', 'slug' => 'home-cleaning', 'category' => 'CLEANING', 'base_price' => 8000, 'icon' => 'Sparkles', 'description' => 'Professional home cleaning including dusting, vacuuming, and mopping.'],
-            ['name' => 'AC Maintenance', 'slug' => 'ac-maintenance', 'category' => 'REPAIR', 'base_price' => 12000, 'icon' => 'Wind', 'description' => 'Full service for split and window AC units.'],
-            ['name' => 'Plumbing Works', 'slug' => 'plumbing-works', 'category' => 'REPAIR', 'base_price' => 5000, 'icon' => 'Droplets', 'description' => 'Fixing leaks, toilets, and water heaters.'],
-            ['name' => 'Laundry & Ironing', 'slug' => 'laundry-ironing', 'category' => 'CLEANING', 'base_price' => 4500, 'icon' => 'Shirt', 'description' => 'Wash and press services with pickup and delivery.'],
-            ['name' => 'Generator Repair', 'slug' => 'generator-repair', 'category' => 'REPAIR', 'base_price' => 15000, 'icon' => 'Zap', 'description' => 'Servicing for Mikano, Perkins, and smaller gasoline generators.'],
-            ['name' => 'Gardening', 'slug' => 'gardening', 'category' => 'CLEANING', 'base_price' => 7000, 'icon' => 'Leaf', 'description' => 'Hedge trimming, lawn mowing, and general garden maintenance.'],
+        // 1. Create Services first
+        $cleaningServices = [
+            ['name' => 'Deep Home Cleaning', 'category' => 'Cleaning', 'price' => 25000, 'icon' => 'Sparkles'],
+            ['name' => 'Office Sanitization', 'category' => 'Cleaning', 'price' => 45000, 'icon' => 'Building2'],
+            ['name' => 'Post-Construction Cleaning', 'category' => 'Cleaning', 'price' => 75000, 'icon' => 'HardHat'],
+            ['name' => 'Carpet & Upholstery', 'category' => 'Cleaning', 'price' => 15000, 'icon' => 'Layers'],
+            ['name' => 'Window Cleaning', 'category' => 'Cleaning', 'price' => 10000, 'icon' => 'Layout'],
         ];
 
-        $serviceModels = [];
-        foreach ($services as $svc) {
-            $serviceModels[] = Service::updateOrCreate(['slug' => $svc['slug']], $svc);
+        $repairServices = [
+            ['name' => 'AC Maintenance', 'category' => 'Repairs', 'price' => 12000, 'icon' => 'Wind'],
+            ['name' => 'Electrical Wiring', 'category' => 'Repairs', 'price' => 8000, 'icon' => 'Zap'],
+            ['name' => 'Plumbing & Leaks', 'category' => 'Repairs', 'price' => 5000, 'icon' => 'Droplets'],
+            ['name' => 'Furniture Repair', 'category' => 'Repairs', 'price' => 15000, 'icon' => 'Hammer'],
+            ['name' => 'Generator Servicing', 'category' => 'Repairs', 'price' => 20000, 'icon' => 'Settings'],
+        ];
+
+        $allServices = [];
+        foreach (array_merge($cleaningServices, $repairServices) as $s) {
+            $allServices[] = Service::updateOrCreate(
+                ['name' => $s['name']],
+                [
+                    'category' => strtoupper($s['category']),
+                    'description' => "Professional {$s['name']} services for your home and office.",
+                    'base_price' => $s['price'],
+                    'icon' => $s['icon'],
+                ]
+            );
         }
 
-        // 2. Create Clients
-        $clients = [
-            ['name' => 'Chijioke Newman', 'email' => 'client@forafix.com'],
-            ['name' => 'Sarah Johnson', 'email' => 'sarah@example.com'],
-            ['name' => 'Ibrahim Musa', 'email' => 'musa@example.com'],
-        ];
+        // 2. Create Admin
+        User::updateOrCreate(
+            ['email' => 'admin@forafix.com'],
+            [
+                'name' => 'Admin User',
+                'password' => bcrypt('password'),
+                'role' => 'ADMIN',
+                'balance' => 0.00,
+                'uuid' => (string) Str::uuid(),
+            ]
+        );
 
-        foreach ($clients as $c) {
+        // 3. Create Clients (10)
+        $clientNames = ['Chijioke', 'Sarah', 'Ibrahim', 'Emeka', 'Amaka', 'Tunde', 'Ngozi', 'Musa', 'Fatima', 'Bisi'];
+        $lastNames = ['Newman', 'Johnson', 'Musa', 'Okonkwo', 'Bello', 'Adeyemi', 'Gidado', 'Umar', 'Ahmed', 'Balogun'];
+
+        for ($i = 0; $i < 10; $i++) {
             User::updateOrCreate(
-                ['email' => $c['email']],
+                ['email' => "client{$i}@forafix.com"],
                 [
-                    'name' => $c['name'],
+                    'name' => "{$clientNames[$i]} {$lastNames[$i]}",
                     'password' => bcrypt('password'),
                     'role' => 'CLIENT',
-                    'loyalty_points' => 150,
+                    'loyalty_points' => rand(50, 500),
+                    'balance' => rand(0, 10000),
                     'uuid' => (string) Str::uuid(),
                 ]
             );
         }
 
-        // 3. Create Robust Agent Data
-        $agentNames = [
-            'John Doe', 'Jane Smith', 'David Okoro', 'Blessing Udoh', 
-            'Samuel Adeleke', 'Grace Onu', 'Michael Obi', 'Fatima Bello',
-            'Emma Wilson', 'Chris Evans', 'Anita Joseph', 'Peter Parker',
-            'Bisi Akande', 'Uche Jombo', 'Tunde Ednut', 'Zainab Shuaibu',
-            'Oluwatobi Bakre', 'Cynthia Morgan', 'Dapo Oyebanjo', 'Tiwa Savage',
-            'Ayodeji Balogun', 'Damini Ogulu', 'Olamide Adedeji', 'Phyno Nelson'
+        // 4. Create Agents (70)
+        $districts = ['Maitama', 'Wuse 2', 'Asokoro', 'Garki', 'Guzape', 'Jabi', 'Utako', 'Lugbe', 'Kubwa', 'Gwarinpa'];
+        $firstNames = ['Kene', 'Zainab', 'Chidi', 'Aminu', 'Joy', 'Samuel', 'Blessing', 'David', 'Grace', 'Victor', 'Esther', 'Peter', 'Ruth', 'John', 'Mercy', 'Ade', 'Kemi', 'Yusuf', 'Halima', 'Tochi'];
+        
+        $agentBios = [
+            "Certified professional with over 5 years of experience in high-end service delivery.",
+            "Dedicated specialist focused on detail and customer satisfaction in various Abuja districts.",
+            "Hardworking and reliable expert ready to tackle any cleaning or repair challenge.",
+            "Punctual and efficient professional catering to residential and corporate clients.",
+            "Committed to excellence with a track record of top-rated service delivery in Nigeria.",
         ];
 
-        $abujaDistricts = ['Maitama', 'Asokoro', 'Wuse 2', 'Garki 1', 'Garki 2', 'Jabi', 'Utako', 'Guzape', 'Lugbe', 'Kubwa', 'Gwarinpa', 'Apo'];
-        $cleaningSkills = ['Deep Cleaning', 'Organization', 'Laundry', 'Ironing', 'Gardening', 'Window Cleaning'];
-        $repairSkills = ['AC Repair', 'Plumbing', 'Electrical', 'Wiring', 'Generator Servicing', 'Painting'];
+        $agentCount = 1;
+        foreach ($districts as $district) {
+            for ($j = 0; $j < 7; $j++) { // 10 districts * 7 agents = 70 agents
+                $firstName = $firstNames[rand(0, count($firstNames) - 1)];
+                $lastName = $lastNames[rand(0, count($lastNames) - 1)];
+                $name = "{$firstName} {$lastName}";
+                $email = strtolower($firstName . "." . $lastName . "." . $agentCount . "@forafix.com");
 
-        foreach ($agentNames as $index => $name) {
-            $isCleaning = $index < 12; // First 12 are cleaning, next 12 are repair
-            $categoryType = $isCleaning ? 'CLEANING' : 'REPAIR';
-            $email = strtolower(str_replace(' ', '.', $name)) . ($index + 1) . "@forafix.com";
-            
-            $agent = User::updateOrCreate(
-                ['email' => $email],
-                [
-                    'name' => $name,
-                    'password' => bcrypt('password'),
-                    'role' => 'AGENT',
-                    'is_vetted' => ($index % 3 !== 0), // 66% chance vetted
-                    'balance' => 5000 + ($index * 1000),
-                    'uuid' => (string) Str::uuid(),
-                ]
-            );
+                $agent = User::updateOrCreate(
+                    ['email' => $email],
+                    [
+                        'name' => $name,
+                        'password' => bcrypt('password'),
+                        'role' => 'AGENT',
+                        'is_vetted' => (bool)rand(0, 1),
+                        'balance' => rand(1000, 50000),
+                        'uuid' => (string) Str::uuid(),
+                    ]
+                );
 
-            $district = $abujaDistricts[$index % count($abujaDistricts)];
-            $skills = $isCleaning 
-                ? implode(', ', [$cleaningSkills[0], $cleaningSkills[1], $cleaningSkills[($index % 4) + 2]])
-                : implode(', ', [$repairSkills[0], $repairSkills[1], $repairSkills[($index % 4) + 2]]);
+                // Create Profile
+                AgentProfile::updateOrCreate(
+                    ['user_id' => $agent->id],
+                    [
+                        'bio' => $agentBios[rand(0, count($agentBios) - 1)],
+                        'location_base' => $district,
+                        'skills' => ['Punctuality', 'Efficiency', 'Quality Work'],
+                        'is_available' => true,
+                        'avatar_url' => "https://ui-avatars.com/api/?name=" . urlencode($name) . "&background=random",
+                    ]
+                );
 
-            AgentProfile::updateOrCreate(
-                ['user_id' => $agent->id],
-                [
-                    'bio' => "Professional $categoryType specialist with over " . (($index % 5) + 2) . " years of experience serving $district and surrounding areas.",
-                    'skills' => $skills,
-                    'location_base' => "$district, Abuja",
-                    'is_available' => true,
-                ]
-            );
+                // Assign 1-3 random services
+                $randomServiceKeys = array_rand($allServices, rand(1, 3));
+                if (is_array($randomServiceKeys)) {
+                    foreach ($randomServiceKeys as $idx) {
+                        $agent->services()->syncWithoutDetaching([$allServices[$idx]->id]);
+                    }
+                } else {
+                    $agent->services()->syncWithoutDetaching([$allServices[$randomServiceKeys]->id]);
+                }
 
-            // Attach to relevant services
-            $relevantServices = array_filter($serviceModels, fn($s) => $s->category === $categoryType);
-            if (!empty($relevantServices)) {
-                $svcIds = array_map(fn($s) => $s->id, array_values($relevantServices));
-                $agent->services()->sync([$svcIds[$index % count($svcIds)]]);
+                $agentCount++;
             }
         }
     }
