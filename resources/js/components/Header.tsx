@@ -33,10 +33,23 @@ const Header = () => {
     const profileRef = useRef<HTMLDivElement>(null);
 
     // Notification dropdown
-    const { notifications, markAllAsRead, clearNotifications, unreadCount } = useNotificationStore();
+    const { 
+        notifications, 
+        fetchNotifications, 
+        markAllAsRead, 
+        clearNotifications, 
+        unreadCount 
+    } = useNotificationStore();
     const [notifOpen, setNotifOpen] = useState(false);
     const notifRef = useRef<HTMLDivElement>(null);
     const count = unreadCount();
+
+    // Fetch notifications on mount
+    useEffect(() => {
+        if (isAuthenticated) {
+            fetchNotifications();
+        }
+    }, [isAuthenticated, fetchNotifications]);
 
     // Close profile dropdown on outside click
     useEffect(() => {
@@ -128,7 +141,7 @@ const Header = () => {
                                     <button 
                                         onClick={() => {
                                             setNotifOpen(o => !o);
-                                            if (!notifOpen) markAllAsRead();
+                                            // if (!notifOpen) markAllAsRead(); // We don't mark all read automatically on open anymore to avoid extra API calls, or we can keep it
                                         }}
                                         className="flex text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors relative p-1"
                                     >
@@ -157,20 +170,20 @@ const Header = () => {
                                                     </div>
                                                 ) : (
                                                     notifications.map((n) => (
-                                                        <div key={n.id} className={cn(
+                                                        <div key={n.uuid} className={cn(
                                                             "px-5 py-4 border-b border-neutral-50 dark:border-neutral-700 transition-colors hover:bg-neutral-50/50 dark:hover:bg-neutral-900/50",
-                                                            !n.read && "bg-brand-50/30 dark:bg-[#14a800]/5"
+                                                            !n.read_at && "bg-brand-50/30 dark:bg-[#14a800]/5"
                                                         )}>
                                                             <div className="flex gap-3">
                                                                 <div className={cn(
                                                                     "w-2 h-2 rounded-full mt-1.5 shrink-0",
-                                                                    !n.read ? "bg-[#14a800]" : "bg-neutral-200 dark:bg-neutral-700"
+                                                                    !n.read_at ? "bg-[#14a800]" : "bg-neutral-200 dark:bg-neutral-700"
                                                                 )} />
                                                                 <div>
                                                                     <p className="text-sm font-bold text-neutral-900 dark:text-neutral-100 leading-snug">{n.title}</p>
                                                                     <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 line-clamp-2">{n.message}</p>
                                                                     <p className="text-[9px] font-black text-neutral-300 dark:text-neutral-500 uppercase tracking-widest mt-2">
-                                                                        {new Date(n.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                        {new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -179,9 +192,17 @@ const Header = () => {
                                                 )}
                                             </div>
                                             {notifications.length > 0 && (
-                                                <Link to="/cl/notifications" className="block py-3 text-center text-xs font-black text-[#14a800] uppercase tracking-widest border-t border-neutral-50 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors">
-                                                    View All Activity
-                                                </Link>
+                                                <div className="flex border-t border-neutral-50 dark:border-neutral-700">
+                                                    <button 
+                                                        onClick={() => markAllAsRead()}
+                                                        className="flex-1 py-3 text-center text-[10px] font-black text-neutral-400 uppercase tracking-widest hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors border-r border-neutral-50 dark:border-neutral-700"
+                                                    >
+                                                        Mark All Read
+                                                    </button>
+                                                    <Link to="/cl/notifications" className="flex-1 py-3 text-center text-[10px] font-black text-[#14a800] uppercase tracking-widest hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors">
+                                                        View All activity
+                                                    </Link>
+                                                </div>
                                             )}
                                         </div>
                                     )}
