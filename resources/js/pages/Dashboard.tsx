@@ -36,10 +36,10 @@ const Dashboard = () => {
     React.useEffect(() => {
         // Inject search bar into header
         setExtraActions(
-            <div className="hidden md:flex items-center bg-neutral-100 dark:bg-neutral-800 rounded-full px-4 py-2 border border-transparent focus-within:bg-white dark:focus-within:bg-neutral-900 focus-within:border-neutral-200 dark:focus-within:border-neutral-700 transition-all">
+            <div className="hidden md:flex items-center bg-neutral-100 dark:bg-neutral-800/50 rounded-full px-4 py-2 border border-neutral-200/50 dark:border-neutral-700/50 focus-within:bg-white dark:focus-within:bg-neutral-900 focus-within:border-[#14a800]/50 transition-all shadow-sm">
                 <Search className="w-4 h-4 text-neutral-400 dark:text-neutral-500 mr-2" />
                 <input type="text" placeholder="Search" 
-                className="bg-transparent border-none focus:outline-none text-sm w-32 focus:w-48 transition-all text-neutral-800 dark:text-neutral-100 placeholder:text-neutral-400"                 
+                className="bg-transparent !bg-transparent border-none focus:outline-none text-sm w-32 focus:w-48 transition-all text-neutral-800 dark:text-neutral-100 placeholder:text-neutral-400"                 
                 />                
             </div>
         );

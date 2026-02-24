@@ -16,7 +16,9 @@ class AgentController extends Controller
 
         if ($request->has('category')) {
             $query->whereHas('services', function ($q) use ($request) {
-                $q->where('category', $request->category);
+                $q->where('category', 'like', '%' . $request->category . '%')
+                  ->orWhere('slug', 'like', '%' . strtolower($request->category) . '%')
+                  ->orWhere('name', 'like', '%' . $request->category . '%');
             });
         }
 
