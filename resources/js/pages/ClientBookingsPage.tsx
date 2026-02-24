@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { 
@@ -36,6 +36,11 @@ const formatTime = (dateString: string) => {
 
 const ClientBookingsPage = () => {
     const navigate = useNavigate();
+    const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('ALL');
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 5;
+
     const { data: bookings, isLoading, refetch } = useQuery({
         queryKey: ['client-bookings'],
         queryFn: async () => {
@@ -43,6 +48,31 @@ const ClientBookingsPage = () => {
             return response.data;
         }
     });
+
+    const filteredBookings = useMemo(() => {
+        if (!bookings) return [];
+        return bookings.filter((booking: any) => {
+            const matchesSearch = 
+                booking.agent?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                booking.service?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                booking.address?.toLowerCase().includes(searchTerm.toLowerCase());
+            
+            const matchesStatus = statusFilter === 'ALL' || booking.status === statusFilter;
+            
+            return matchesSearch && matchesStatus;
+        });
+    }, [bookings, searchTerm, statusFilter]);
+
+    const totalPages = Math.ceil(filteredBookings.length / itemsPerPage);
+    const paginatedBookings = filteredBookings.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    // Reset to page 1 when filters change
+    React.useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, statusFilter]);
 
     if (isLoading) {
         return (
@@ -66,19 +96,49 @@ const ClientBookingsPage = () => {
 
     return (
         <div className="max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-12 py-12">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+            <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 mb-12">
                 <div>
                     <h1 className="text-4xl font-black text-neutral-900 mb-2 tracking-tight">My Bookings</h1>
                     <p className="text-neutral-500 font-medium">Manage and track your home service appointments across Abuja.</p>
                 </div>
-                <div className="flex items-center gap-3">
-                    <button className="flex items-center gap-2 px-6 py-3 bg-neutral-900 dark:bg-neutral-800 text-white rounded-full text-sm font-bold hover:bg-black dark:hover:bg-neutral-700 transition-all shadow-xl shadow-neutral-200/50 dark:shadow-black/40 active:scale-95">
-                        <Search className="w-4 h-4" /> History
-                    </button>
+                
+                <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 w-full xl:w-auto">
+                    {/* Search Input */}
+                    <div className="relative flex-1 md:w-80">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                        <input 
+                            type="text"
+                            placeholder="Search by pro or service..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pl-11 pr-4 py-3.5 bg-white dark:bg-neutral-900 border-2 border-neutral-100 dark:border-neutral-800 rounded-2xl focus:border-[#14a800]/50 outline-none font-bold text-sm transition-all shadow-sm"
+                        />
+                        {searchTerm && (
+                            <button 
+                                onClick={() => setSearchTerm('')}
+                                className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center text-neutral-400 hover:text-neutral-600 transition-colors"
+                            >
+                                <ChevronRight className="w-3 h-3 rotate-180" />
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Status Filter */}
+                    <select 
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                        className="px-6 py-3.5 bg-white dark:bg-neutral-900 border-2 border-neutral-100 dark:border-neutral-800 rounded-2xl font-bold text-sm outline-none focus:border-[#14a800]/50 transition-all shadow-sm cursor-pointer appearance-none"
+                    >
+                        <option value="ALL">All Status</option>
+                        <option value="PENDING">Pending</option>
+                        <option value="ACCEPTED">Accepted</option>
+                        <option value="COMPLETED">Completed</option>
+                        <option value="CANCELLED">Cancelled</option>
+                    </select>
                 </div>
             </div>
 
-            {!bookings || bookings.length === 0 ? (
+            {filteredBookings.length === 0 ? (
                 <div className="bg-white rounded-[2.5rem] border-2 border-neutral-100 p-20 text-center shadow-sm">
                     <div className="w-24 h-24 bg-neutral-50 rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-inner">
                         <Calendar className="w-12 h-12 text-neutral-200" />
@@ -91,7 +151,7 @@ const ClientBookingsPage = () => {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 gap-6">
-                    {bookings.map((booking: any) => (
+                    {paginatedBookings.map((booking: any) => (
                         <div key={booking.id} className="bg-white rounded-[2.5rem] border-2 border-neutral-100 hover:border-[#14a800]/30 transition-all p-4 sm:p-8 flex flex-col lg:flex-row gap-8 shadow-sm hover:shadow-xl hover:shadow-green-50/50 group">
                             {/* Pro Info Section */}
                             <div className="lg:w-1/3 flex items-start gap-6 border-b lg:border-b-0 lg:border-r border-neutral-100 pb-6 lg:pb-0 lg:pr-8">
@@ -190,6 +250,44 @@ const ClientBookingsPage = () => {
                             </div>
                         </div>
                     ))}
+                    
+                    {/* Pagination Controls */}
+                    {totalPages > 1 && (
+                        <div className="flex items-center justify-center gap-2 mt-12 pb-8">
+                            <button 
+                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                disabled={currentPage === 1}
+                                className="px-4 py-2 border-2 border-neutral-100 rounded-xl font-bold text-sm text-neutral-500 hover:bg-neutral-50 disabled:opacity-50 transition-all active:scale-90"
+                            >
+                                Previous
+                            </button>
+                            
+                            <div className="flex items-center gap-1">
+                                {[...Array(totalPages)].map((_, i) => (
+                                    <button
+                                        key={i}
+                                        onClick={() => setCurrentPage(i + 1)}
+                                        className={cn(
+                                            "w-10 h-10 rounded-xl font-black text-sm transition-all active:scale-90",
+                                            currentPage === i + 1 
+                                                ? "bg-[#14a800] text-white shadow-lg shadow-green-100" 
+                                                : "text-neutral-400 hover:bg-neutral-50"
+                                        )}
+                                    >
+                                        {i + 1}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <button 
+                                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                disabled={currentPage === totalPages}
+                                className="px-4 py-2 border-2 border-neutral-100 rounded-xl font-bold text-sm text-neutral-500 hover:bg-neutral-50 disabled:opacity-50 transition-all active:scale-90"
+                            >
+                                Next
+                            </button>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

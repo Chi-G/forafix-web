@@ -33,6 +33,7 @@ const ProfilePage = () => {
     const [bio, setBio] = useState(user?.agent_profile?.bio || '');
     const [location, setLocation] = useState(user?.agent_profile?.location_base || '');
     const [skillsString, setSkillsString] = useState(user?.agent_profile?.skills?.join(', ') || '');
+    const [phone, setPhone] = useState(user?.phone || '');
     const [avatarPreview, setAvatarPreview] = useState(user?.avatar_url || '');
 
     const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,7 +83,7 @@ const ProfilePage = () => {
 
         try {
             // Update general profile
-            await updateProfile({ name, email });
+            await updateProfile({ name, email, phone });
 
             // Update agent profile if applicable
             if (user?.role === 'AGENT') {
@@ -121,7 +122,7 @@ const ProfilePage = () => {
 
     return (
         <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 pb-20 transition-colors">
-            <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <main className="max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-12 py-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 {message && (
                     <div className={cn(
                         "mb-8 p-4 rounded-2xl flex items-center gap-3 font-bold text-sm animate-in zoom-in duration-300",
@@ -192,6 +193,19 @@ const ProfilePage = () => {
                                         onChange={(e) => setEmail(e.target.value)}
                                         className="w-full pl-12 pr-4 py-4 border-2 border-neutral-100 dark:border-neutral-800 dark:bg-neutral-900/50 rounded-2xl focus:border-brand-500 outline-none font-bold text-sm transition-all dark:text-neutral-100"
                                         required
+                                    />
+                                </div>
+                            </div>
+                            <div className="space-y-2 md:col-span-2">
+                                <label className="text-xs font-black text-neutral-400 uppercase tracking-widest px-1">Phone Number</label>
+                                <div className="relative">
+                                    <Zap className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+                                    <input 
+                                        type="tel" 
+                                        value={phone}
+                                        onChange={(e) => setPhone(e.target.value)}
+                                        placeholder="+234 000 000 0000"
+                                        className="w-full pl-12 pr-4 py-4 border-2 border-neutral-100 dark:border-neutral-800 dark:bg-neutral-900/50 rounded-2xl focus:border-brand-500 outline-none font-bold text-sm transition-all dark:text-neutral-100"
                                     />
                                 </div>
                             </div>
