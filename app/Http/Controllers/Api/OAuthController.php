@@ -14,12 +14,24 @@ class OAuthController extends Controller
 {
     public function redirectToGoogle()
     {
-        return response()->json([
-            'url' => Socialite::driver('google')
-                ->stateless()
-                ->redirect()
-                ->getTargetUrl(),
-        ]);
+        try {
+            // Check if client ID and secret are set
+            if (!config('services.google.client_id') || !config('services.google.client_secret')) {
+                throw new \Exception('Google OAuth credentials are not configured in services.php or .env file.');
+            }
+
+            return response()->json([
+                'url' => Socialite::driver('google')
+                    ->stateless()
+                    ->redirect()
+                    ->getTargetUrl(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to initialize Google login: ' . $e->getMessage(),
+                'trace' => config('app.debug') ? $e->getTraceAsString() : null
+            ], 500);
+        }
     }
 
     public function handleGoogleCallback(Request $request)
