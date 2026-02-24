@@ -151,7 +151,7 @@ const TermsOfServicePage = () => {
                         </p>
                         <div className="flex items-center gap-6 p-6 rounded-3xl bg-white/5 border border-white/10">
                             <HelpCircle className="w-10 h-10 text-[#14a800] shrink-0" />
-                            <p className="text-sm font-bold text-neutral-600">
+                            <p className="text-sm font-bold text-neutral-400">
                                 Need clarification? Our legal team is available at <span className="text-[#14a800] font-black cursor-pointer hover:underline">legal@forafix.com</span>
                             </p>
                         </div>
