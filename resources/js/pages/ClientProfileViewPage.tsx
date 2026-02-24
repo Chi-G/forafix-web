@@ -67,7 +67,7 @@ const ClientProfileViewPage = () => {
                 return response.data;
             }
         },
-        enabled: !!uuid,
+        enabled: !!uuid && uuid !== 'undefined',
         retry: 1,
         staleTime: 30000,
     });

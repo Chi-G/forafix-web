@@ -15,25 +15,21 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Create Services first
-        $cleaningServices = [
-            ['name' => 'Deep Home Cleaning', 'category' => 'Cleaning', 'price' => 25000, 'icon' => 'Sparkles'],
-            ['name' => 'Office Sanitization', 'category' => 'Cleaning', 'price' => 45000, 'icon' => 'Building2'],
-            ['name' => 'Post-Construction Cleaning', 'category' => 'Cleaning', 'price' => 75000, 'icon' => 'HardHat'],
-            ['name' => 'Carpet & Upholstery', 'category' => 'Cleaning', 'price' => 15000, 'icon' => 'Layers'],
-            ['name' => 'Window Cleaning', 'category' => 'Cleaning', 'price' => 10000, 'icon' => 'Layout'],
-        ];
+        // 0. Cleanup old services
+        Service::truncate();
 
-        $repairServices = [
+        // 1. Create Services first
+        $services = [
+            ['name' => 'Home Cleaning', 'category' => 'Cleaning', 'price' => 25000, 'icon' => 'Sparkles'],
+            ['name' => 'Laundry & Ironing', 'category' => 'Cleaning', 'price' => 15000, 'icon' => 'Wind'],
             ['name' => 'AC Maintenance', 'category' => 'Repairs', 'price' => 12000, 'icon' => 'Wind'],
-            ['name' => 'Electrical Wiring', 'category' => 'Repairs', 'price' => 8000, 'icon' => 'Zap'],
-            ['name' => 'Plumbing & Leaks', 'category' => 'Repairs', 'price' => 5000, 'icon' => 'Droplets'],
-            ['name' => 'Furniture Repair', 'category' => 'Repairs', 'price' => 15000, 'icon' => 'Hammer'],
-            ['name' => 'Generator Servicing', 'category' => 'Repairs', 'price' => 20000, 'icon' => 'Settings'],
+            ['name' => 'Plumbing Works', 'category' => 'Repairs', 'price' => 8000, 'icon' => 'Droplets'],
+            ['name' => 'Generator Repair', 'category' => 'Repairs', 'price' => 20000, 'icon' => 'Settings'],
+            ['name' => 'Gardening', 'category' => 'Maintenance', 'price' => 10000, 'icon' => 'Sprout'],
         ];
 
         $allServices = [];
-        foreach (array_merge($cleaningServices, $repairServices) as $s) {
+        foreach ($services as $s) {
             $allServices[] = Service::updateOrCreate(
                 ['name' => $s['name']],
                 [
