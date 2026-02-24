@@ -226,9 +226,11 @@ const Header = () => {
                                                 <div className="font-bold text-neutral-900 dark:text-neutral-100 line-clamp-1">{user?.name}</div>
                                                 <div className="text-[10px] font-black text-neutral-400 dark:text-neutral-500 uppercase tracking-widest mt-0.5">{user?.role}</div>
                                             </div>
-                                            <Link to={`/cl/${user?.uuid}`} className="flex items-center gap-3 px-5 py-3 text-sm font-bold text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors">
-                                                <UserIcon className="w-4 h-4" /> My Profile
-                                            </Link>
+                                            {user?.uuid && (
+                                                <Link to={`/cl/${user.uuid}`} className="flex items-center gap-3 px-5 py-3 text-sm font-bold text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors">
+                                                    <UserIcon className="w-4 h-4" /> My Profile
+                                                </Link>
+                                            )}
                                             <Link to={isClient ? '/cl/bookings' : '/bookings'} className="flex items-center gap-3 px-5 py-3 text-sm font-bold text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors">
                                                 <Briefcase className="w-4 h-4" /> {isClient ? 'My Bookings' : 'My Jobs'}
                                             </Link>
@@ -354,12 +356,14 @@ const Header = () => {
                                     </div>
                                 </div>
 
-                                <Link
-                                    to={`/cl/${user?.uuid}`}
-                                    className="flex items-center gap-3 px-3 py-3.5 rounded-xl font-bold text-sm text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-all mb-1"
-                                >
-                                    <UserIcon className="w-4 h-4 shrink-0" /> My Profile
-                                </Link>
+                                {user?.uuid && (
+                                    <Link
+                                        to={`/cl/${user.uuid}`}
+                                        className="flex items-center gap-3 px-3 py-3.5 rounded-xl font-bold text-sm text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-all mb-1"
+                                    >
+                                        <UserIcon className="w-4 h-4 shrink-0" /> My Profile
+                                    </Link>
+                                )}
 
                                 <Link
                                     to="/cl/settings"

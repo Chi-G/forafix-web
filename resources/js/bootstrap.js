@@ -22,7 +22,9 @@ window.Echo = new Echo({
     authEndpoint: '/api/broadcasting/auth',
     auth: {
         headers: {
-            Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+            get Authorization() {
+                return `Bearer ${localStorage.getItem('auth_token')}`;
+            },
         },
     },
 });
