@@ -81,7 +81,7 @@ const Header = () => {
         ]
         : [
             { to: '/cl/find-service', label: 'Find Services', icon: Search, active: false },
-            { to: '/register/agent', label: 'Become a Pro', icon: Home, active: false },
+            { to: '/register/agent', label: 'Become an Agent', icon: Home, active: false },
         ];
 
     return (
