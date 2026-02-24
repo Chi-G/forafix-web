@@ -25,6 +25,9 @@ window.Echo = new Echo({
             get Authorization() {
                 return `Bearer ${localStorage.getItem('auth_token')}`;
             },
+            set Authorization(value) {
+                // No-op to prevent "Cannot set property Authorization which has only a getter"
+            },
         },
     },
 });

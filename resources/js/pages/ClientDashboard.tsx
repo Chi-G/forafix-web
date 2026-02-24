@@ -114,13 +114,7 @@ const ClientDashboard = () => {
 
     // 3-second artificial loading for UX
     useEffect(() => {
-        // Re-sync Echo auth headers if token changed or after login
-        if (window.Echo && window.Echo.options.auth) {
-            const token = localStorage.getItem('auth_token');
-            if (token) {
-                window.Echo.options.auth.headers.Authorization = `Bearer ${token}`;
-            }
-        }
+        // Echo auth headers are handled dynamically in bootstrap.js getter
 
         setIsInternalLoading(true);
         const timer = setTimeout(() => {
