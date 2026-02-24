@@ -426,7 +426,7 @@ const ClientDashboard = () => {
                                                         onClick={() => setCategory(svcCategory)}
                                                         className={cn(
                                                             "px-4 py-2 rounded-full text-sm font-bold border transition-all",
-                                                            svcCategory !== '' && category === svcCategory
+                                                            category !== '' && category === svcCategory
                                                                 ? "bg-[#14a800] border-[#14a800] text-white shadow-md shadow-green-200 dark:shadow-green-900/20" 
                                                                 : "border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-600"
                                                         )}

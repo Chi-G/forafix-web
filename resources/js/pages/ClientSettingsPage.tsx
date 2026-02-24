@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { useThemeStore } from '../store/useThemeStore';
 import toast from 'react-hot-toast';
@@ -628,7 +629,14 @@ const SECTIONS = [
 const ClientSettingsPage = () => {
     const { user } = useAuthStore();
     const { isDark, toggle: toggleTheme } = useThemeStore();
-    const [active, setActive] = useState('account');
+    const [searchParams] = useSearchParams();
+    const tab = searchParams.get('tab');
+    const [active, setActive] = useState(tab || 'account');
+
+    // Update active tab when URL param changes
+    useEffect(() => {
+        if (tab) setActive(tab);
+    }, [tab]);
 
     const renderSection = () => {
         switch (active) {

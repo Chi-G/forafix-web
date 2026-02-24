@@ -76,7 +76,7 @@ const LandingPage = () => {
                                                     value={searchQuery}
                                                     onChange={(e) => setSearchQuery(e.target.value)}
                                                     placeholder="Search for any service..." 
-                                                    className="w-full focus:outline-none text-neutral-800 dark:text-neutral-100 font-semibold placeholder:text-neutral-400 bg-transparent" 
+                                                    className="w-full focus:outline-none text-neutral-800 dark:text-neutral-100 font-semibold placeholder:text-neutral-400 bg-transparent !bg-transparent" 
                                                 />
                                             </div>
                                             <button type="submit" className="bg-[#14a800] text-white px-8 py-4 font-bold hover:bg-[#118b00] transition-all flex items-center justify-center gap-2">
