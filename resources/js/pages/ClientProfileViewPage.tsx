@@ -13,8 +13,6 @@ import {
     MessageCircle,
     Calendar,
     Verified,
-    Pencil,
-    X,
     Save,
     CheckCircle2,
     Camera,
@@ -29,7 +27,6 @@ const ClientProfileViewPage = () => {
     const { uuid } = useParams<{ uuid: string }>();
     const { user: currentUser, updateProfile, updateAgentProfile, uploadAvatar } = useAuthStore();
 
-    const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
     const [isUploadingDoc, setIsUploadingDoc] = useState(false);
@@ -45,6 +42,19 @@ const ClientProfileViewPage = () => {
     );
     const [phone, setPhone] = useState(currentUser?.phone || '');
     const [avatarPreview, setAvatarPreview] = useState(currentUser?.avatar_url || '');
+
+    // Sync state when currentUser is loaded/updated
+    React.useEffect(() => {
+        if (currentUser) {
+            setName(currentUser.name || '');
+            setEmail(currentUser.email || '');
+            setBio(currentUser.agent_profile?.bio || '');
+            setLocation(currentUser.agent_profile?.location_base || '');
+            setSkillsString(currentUser.agent_profile?.skills?.join(', ') || '');
+            setPhone(currentUser.phone || '');
+            setAvatarPreview(currentUser.avatar_url || '');
+        }
+    }, [currentUser]);
 
     const { data: profile, isLoading, isError, refetch } = useQuery({
         queryKey: ['user-profile', uuid],
@@ -65,17 +75,6 @@ const ClientProfileViewPage = () => {
     const isOwnProfile = currentUser?.uuid === uuid;
     const isAgent = (isOwnProfile ? currentUser?.role : profile?.role) === 'AGENT';
 
-    const startEditing = () => {
-        // Re-seed form from currentUser in case it changed
-        setName(currentUser?.name || '');
-        setEmail(currentUser?.email || '');
-        setBio(currentUser?.agent_profile?.bio || '');
-        setLocation(currentUser?.agent_profile?.location_base || '');
-        setSkillsString(currentUser?.agent_profile?.skills?.join(', ') || '');
-        setAvatarPreview(currentUser?.avatar_url || '');
-        setMessage(null);
-        setIsEditing(true);
-    };
 
     const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -124,8 +123,6 @@ const ClientProfileViewPage = () => {
             }
             setMessage({ type: 'success', text: 'Profile updated successfully!' });
             refetch();
-            // Close edit mode after a beat
-            setTimeout(() => setIsEditing(false), 900);
         } catch {
             setMessage({ type: 'error', text: 'Failed to update profile. Please try again.' });
         } finally {
@@ -172,7 +169,7 @@ const ClientProfileViewPage = () => {
 
     // ─── EDIT PANEL (own profile only) ────────────────────────────────────
     const EditPanel = () => (
-        <form onSubmit={handleSave} className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-300">
+        <form onSubmit={handleSave} className="space-y-6 animate-in fade-in duration-300">
             {message && (
                 <div className={cn(
                     'p-4 rounded-2xl flex items-center gap-3 font-bold text-sm',
@@ -335,14 +332,7 @@ const ClientProfileViewPage = () => {
             )}
 
             {/* Actions */}
-            <div className="flex items-center justify-end gap-3">
-                <button
-                    type="button"
-                    onClick={() => { setIsEditing(false); setMessage(null); }}
-                    className="px-6 py-3 rounded-2xl border-2 border-neutral-200 text-neutral-600 font-black text-sm hover:bg-neutral-50 transition-all"
-                >
-                    Cancel
-                </button>
+            <div className="flex items-center justify-end pt-4">
                 <button
                     type="submit"
                     disabled={isSaving}
@@ -358,7 +348,7 @@ const ClientProfileViewPage = () => {
     // ─── MAIN RENDER ──────────────────────────────────────────────────────
     return (
         <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 pb-20">
-            <main className="max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-12 py-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <main className="max-w-[1400px] mx-auto px-4 sm:px-8 lg:px-12 py-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
                 {/* Profile Header Card */}
                 <section className="bg-white rounded-3xl border border-neutral-200 shadow-sm overflow-hidden mb-6">
@@ -391,22 +381,6 @@ const ClientProfileViewPage = () => {
 
                             {/* Action buttons */}
                             <div className="flex items-center gap-3 mb-2">
-                                {isOwnProfile && !isEditing && (
-                                    <button
-                                        onClick={startEditing}
-                                        className="flex items-center gap-2 px-5 py-2.5 border-2 border-neutral-200 rounded-full text-sm font-black text-neutral-700 hover:border-[#14a800]/40 hover:text-[#14a800] hover:bg-green-50 transition-all"
-                                    >
-                                        <Pencil className="w-3.5 h-3.5" /> Edit Profile
-                                    </button>
-                                )}
-                                {isOwnProfile && isEditing && (
-                                    <button
-                                        onClick={() => { setIsEditing(false); setMessage(null); }}
-                                        className="flex items-center gap-2 px-5 py-2.5 border-2 border-neutral-200 rounded-full text-sm font-black text-neutral-500 hover:bg-neutral-50 transition-all"
-                                    >
-                                        <X className="w-3.5 h-3.5" /> Cancel
-                                    </button>
-                                )}
                                 {!isOwnProfile && (
                                     <Link
                                         to="/cl/messages/rooms/"
@@ -428,32 +402,58 @@ const ClientProfileViewPage = () => {
                             )}
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-3 text-sm font-bold text-neutral-500">
-                            <span className={cn(
-                                'px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest',
-                                isAgent ? 'bg-blue-50 text-blue-700' : 'bg-neutral-100 text-neutral-600'
-                            )}>
-                                {isAgent ? '⚡ Service Professional' : '👤 Client'}
-                            </span>
-                            {agentProfile?.location_base && (
-                                <div className="flex items-center gap-1.5">
-                                    <MapPin className="w-4 h-4 text-[#14a800]" />
-                                    {agentProfile.location_base}
+                        <div className="flex flex-wrap items-center gap-6 pt-2">
+                            {/* Primary Badges */}
+                            <div className="flex items-center gap-2">
+                                <span className={cn(
+                                    'px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest border shadow-sm',
+                                    isAgent ? 'bg-blue-50 text-blue-700 border-blue-100' : 'bg-neutral-50 text-neutral-600 border-neutral-200'
+                                )}>
+                                    {isAgent ? '⚡ Service Professional' : '👤 Client Member'}
+                                </span>
+                                {!isAgent && (
+                                    <span className="px-4 py-2 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-sm">
+                                        Forafix Member
+                                    </span>
+                                )}
+                            </div>
+
+                            {/* Secondary Details */}
+                            <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+                                {!isAgent && (
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]" />
+                                        <div className="flex flex-col">
+                                            <span className="text-[9px] font-black text-neutral-400 uppercase tracking-widest leading-none mb-1">Status</span>
+                                            <span className="text-xs font-black text-neutral-700 dark:text-neutral-300">Premium User • Abuja</span>
+                                        </div>
+                                    </div>
+                                )}
+                                <div className="flex items-center gap-3">
+                                    <div className="w-9 h-9 rounded-2xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
+                                        <Calendar className="w-4 h-4 text-neutral-400" />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[9px] font-black text-neutral-400 uppercase tracking-widest leading-none mb-1">Joined</span>
+                                        <span className="text-xs font-black text-neutral-700 dark:text-neutral-300">
+                                            {new Date(profile.created_at || Date.now()).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                                        </span>
+                                    </div>
                                 </div>
-                            )}
-                            <div className="flex items-center gap-1.5">
-                                <Calendar className="w-4 h-4 text-neutral-400" />
-                                Member since {new Date(profile.created_at || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                             </div>
                         </div>
                     </div>
                 </section>
 
-                {/* ── Edit mode panel ── */}
-                {isOwnProfile && isEditing && <EditPanel />}
+                {/* ── Basic Information (Permanent for owner) ── */}
+                {isOwnProfile && (
+                    <div className="mb-6">
+                        <EditPanel />
+                    </div>
+                )}
 
-                {/* ── View mode content ── */}
-                {!isEditing && isAgent && (
+                {/* ── View mode content (Other Sections) ── */}
+                {isAgent && (
                     <>
                         {/* Stats */}
                         <div className="grid grid-cols-3 gap-4 mb-6">
@@ -471,14 +471,14 @@ const ClientProfileViewPage = () => {
                             ))}
                         </div>
 
-                        {agentProfile?.bio && (
+                        {!isOwnProfile && agentProfile?.bio && (
                             <section className="bg-white rounded-3xl border border-neutral-200 p-8 shadow-sm mb-6">
                                 <h2 className="text-base font-black text-neutral-900 uppercase tracking-widest mb-4">About</h2>
                                 <p className="text-neutral-600 leading-relaxed font-medium italic">"{agentProfile.bio}"</p>
                             </section>
                         )}
 
-                        {agentProfile?.skills && (
+                        {!isOwnProfile && agentProfile?.skills && (
                             <section className="bg-white rounded-3xl border border-neutral-200 p-8 shadow-sm mb-6">
                                 <h2 className="text-base font-black text-neutral-900 uppercase tracking-widest mb-5">Skills & Expertise</h2>
                                 <div className="flex flex-wrap gap-2">
@@ -511,15 +511,6 @@ const ClientProfileViewPage = () => {
                     </>
                 )}
 
-                {!isEditing && !isAgent && (
-                    <section className="bg-white rounded-3xl border border-neutral-200 p-12 shadow-sm text-center">
-                        <div className="w-16 h-16 bg-neutral-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                            <UserIcon className="w-8 h-8 text-neutral-300" />
-                        </div>
-                        <h2 className="font-black text-neutral-900 mb-2">Forafix Member</h2>
-                        <p className="text-neutral-500 text-sm font-medium">This member uses Forafix to book home services across Abuja.</p>
-                    </section>
-                )}
             </main>
         </div>
     );
