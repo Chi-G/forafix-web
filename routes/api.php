@@ -4,17 +4,33 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Broadcast;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\OAuthController;
+use App\Http\Controllers\Api\NotificationController;
 
 Broadcast::routes(['middleware' => ['auth:sanctum']]);
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+// Google OAuth
+Route::get('/auth/google', [OAuthController::class, 'redirectToGoogle']);
+Route::get('/auth/google/callback', [OAuthController::class, 'handleGoogleCallback']);
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/profile', [AuthController::class, 'updateProfile']);
     Route::post('/logout', [AuthController::class, 'logout']);
     
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+
+    // Notifications
+    Route::get('/users/notifications', [NotificationController::class, 'index']);
+    Route::post('/users/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
+    Route::post('/users/notifications/{uuid}/read', [NotificationController::class, 'markAsRead']);
+    Route::delete('/users/notifications', [NotificationController::class, 'clearAll']);
+
     Route::get('/bookings', [\App\Http\Controllers\Api\BookingController::class, 'index']);
     Route::post('/bookings', [\App\Http\Controllers\Api\BookingController::class, 'store']);
     Route::patch('/bookings/{booking}', [\App\Http\Controllers\Api\BookingController::class, 'update']);

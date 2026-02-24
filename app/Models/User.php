@@ -30,6 +30,8 @@ class User extends Authenticatable
         'loyalty_points',
         'balance',
         'avatar_url',
+        'google_id',
+        'avatar',
     ];
 
     /**
@@ -37,7 +39,7 @@ class User extends Authenticatable
      */
     protected static function booted(): void
     {
-        static::creating(function (User $user) {
+        static::saving(function (User $user) {
             if (!$user->uuid) {
                 $user->uuid = (string) \Illuminate\Support\Str::uuid();
             }
@@ -89,5 +91,15 @@ class User extends Authenticatable
     public function services()
     {
         return $this->belongsToMany(Service::class);
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function unreadNotifications()
+    {
+        return $this->hasMany(Notification::class)->whereNull('read_at');
     }
 }

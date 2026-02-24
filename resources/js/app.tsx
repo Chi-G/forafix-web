@@ -13,6 +13,9 @@ import RegisterPage from './pages/RegisterPage';
 import ClientRegisterPage from './pages/ClientRegisterPage';
 import AgentRegisterPage from './pages/AgentRegisterPage';
 import Dashboard from './pages/Dashboard';
+import AuthCallbackPage from './pages/AuthCallbackPage';
+import NotFoundPage from './pages/NotFoundPage';
+import NotificationsPage from './pages/NotificationsPage';
 import ProfilePage from './pages/ProfilePage';
 import ServiceDetailPage from './pages/ServiceDetailPage';
 import AgentDetailPage from './pages/AgentDetailPage';
@@ -67,6 +70,7 @@ const App = () => {
                                     <Route path="/register" element={<RegisterPage />} />
                                     <Route path="/register/client" element={<ClientRegisterPage />} />
                                     <Route path="/register/agent" element={<AgentRegisterPage />} />
+                                    <Route path="/auth/callback" element={<AuthCallbackPage />} />
                                 </Route>
 
                                 {/* Public but accessible while logged in */}
@@ -85,12 +89,13 @@ const App = () => {
                                     <Route path="/cl/messages/rooms/:agentUuid" element={<MessagesPage />} />
                                     <Route path="/cl/settings" element={<ClientSettingsPage />} />
                                     <Route path="/cl/:uuid" element={<ClientProfileViewPage />} />
+                                    <Route path="/cl/notifications" element={<NotificationsPage />} />
                                     <Route path="/payment/callback" element={<PaymentSuccessPage />} />
                                 </Route>
                             </Route>
 
                             {/* Fallback */}
-                            <Route path="*" element={<LandingPage />} />
+                            <Route path="*" element={<NotFoundPage />} />
                         </Routes>
                     </BrowserRouter>
                 </QueryClientProvider>
