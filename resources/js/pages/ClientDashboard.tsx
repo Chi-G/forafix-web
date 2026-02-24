@@ -259,36 +259,36 @@ const ClientDashboard = () => {
         const agentRating = ratings[agent.id] ?? Math.round((agent.rating || 4.5) * 10) / 10;
         const agentRatingCount = ratings[agent.id] ? 1 : (agent.reviews_count ?? '--');
         return (
-        <div className="p-8 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-all group relative">
-            <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
+        <div className="p-4 sm:p-8 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-all group relative">
+            <div className="flex flex-col sm:flex-row items-start justify-between gap-4 mb-4">
+                <div className="flex-1 w-full">
                     <div className="flex items-center gap-4 mb-4">
-                        <div className="w-14 h-14 bg-brand-50 dark:bg-[#14a800]/20 rounded-full flex items-center justify-center text-xl font-black text-[#14a800] border border-[#14a800]/10">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 bg-brand-50 dark:bg-[#14a800]/20 rounded-full flex items-center justify-center text-lg sm:text-xl font-black text-[#14a800] border border-[#14a800]/10 shrink-0">
                             {agent.name?.[0]}
                         </div>
-                        <div>
+                        <div className="min-w-0 flex-1">
                             {agent.uuid ? (
-                                <Link to={`/service/${agent.uuid}`} className="text-xl font-bold text-neutral-900 dark:text-neutral-100 group-hover:text-[#14a800] group-hover:underline block transition-colors">
+                                <Link to={`/service/${agent.uuid}`} className="text-lg sm:text-xl font-bold text-neutral-900 dark:text-neutral-100 group-hover:text-[#14a800] group-hover:underline block transition-colors truncate">
                                     {agent.name}
                                 </Link>
                             ) : (
-                                <span className="text-xl font-bold text-neutral-900 dark:text-neutral-100 block">
+                                <span className="text-lg sm:text-xl font-bold text-neutral-900 dark:text-neutral-100 block truncate">
                                     {agent.name}
                                 </span>
                             )}
-                            <div className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-400">
-                                <MapPin className="w-3.5 h-3.5" />
-                                <span className="font-medium">{agent.agent_profile?.location_base || 'Abuja, Nigeria'}</span>
+                            <div className="flex items-center gap-2 text-xs sm:text-sm text-neutral-500 dark:text-neutral-400">
+                                <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                                <span className="font-medium truncate">{agent.agent_profile?.location_base || 'Abuja, Nigeria'}</span>
                             </div>
                         </div>
                     </div>
  
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-neutral-500 dark:text-neutral-400 mb-6">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 mb-4 sm:mb-6">
                         <div className="flex items-center gap-1">
                             {[1, 2, 3, 4, 5].map(i => (
                                 <Star
                                     key={i}
-                                    className="w-3.5 h-3.5"
+                                    className="w-3 h-3 sm:w-3.5 sm:h-3.5"
                                     style={{
                                         fill: i <= Math.round(typeof agentRating === 'number' ? agentRating : 4.9)
                                             ? '#df7606' : 'transparent',
@@ -300,51 +300,51 @@ const ClientDashboard = () => {
                             <span className="ml-1 font-bold text-neutral-900 dark:text-neutral-100">
                                 {typeof agentRating === 'number' ? agentRating.toFixed(1) : '4.9'}/5
                             </span>
-                            <span className="text-neutral-400 dark:text-neutral-500 text-xs">({agentRatingCount})</span>
+                            <span className="text-neutral-400 dark:text-neutral-500 text-[10px] sm:text-xs">({agentRatingCount})</span>
                         </div>
-                        <span>•</span>
-                        <span className="font-bold text-neutral-700 dark:text-neutral-300">50+ Jobs completed</span>
+                        <span className="text-neutral-300 dark:text-neutral-700">•</span>
+                        <span className="font-bold text-neutral-700 dark:text-neutral-300">50+ Jobs</span>
                     </div>
                     
-                    <p className="text-neutral-600 dark:text-neutral-400 leading-relaxed mb-6 line-clamp-2 italic">
+                    <p className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 leading-relaxed mb-4 sm:mb-6 line-clamp-2 italic">
                         "{agent.agent_profile?.bio || "Professional service provider available for immediate booking across Abuja."}"
                     </p>
  
-                    <div className="flex flex-wrap gap-2 mb-6">
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-6">
                         {agent.services?.map((svc: any) => (
-                            <span key={svc.id} className="px-3 py-1 bg-neutral-100 dark:bg-neutral-800 rounded-full text-[10px] font-black uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
+                            <span key={svc.id} className="px-2.5 py-1 bg-neutral-100 dark:bg-neutral-800 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
                                 {svc.name}
                             </span>
                         ))}
                         {agent.is_vetted && (
-                            <span className="px-3 py-1 bg-green-50 dark:bg-green-900/20 rounded-full text-[10px] font-black uppercase tracking-wider text-[#14a800] border border-green-100 dark:border-green-900/30 flex items-center gap-1">
+                            <span className="px-2.5 py-1 bg-green-50 dark:bg-green-900/20 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-[#14a800] border border-green-100 dark:border-green-900/30 flex items-center gap-1">
                                 <CheckCircle2 className="w-3 h-3" /> Vetted
                             </span>
                         )}
                     </div>
- 
-                    <div className="flex items-center gap-6 text-sm">
+  
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 text-sm">
                         <div className="flex items-center gap-1.5 text-blue-700 dark:text-blue-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" aria-hidden="true" viewBox="0 0 24 24" role="img" className="w-4 h-4" style={{ '--icon-color': '#1d4ed8', '--icon-color-bg': '#fff' } as React.CSSProperties}>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" aria-hidden="true" viewBox="0 0 24 24" role="img" className="w-4 h-4 shrink-0" style={{ '--icon-color': '#1d4ed8', '--icon-color-bg': '#fff' } as React.CSSProperties}>
                                 <path fill="var(--icon-color, #1d4ed8)" fillRule="evenodd" vectorEffect="non-scaling-stroke" stroke="var(--icon-color, #1d4ed8)" strokeLinecap="round" strokeLinejoin="round" strokeMiterlimit="10" strokeWidth="1.5" d="M20.4 13.1c.8 1 .3 2.5-.9 2.9-.8.2-1.3 1-1.3 1.8 0 1.3-1.2 2.2-2.5 1.8-.8-.3-1.7 0-2.1.7-.7 1.1-2.3 1.1-3 0-.5-.7-1.3-1-2.1-.7-1.4.4-2.6-.6-2.6-1.8 0-.8-.5-1.6-1.3-1.8-1.2-.4-1.7-1.8-.9-2.9.5-.7.5-1.6 0-2.2-.9-1-.4-2.5.9-2.9.8-.2 1.3-1 1.3-1.8C5.9 5 7.1 4 8.3 4.5c.8.3 1.7 0 2.1-.7.7-1.1 2.3-1.1 3 0 .5.7 1.3 1 2.1.7 1.4-.5 2.6.5 2.6 1.7 0 .8.5 1.6 1.3 1.8 1.2.4 1.7 1.8.9 2.9-.4.6-.4 1.6.1 2.2z" clipRule="evenodd" />
                                 <path vectorEffect="non-scaling-stroke" stroke="var(--icon-color-bg, #fff)" strokeLinecap="round" strokeLinejoin="round" strokeMiterlimit="10" strokeWidth="1.5" d="M15.5 9.7L11 14.3l-2.5-2.5" />
                             </svg>
-                            <span className="font-bold">Payment verified</span>
+                            <span className="font-bold text-xs">Payment verified</span>
                         </div>
                         <div className="flex items-center gap-1">
-                            <span className="font-bold text-neutral-900 dark:text-neutral-100">₦100k+ earned</span>
+                            <span className="font-bold text-neutral-900 dark:text-neutral-100 text-xs">₦100k+ earned</span>
                         </div>
-                        <div className="ml-auto flex items-center gap-2">
+                        <div className="flex items-center gap-2 w-full sm:w-auto sm:ml-auto">
                             <button
                                 onClick={() => setRatingTarget(agent)}
-                                className="flex items-center gap-1.5 px-4 py-2.5 rounded-full border border-[#df7606]/40 text-[#df7606] text-sm font-black hover:bg-[#df7606]/5 transition-all active:scale-95"
+                                className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 rounded-full border border-[#df7606]/40 text-[#df7606] text-[11px] sm:text-xs font-black hover:bg-[#df7606]/5 transition-all active:scale-95 whitespace-nowrap"
                             >
-                                <Star className="w-3.5 h-3.5 fill-[#df7606] text-[#df7606]" />
-                                {ratings[agent.id] ? 'Update Rating' : 'Rate'}
+                                <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-[#df7606] text-[#df7606]" />
+                                {ratings[agent.id] ? 'Update' : 'Rate'}
                             </button>
                             <button
                                 onClick={onBook}
-                                className="bg-[#14a800] text-white px-8 py-2.5 rounded-full font-black text-sm hover:bg-[#118b00] transition-all shadow-lg shadow-green-100 dark:shadow-green-900/20 active:scale-95"
+                                className="flex-1 sm:flex-none bg-[#14a800] text-white px-3 sm:px-8 py-2 rounded-full font-black text-[11px] sm:text-xs hover:bg-[#118b00] transition-all shadow-lg shadow-green-100 dark:shadow-green-900/20 active:scale-95 whitespace-nowrap"
                             >
                                 Book Now
                             </button>
@@ -352,15 +352,15 @@ const ClientDashboard = () => {
                     </div>
                 </div>
  
-                <div className="flex flex-col gap-4">
+                <div className="flex sm:flex-col gap-4 self-end sm:self-start">
                     <button
                         onClick={onToggleSave}
                         className={cn(
-                            "w-10 h-10 rounded-full border border-neutral-200 dark:border-neutral-700 flex items-center justify-center transition-colors shadow-sm",
+                            "w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-neutral-200 dark:border-neutral-700 flex items-center justify-center transition-colors shadow-sm",
                             isSaved ? "bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-900/30" : "hover:bg-neutral-50 dark:hover:bg-neutral-800"
                         )}
                     >
-                        <Heart className={cn("w-5 h-5", isSaved ? "fill-red-500 text-red-500" : "text-neutral-400 dark:text-neutral-500")} />
+                        <Heart className={cn("w-4 h-4 sm:w-5 sm:h-5", isSaved ? "fill-red-500 text-red-500" : "text-neutral-400 dark:text-neutral-500")} />
                     </button>
                 </div>
             </div>
@@ -483,7 +483,7 @@ const ClientDashboard = () => {
                                     </button>
                                 ))}
                             </div>
-                        </div>
+                        </div> 
  
                         {/* Feed Items */}
                         <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
@@ -497,7 +497,7 @@ const ClientDashboard = () => {
                                         <Search className="w-10 h-10 text-neutral-200 dark:text-neutral-700" />
                                     </div>
                                     <h4 className="text-xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">No pros found</h4>
-                                    <p className="text-neutral-500 dark:text-neutral-400">Try adjusting your filters or search terms.</p>
+                                    <p className="text-neutral-500 dark:text-neutral-400">Add your favorite services here.</p>
                                 </div>
                             ) : (
                                 <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
