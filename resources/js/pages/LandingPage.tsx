@@ -113,7 +113,7 @@ const LandingPage = () => {
                                         </div>
                                         <div>
                                             <div className="text-xl font-black text-neutral-900 dark:text-neutral-100">4.9/5</div>
-                                            <div className="text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">Top Rated Pros</div>
+                                            <div className="text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">Top Rated Agents</div>
                                         </div>
                                     </div>
                                 </div>
@@ -145,10 +145,10 @@ const LandingPage = () => {
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             {[
-                                { name: 'House Cleaning', img: '/images/cleaning.png', icon: Sparkles, count: '120+ Pros', color: 'bg-orange-50' },
-                                { name: 'AC & Repairs', img: '/images/ac_repair.png', icon: Wrench, count: '85+ Pros', color: 'bg-blue-50' },
-                                { name: 'Plumbing', img: '/images/plumbing.png', icon: LifeBuoy, count: '64+ Pros', color: 'bg-cyan-50' },
-                                { name: 'Market Runs', img: '/images/market_runs.png', icon: ShoppingBasket, count: '42+ Pros', color: 'bg-green-50' }
+                                { name: 'House Cleaning', img: '/images/cleaning.png', icon: Sparkles, count: '120+ Agents', color: 'bg-orange-50' },
+                                { name: 'AC & Repairs', img: '/images/ac_repair.png', icon: Wrench, count: '85+ Agents', color: 'bg-blue-50' },
+                                { name: 'Plumbing', img: '/images/plumbing.png', icon: LifeBuoy, count: '64+ Agents', color: 'bg-cyan-50' },
+                                { name: 'Market Runs', img: '/images/market_runs.png', icon: ShoppingBasket, count: '42+ Agents', color: 'bg-green-50' }
                             ].map((cat, i) => (
                                 <Link 
                                     key={i} 
@@ -184,11 +184,11 @@ const LandingPage = () => {
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="bg-[#14a800] rounded-[3rem] overflow-hidden flex flex-col lg:flex-row relative">
                             <div className="lg:w-1/2 p-12 lg:p-20 text-white z-10">
-                                <h2 className="text-4xl sm:text-5xl font-bold mb-8 tracking-tight">Post a job and hire a pro</h2>
+                                <h2 className="text-4xl sm:text-5xl font-bold mb-8 tracking-tight">Post a job and hire an Agent</h2>
                                 <div className="space-y-10">
                                     {[
                                         { title: 'Post a job for free', desc: 'Tell us about your home service needs. We will match you with top-rated professionals in Abuja.' },
-                                        { title: 'Choose the best pro', desc: 'Review profiles, ratings, and quotes. Chat with pros before you hire.' },
+                                        { title: 'Choose the best agent', desc: 'Review profiles, ratings, and quotes. Chat with agents before you hire.' },
                                         { title: 'Secure payment', desc: 'Pay safely through Forafix. We hold funds in escrow until you are 100% satisfied.' }
                                     ].map((step, i) => (
                                         <div key={i} className="flex gap-6 group">
@@ -274,7 +274,7 @@ const LandingPage = () => {
                                     Join Forafix Now
                                 </Link>
                                 <Link to="/register/agent" className="w-full sm:w-auto bg-white/10 backdrop-blur-md border border-white/20 text-white px-12 py-5 rounded-full font-bold text-lg hover:bg-white/20 transition-all active:scale-95">
-                                    Become a Pro
+                                    Become an Agent
                                 </Link>
                             </div>
                         </div>
