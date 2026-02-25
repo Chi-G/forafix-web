@@ -19,10 +19,13 @@ const LoginPage = () => {
         setError('');
         
         try {
-            // loading state of 4 seconds
-            await new Promise(resolve => setTimeout(resolve, 4000));
-            
             const response = await axios.post('/login', { email, password });
+            
+            if (response.status === 202 && response.data.error_code === 'TWO_FACTOR_REQUIRED') {
+                navigate('/auth/2fa-challenge', { state: { email: response.data.email } });
+                return;
+            }
+
             const { user, access_token } = response.data;
             setAuth(user, access_token);
             
@@ -33,7 +36,11 @@ const LoginPage = () => {
                 navigate('/cl/find-service');
             }
         } catch (err: any) {
-            setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+            if (err.response?.data?.error_code === 'EMAIL_NOT_VERIFIED') {
+                navigate('/auth/verify-email', { state: { email } });
+            } else {
+                setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+            }
         } finally {
             setIsLoading(false);
         }
@@ -71,7 +78,13 @@ const LoginPage = () => {
                         <div>
                             <div className="flex items-center justify-between mb-1.5">
                                 <label className="block text-sm font-bold text-neutral-700 font-inter">Password</label>
-                                <a href="#" className="text-xs font-bold text-brand-600 hover:text-brand-700 font-inter">Forgot password?</a>
+                                <button 
+                                    type="button"
+                                    onClick={() => navigate('/auth/forgot-password')}
+                                    className="text-xs font-bold text-brand-600 hover:text-brand-700 font-inter"
+                                >
+                                    Forgot password?
+                                </button>
                             </div>
                             <div className="relative">
                                 <input

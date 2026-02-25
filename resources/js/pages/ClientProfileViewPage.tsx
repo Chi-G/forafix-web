@@ -166,192 +166,7 @@ const ClientProfileViewPage = () => {
     const agentProfile   = isOwnProfile ? currentUser?.agent_profile : profile.agent_profile;
 
     // ─── EDIT PANEL (own profile only) ────────────────────────────────────
-    const EditPanel = () => (
-        <form onSubmit={handleSave} className="space-y-6 animate-in fade-in duration-300">
-            {message && (
-                <div className={cn(
-                    'p-4 rounded-2xl flex items-center gap-3 font-bold text-sm',
-                    message.type === 'success'
-                        ? 'bg-green-50 text-green-700 border border-green-100'
-                        : 'bg-red-50 text-red-700 border border-red-100'
-                )}>
-                    <CheckCircle2 className="w-5 h-5 shrink-0" />
-                    {message.text}
-                </div>
-            )}
 
-            {/* Avatar upload */}
-            <section className="bg-white rounded-3xl border border-neutral-200 p-6 shadow-sm flex items-center gap-6">
-                <div className="relative group shrink-0">
-                    <div className="w-20 h-20 rounded-2xl bg-neutral-100 overflow-hidden border-2 border-neutral-50 shadow-sm flex items-center justify-center relative">
-                        <Avatar 
-                            src={avatarPreview} 
-                            name={name} 
-                            sizeClassName="w-full h-full"
-                            className="rounded-2xl"
-                        />
-                        {isUploadingAvatar && (
-                            <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
-                                <Loader2 className="w-6 h-6 animate-spin text-[#14a800]" />
-                            </div>
-                        )}
-                    </div>
-                    <label className="absolute -bottom-2 -right-2 w-8 h-8 bg-[#14a800] rounded-xl flex items-center justify-center text-white cursor-pointer hover:bg-[#118b00] transition-all shadow-md">
-                        <Camera className="w-4 h-4" />
-                        <input type="file" className="hidden" accept="image/*" onChange={handleAvatarChange} disabled={isUploadingAvatar} />
-                    </label>
-                </div>
-                <div>
-                    <p className="font-black text-neutral-900 text-sm">Profile Photo</p>
-                    <div className="flex items-center gap-3 mt-1.5">
-                        <p className="text-xs text-neutral-400">Click icon to upload or</p>
-                        <button 
-                            type="button"
-                            onClick={() => setIsCameraModalOpen(true)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-neutral-900 hover:bg-black text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95"
-                        >
-                            <Camera className="w-3 h-3" /> Snap Photo
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            {/* Basic Info */}
-            <section className="bg-white rounded-3xl border border-neutral-200 p-6 shadow-sm space-y-4">
-                <h3 className="font-black text-neutral-900 text-sm uppercase tracking-widest">Basic Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                        <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">User ID</label>
-                        <input
-                            type="text" value={currentUser?.uuid || ''} disabled
-                            className="w-full px-4 py-3 border-2 border-neutral-100 rounded-2xl bg-neutral-50 text-neutral-400 font-bold text-sm outline-none"
-                        />
-                    </div>
-                    <div className="space-y-1.5">
-                        <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Role</label>
-                        <input
-                            type="text" value={currentUser?.role || ''} disabled
-                            className="w-full px-4 py-3 border-2 border-neutral-100 rounded-2xl bg-neutral-50 text-neutral-400 font-bold text-sm outline-none"
-                        />
-                    </div>
-                    <div className="space-y-1.5">
-                        <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Full Name</label>
-                        <div className="relative">
-                            <UserIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                            <input
-                                type="text" value={name} onChange={e => setName(e.target.value)} required
-                                className="w-full pl-10 pr-4 py-3 border-2 border-neutral-100 rounded-2xl focus:border-[#14a800]/50 outline-none font-bold text-sm transition-all"
-                            />
-                        </div>
-                    </div>
-                    <div className="space-y-1.5">
-                        <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Email Address</label>
-                        <div className="relative">
-                            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                            <input
-                                type="email" value={email} onChange={e => setEmail(e.target.value)} required
-                                className="w-full pl-10 pr-4 py-3 border-2 border-neutral-100 rounded-2xl focus:border-[#14a800]/50 outline-none font-bold text-sm transition-all"
-                            />
-                        </div>
-                    </div>
-                    <div className="space-y-1.5 md:col-span-2">
-                        <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Phone Number</label>
-                        <div className="relative">
-                            <Zap className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                            <input
-                                type="tel" value={phone} onChange={e => setPhone(e.target.value)}
-                                placeholder="+234 000 000 0000"
-                                className="w-full pl-10 pr-4 py-3 border-2 border-neutral-100 rounded-2xl focus:border-[#14a800]/50 outline-none font-bold text-sm transition-all"
-                            />
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Agent-specific fields */}
-            {isAgent && (
-                <>
-                    <section className="bg-white rounded-3xl border border-neutral-200 p-6 shadow-sm space-y-4">
-                        <h3 className="font-black text-neutral-900 text-sm uppercase tracking-widest">Professional Info</h3>
-                        <div className="space-y-1.5">
-                            <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Bio / About Me</label>
-                            <textarea
-                                rows={3} value={bio} onChange={e => setBio(e.target.value)}
-                                placeholder="Describe your experience..."
-                                className="w-full px-4 py-3 border-2 border-neutral-100 rounded-2xl focus:border-[#14a800]/50 outline-none font-bold text-sm transition-all resize-none"
-                            />
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-1.5">
-                                <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Base Location</label>
-                                <div className="relative">
-                                    <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                                    <input
-                                        type="text" value={location} onChange={e => setLocation(e.target.value)}
-                                        placeholder="e.g. Asokoro, Abuja"
-                                        className="w-full pl-10 pr-4 py-3 border-2 border-neutral-100 rounded-2xl focus:border-[#14a800]/50 outline-none font-bold text-sm transition-all"
-                                    />
-                                </div>
-                            </div>
-                            <div className="space-y-1.5">
-                                <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Skills (comma-separated)</label>
-                                <div className="relative">
-                                    <Zap className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                                    <input
-                                        type="text" value={skillsString} onChange={e => setSkillsString(e.target.value)}
-                                        placeholder="e.g. AC Repair, Electrical"
-                                        className="w-full pl-10 pr-4 py-3 border-2 border-neutral-100 rounded-2xl focus:border-[#14a800]/50 outline-none font-bold text-sm transition-all"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* ID Verification */}
-                    {!profile.is_vetted && (
-                        <section className="bg-white rounded-3xl border border-neutral-200 p-6 shadow-sm space-y-4">
-                            <h3 className="font-black text-neutral-900 text-sm uppercase tracking-widest">Identity Verification</h3>
-                            <p className="text-sm text-neutral-500 leading-relaxed">
-                                Upload your National ID, Voter's Card, or Passport to earn the <span className="text-[#14a800] font-black">Verified Pro</span> badge.
-                            </p>
-                            <label className={cn(
-                                'block border-2 border-dashed border-neutral-200 rounded-2xl p-6 hover:border-[#14a800] hover:bg-green-50/30 transition-all cursor-pointer text-center',
-                                isUploadingDoc && 'opacity-50 pointer-events-none'
-                            )}>
-                                {isUploadingDoc ? (
-                                    <div className="flex flex-col items-center gap-2">
-                                        <Loader2 className="w-6 h-6 animate-spin text-[#14a800]" />
-                                        <span className="text-xs font-black text-neutral-400 uppercase tracking-widest">Uploading...</span>
-                                    </div>
-                                ) : (
-                                    <div className="flex flex-col items-center gap-2">
-                                        <div className="w-10 h-10 bg-neutral-100 rounded-xl flex items-center justify-center">
-                                            <FileText className="w-5 h-5 text-neutral-400" />
-                                        </div>
-                                        <span className="text-sm font-black text-neutral-900">Choose Document (PDF or Image)</span>
-                                        <span className="text-xs text-neutral-400">Max 5MB</span>
-                                    </div>
-                                )}
-                                <input type="file" className="hidden" accept=".pdf,image/*" onChange={handleVerificationUpload} disabled={isUploadingDoc} />
-                            </label>
-                        </section>
-                    )}
-                </>
-            )}
-
-            {/* Actions */}
-            <div className="flex items-center justify-end pt-4">
-                <button
-                    type="submit"
-                    disabled={isSaving}
-                    className="flex items-center gap-2 px-8 py-3 bg-[#14a800] text-white rounded-2xl font-black text-sm hover:bg-[#118b00] transition-all shadow-lg shadow-green-200 active:scale-95 disabled:opacity-50"
-                >
-                    {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                    {isSaving ? 'Saving...' : 'Save Profile Changes'}
-                </button>
-            </div>
-        </form>
-    );
 
     // ─── MAIN RENDER ──────────────────────────────────────────────────────
     return (
@@ -455,7 +270,197 @@ const ClientProfileViewPage = () => {
                 {/* ── Basic Information (Permanent for owner) ── */}
                 {isOwnProfile && (
                     <div className="mb-6">
-                        <EditPanel />
+                        <form onSubmit={handleSave} className="space-y-6 animate-in fade-in duration-300">
+                            {message && (
+                                <div className={cn(
+                                    'p-4 rounded-2xl flex items-center gap-3 font-bold text-sm',
+                                    message.type === 'success'
+                                        ? 'bg-green-50 text-green-700 border border-green-100'
+                                        : 'bg-red-50 text-red-700 border border-red-100'
+                                )}>
+                                    <CheckCircle2 className="w-5 h-5 shrink-0" />
+                                    {message.text}
+                                </div>
+                            )}
+
+                            {/* Avatar upload */}
+                            <section className="bg-white rounded-3xl border border-neutral-200 p-6 shadow-sm flex items-center gap-6">
+                                <div className="relative group shrink-0">
+                                    <div className="w-20 h-20 rounded-2xl bg-neutral-100 overflow-hidden border-2 border-neutral-50 shadow-sm flex items-center justify-center relative">
+                                        <Avatar 
+                                            src={avatarPreview} 
+                                            name={name} 
+                                            sizeClassName="w-full h-full"
+                                            className="rounded-2xl"
+                                        />
+                                        {isUploadingAvatar && (
+                                            <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
+                                                <Loader2 className="w-6 h-6 animate-spin text-[#14a800]" />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <label className="absolute -bottom-2 -right-2 w-8 h-8 bg-[#14a800] rounded-xl flex items-center justify-center text-white cursor-pointer hover:bg-[#118b00] transition-all shadow-md">
+                                        <Camera className="w-4 h-4" />
+                                        <input type="file" className="hidden" accept="image/*" onChange={handleAvatarChange} disabled={isUploadingAvatar} />
+                                    </label>
+                                </div>
+                                <div>
+                                    <p className="font-black text-neutral-900 text-sm">Profile Photo</p>
+                                    <div className="flex items-center gap-3 mt-1.5">
+                                        <p className="text-xs text-neutral-400">Click icon to upload or</p>
+                                        <button 
+                                            type="button"
+                                            onClick={() => setIsCameraModalOpen(true)}
+                                            className="flex items-center gap-1.5 px-3 py-1.5 bg-neutral-900 hover:bg-black text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95"
+                                        >
+                                            <Camera className="w-3 h-3" /> Snap Photo
+                                        </button>
+                                    </div>
+                                </div>
+                            </section>
+
+                            {/* Basic Info */}
+                            <section className="bg-white rounded-3xl border border-neutral-200 p-6 shadow-sm space-y-4">
+                                <h3 className="font-black text-neutral-900 text-sm uppercase tracking-widest">Basic Information</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">User ID</label>
+                                        <input
+                                            type="text" value={currentUser?.uuid || ''} disabled
+                                            className="w-full px-4 py-3 border-2 border-neutral-100 rounded-2xl bg-neutral-50 text-neutral-400 font-bold text-sm outline-none"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Role</label>
+                                        <input
+                                            type="text" value={currentUser?.role || ''} disabled
+                                            className="w-full px-4 py-3 border-2 border-neutral-100 rounded-2xl bg-neutral-50 text-neutral-400 font-bold text-sm outline-none"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Full Name</label>
+                                        <div className="relative">
+                                            <UserIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                                            <input
+                                                type="text" value={name} onChange={e => setName(e.target.value)} required
+                                                className="w-full pl-10 pr-4 py-3 border-2 border-neutral-100 rounded-2xl focus:border-[#14a800]/50 outline-none font-bold text-sm transition-all"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Email Address</label>
+                                        <div className="relative">
+                                            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                                            <input
+                                                type="email" value={email} onChange={e => setEmail(e.target.value)} disabled
+                                                className="w-full pl-10 pr-4 py-3 border-2 border-neutral-100 rounded-2xl focus:border-[#14a800]/50 outline-none font-bold text-sm transition-all"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1.5 md:col-span-2">
+                                        <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Phone Number (11 Digits)</label>
+                                        <div className="relative">
+                                            <Zap className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                                            <input
+                                                type="tel" 
+                                                value={phone} 
+                                                onChange={e => {
+                                                    const val = e.target.value.replace(/\D/g, ''); // Numeric only
+                                                    if (val.length <= 11) {
+                                                        setPhone(val);
+                                                    }
+                                                }}
+                                                placeholder="080 0000 0000"
+                                                className="w-full pl-10 pr-4 py-3 border-2 border-neutral-100 rounded-2xl focus:border-[#14a800]/50 outline-none font-bold text-sm transition-all"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            {/* Agent-specific fields */}
+                            {isAgent && (
+                                <>
+                                    <section className="bg-white rounded-3xl border border-neutral-200 p-6 shadow-sm space-y-4">
+                                        <h3 className="font-black text-neutral-900 text-sm uppercase tracking-widest">Professional Info</h3>
+                                        <div className="space-y-1.5">
+                                            <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Bio / About Me</label>
+                                            <textarea
+                                                rows={3} value={bio} onChange={e => setBio(e.target.value)}
+                                                placeholder="Describe your experience..."
+                                                className="w-full px-4 py-3 border-2 border-neutral-100 rounded-2xl focus:border-[#14a800]/50 outline-none font-bold text-sm transition-all resize-none"
+                                            />
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="space-y-1.5">
+                                                <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Base Location</label>
+                                                <div className="relative">
+                                                    <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                                                    <input
+                                                        type="text" value={location} onChange={e => setLocation(e.target.value)}
+                                                        placeholder="e.g. Asokoro, Abuja"
+                                                        className="w-full pl-10 pr-4 py-3 border-2 border-neutral-100 rounded-2xl focus:border-[#14a800]/50 outline-none font-bold text-sm transition-all"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="space-y-1.5">
+                                                <label className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Skills (comma-separated)</label>
+                                                <div className="relative">
+                                                    <Zap className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                                                    <input
+                                                        type="text" value={skillsString} onChange={e => setSkillsString(e.target.value)}
+                                                        placeholder="e.g. AC Repair, Electrical"
+                                                        className="w-full pl-10 pr-4 py-3 border-2 border-neutral-100 rounded-2xl focus:border-[#14a800]/50 outline-none font-bold text-sm transition-all"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
+
+                                    {/* ID Verification */}
+                                    {!profile.is_vetted && (
+                                        <section className="bg-white rounded-3xl border border-neutral-200 p-6 shadow-sm space-y-4">
+                                            <h3 className="font-black text-neutral-900 text-sm uppercase tracking-widest">Identity Verification</h3>
+                                            <p className="text-sm text-neutral-500 leading-relaxed">
+                                                Upload your National ID, Voter's Card, or Passport to earn the <span className="text-[#14a800] font-black">Verified Pro</span> badge.
+                                            </p>
+                                            <label className={cn(
+                                                'block border-2 border-dashed border-neutral-200 rounded-2xl p-6 hover:border-[#14a800] hover:bg-green-50/30 transition-all cursor-pointer text-center',
+                                                isUploadingDoc && 'opacity-50 pointer-events-none'
+                                            )}>
+                                                {isUploadingDoc ? (
+                                                    <div className="flex flex-col items-center gap-2">
+                                                        <Loader2 className="w-6 h-6 animate-spin text-[#14a800]" />
+                                                        <span className="text-xs font-black text-neutral-400 uppercase tracking-widest">Uploading...</span>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex flex-col items-center gap-2">
+                                                        <div className="w-10 h-10 bg-neutral-100 rounded-xl flex items-center justify-center">
+                                                            <FileText className="w-5 h-5 text-neutral-400" />
+                                                        </div>
+                                                        <span className="text-sm font-black text-neutral-900">Choose Document (PDF or Image)</span>
+                                                        <span className="text-xs text-neutral-400">Max 5MB</span>
+                                                    </div>
+                                                )}
+                                                <input type="file" className="hidden" accept=".pdf,image/*" onChange={handleVerificationUpload} disabled={isUploadingDoc} />
+                                            </label>
+                                        </section>
+                                    )}
+                                </>
+                            )}
+
+                            {/* Actions */}
+                            <div className="flex items-center justify-end pt-4">
+                                <button
+                                    type="submit"
+                                    disabled={isSaving}
+                                    className="flex items-center gap-2 px-8 py-3 bg-[#14a800] text-white rounded-2xl font-black text-sm hover:bg-[#118b00] transition-all shadow-lg shadow-green-200 active:scale-95 disabled:opacity-50"
+                                >
+                                    {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                                    {isSaving ? 'Saving...' : 'Save Profile Changes'}
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 )}
 
