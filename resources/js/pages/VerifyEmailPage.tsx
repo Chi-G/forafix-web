@@ -50,20 +50,35 @@ const VerifyEmailPage = () => {
                     )}
 
                     <div className="space-y-6">
-                        <div className="text-center space-y-4">
-                            <p className="text-sm text-neutral-600 dark:text-neutral-400 font-inter leading-relaxed">
-                                Please click the link in the email to verify your account. If you don't see it, check your spam folder.
-                            </p>
-                            
-                            <button
-                                onClick={handleResend}
-                                disabled={isLoading}
-                                className="inline-flex items-center justify-center gap-2 text-sm font-bold text-brand-600 hover:text-brand-700 transition-colors disabled:opacity-50"
-                            >
-                                {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-                                Resend verification email
-                            </button>
-                        </div>
+                            {!email ? (
+                                <div className="space-y-4">
+                                    <p className="text-sm text-red-600 dark:text-red-400 font-medium text-center">
+                                        Email information is missing. Please go back to login and try again.
+                                    </p>
+                                    <button
+                                        onClick={() => navigate('/login')}
+                                        className="w-full flex justify-center items-center gap-2 py-3.5 px-4 border border-brand-200 rounded-xl bg-brand-50 text-sm font-bold text-brand-700 hover:bg-brand-100 transition-all"
+                                    >
+                                        <ArrowLeft className="w-4 h-4" />
+                                        Back to Login
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="text-center space-y-4">
+                                    <p className="text-sm text-neutral-600 dark:text-neutral-400 font-inter leading-relaxed">
+                                        Please click the link in the email to verify your account. If you don't see it, check your spam folder.
+                                    </p>
+                                    
+                                    <button
+                                        onClick={handleResend}
+                                        disabled={isLoading}
+                                        className="inline-flex items-center justify-center gap-2 text-sm font-bold text-brand-600 hover:text-brand-700 transition-colors disabled:opacity-50"
+                                    >
+                                        {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                                        Resend verification email
+                                    </button>
+                                </div>
+                            )}
 
                         <div className="pt-4 border-t border-neutral-100 dark:border-neutral-700">
                             <button

@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\VerificationController;
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\TwoFactorController;
+use App\Http\Controllers\Api\PasswordController;
 
 Broadcast::routes(['middleware' => ['auth:sanctum']]);
 
@@ -48,6 +49,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/agent/profile', [\App\Http\Controllers\Api\AgentController::class, 'update']);
     Route::post('/upload/avatar', [\App\Http\Controllers\Api\MediaController::class, 'uploadAvatar']);
     Route::post('/payments/initialize', [\App\Http\Controllers\Api\PaymentController::class, 'initialize']);
+
+    // Password Update
+    Route::post('/password/update', [PasswordController::class, 'update']);
 
     // 2FA
     Route::post('/two-factor/enable', [TwoFactorController::class, 'enable']);

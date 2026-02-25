@@ -52,12 +52,16 @@ class TwoFactorController extends Controller
         $secret = decrypt($user->two_factor_secret);
 
         if (Google2FA::verifyKey($secret, $request->code)) {
+            $recoveryCodes = $this->generateRecoveryCodes();
             $user->forceFill([
                 'two_factor_confirmed_at' => now(),
-                'two_factor_recovery_codes' => encrypt(json_encode($this->generateRecoveryCodes())),
+                'two_factor_recovery_codes' => encrypt(json_encode($recoveryCodes)),
             ])->save();
 
-            return response()->json(['message' => '2FA enabled successfully.']);
+            return response()->json([
+                'message' => '2FA enabled successfully.',
+                'recovery_codes' => $recoveryCodes,
+            ]);
         }
 
         return response()->json(['message' => 'Invalid verification code.'], 422);

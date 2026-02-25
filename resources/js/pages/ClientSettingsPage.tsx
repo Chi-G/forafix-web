@@ -322,15 +322,40 @@ const PasswordSecurity = () => {
     const { user, fetchUser } = useAuthStore();
     const [show, setShow] = useState({ cur: false, new: false, confirm: false });
     const [isLoading, setIsLoading] = useState(false);
+    const [passForm, setPassForm] = useState({ current_password: '', password: '', password_confirmation: '' });
+    
     const [twoFAModal, setTwoFAModal] = useState(false);
-    const [twoFAStep, setTwoFAStep] = useState<'qr' | 'confirm'>('qr');
+    const [twoFAStep, setTwoFAStep] = useState<'qr' | 'confirm' | 'recovery'>('qr');
     const [qrCode, setQrCode] = useState('');
     const [secret, setSecret] = useState('');
+    const [recoveryCodes, setRecoveryCodes] = useState<string[]>([]);
     const [confirmationCode, setConfirmationCode] = useState('');
     const [disablePassword, setDisablePassword] = useState('');
     const [showDisableModal, setShowDisableModal] = useState(false);
 
     const toggle = (k: keyof typeof show) => setShow(s => ({ ...s, [k]: !s[k] }));
+
+    const handleUpdatePassword = async () => {
+        if (!passForm.current_password || !passForm.password || !passForm.password_confirmation) {
+            toast.error('Please fill in all password fields.');
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            await axios.post('/password/update', passForm);
+            toast.success('Password updated successfully!');
+            setPassForm({ current_password: '', password: '', password_confirmation: '' });
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || 'Failed to update password.');
+            if (err.response?.data?.errors) {
+                const firstError = Object.values(err.response.data.errors)[0] as string[];
+                toast.error(firstError[0]);
+            }
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     const handleEnable2FA = async () => {
         setIsLoading(true);
@@ -350,10 +375,11 @@ const PasswordSecurity = () => {
     const handleConfirm2FA = async () => {
         setIsLoading(true);
         try {
-            await axios.post('/two-factor/confirm', { code: confirmationCode });
+            const response = await axios.post('/two-factor/confirm', { code: confirmationCode });
             toast.success('Two-factor authentication enabled!');
-            setTwoFAModal(false);
-            fetchUser(); // Refresh user state to show 2FA is enabled
+            setRecoveryCodes(response.data.recovery_codes || []);
+            setTwoFAStep('recovery');
+            fetchUser();
         } catch (err: any) {
             toast.error(err.response?.data?.message || 'Invalid code. Please try again.');
         } finally {
@@ -383,17 +409,46 @@ const PasswordSecurity = () => {
             <div className="max-w-md space-y-6">
                 <div className="space-y-4">
                     <h3 className="font-black text-neutral-800 dark:text-neutral-200">Change Password</h3>
-                    {(['cur', 'new', 'confirm'] as const).map((k, i) => (
-                        <Field key={k} label={['Current password', 'New password', 'Confirm new password'][i]}>
-                            <div className="relative">
-                                <Input type={show[k] ? 'text' : 'password'} placeholder="••••••••" />
-                                <button type="button" onClick={() => toggle(k)} className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400">
-                                    {show[k] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                </button>
-                            </div>
-                        </Field>
-                    ))}
-                    <Btn onClick={() => toast.success('Password updated!')}>Update password</Btn>
+                    <Field label="Current password">
+                        <div className="relative">
+                            <Input 
+                                type={show.cur ? 'text' : 'password'} 
+                                placeholder="••••••••" 
+                                value={passForm.current_password}
+                                onChange={e => setPassForm(p => ({ ...p, current_password: e.target.value }))}
+                            />
+                            <button type="button" onClick={() => toggle('cur')} className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400">
+                                {show.cur ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </button>
+                        </div>
+                    </Field>
+                    <Field label="New password">
+                        <div className="relative">
+                            <Input 
+                                type={show.new ? 'text' : 'password'} 
+                                placeholder="••••••••" 
+                                value={passForm.password}
+                                onChange={e => setPassForm(p => ({ ...p, password: e.target.value }))}
+                            />
+                            <button type="button" onClick={() => toggle('new')} className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400">
+                                {show.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </button>
+                        </div>
+                    </Field>
+                    <Field label="Confirm new password">
+                        <div className="relative">
+                            <Input 
+                                type={show.confirm ? 'text' : 'password'} 
+                                placeholder="••••••••" 
+                                value={passForm.password_confirmation}
+                                onChange={e => setPassForm(p => ({ ...p, password_confirmation: e.target.value }))}
+                            />
+                            <button type="button" onClick={() => toggle('confirm')} className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400">
+                                {show.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            </button>
+                        </div>
+                    </Field>
+                    <Btn onClick={handleUpdatePassword} disabled={isLoading}>Update password</Btn>
                 </div>
 
                 <div className="pt-6 border-t border-neutral-100 dark:border-neutral-800">
@@ -432,7 +487,7 @@ const PasswordSecurity = () => {
                                     </div>
                                     <Btn className="w-full" onClick={() => setTwoFAStep('confirm')}>I've scanned it</Btn>
                                 </div>
-                            ) : (
+                            ) : twoFAStep === 'confirm' ? (
                                 <div className="space-y-6">
                                     <p className="text-sm text-neutral-500 dark:text-neutral-400 font-medium text-center">Enter the 6-digit code from your app to confirm.</p>
                                     <Input 
@@ -446,6 +501,25 @@ const PasswordSecurity = () => {
                                         <Btn className="flex-1" onClick={handleConfirm2FA} disabled={confirmationCode.length < 6 || isLoading}>Verify & Enable</Btn>
                                         <Btn variant="outline" onClick={() => setTwoFAStep('qr')}>Back</Btn>
                                     </div>
+                                </div>
+                            ) : (
+                                <div className="space-y-6">
+                                    <div className="flex flex-col items-center gap-4 py-4">
+                                        <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
+                                            <ShieldCheck className="w-8 h-8 text-[#14a800]" />
+                                        </div>
+                                        <h3 className="text-lg font-black text-neutral-900 dark:text-neutral-100">2FA Enabled!</h3>
+                                    </div>
+                                    <div className="p-4 bg-neutral-50 dark:bg-neutral-800 rounded-2xl border border-neutral-100 dark:border-neutral-700 mt-4">
+                                        <p className="text-xs font-black text-neutral-400 tracking-widest uppercase mb-3">Recovery Codes</p>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {recoveryCodes.map((code, idx) => (
+                                                <div key={idx} className="text-xs font-mono font-bold text-neutral-600 dark:text-neutral-400 bg-white dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-700 p-2 rounded-lg text-center">{code}</div>
+                                            ))}
+                                        </div>
+                                        <p className="text-[10px] text-neutral-400 font-medium mt-3 text-center leading-relaxed">Save these codes in a safe place. You can use them to log in if you lose access to your authenticator app.</p>
+                                    </div>
+                                    <Btn className="w-full" onClick={() => setTwoFAModal(false)}>Finish</Btn>
                                 </div>
                             )}
                         </div>
@@ -483,7 +557,7 @@ const PasswordSecurity = () => {
                             </div>
                             {!s.current && <Btn variant="danger" className="text-xs" onClick={() => toast.success('Session revoked.')}>Revoke</Btn>}
                         </div>
-                    ))}
+                      ))}
                 </div>
             </div>
         </Section>
