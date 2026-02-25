@@ -54,7 +54,7 @@ const App = () => {
         if (isAuthenticated) {
             fetchUser();
         }
-    }, []);
+    }, [isAuthenticated, fetchUser]);
     return (
         <React.StrictMode>
             <HelmetProvider>

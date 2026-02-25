@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
     LogOut,
     User as UserIcon,
@@ -23,6 +23,7 @@ const Header = () => {
     const { user, clearAuth, isAuthenticated } = useAuthStore();
     const { extraActions } = useHeaderStore();
     const location = useLocation();
+    const navigate = useNavigate();
 
     const isClient = user?.role !== 'AGENT';
 
@@ -242,7 +243,10 @@ const Header = () => {
                                                 <Settings className="w-4 h-4" /> Settings
                                             </Link>
                                             <button
-                                                onClick={clearAuth}
+                                                onClick={() => {
+                                                    clearAuth();
+                                                    navigate('/');
+                                                }}
                                                 className="w-full flex items-center gap-3 px-5 py-3 text-sm font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors border-t border-neutral-50 dark:border-neutral-700 mt-2"
                                             >
                                                 <LogOut className="w-4 h-4" /> Logout
@@ -380,7 +384,11 @@ const Header = () => {
                                 </Link>
 
                                 <button
-                                    onClick={() => { clearAuth(); setMobileOpen(false); }}
+                                    onClick={() => { 
+                                        clearAuth(); 
+                                        setMobileOpen(false); 
+                                        navigate('/');
+                                    }}
                                     className="w-full flex items-center gap-3 px-3 py-3.5 rounded-xl font-bold text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
                                 >
                                     <LogOut className="w-4 h-4 shrink-0" /> Logout

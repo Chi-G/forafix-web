@@ -28,11 +28,21 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     setAuth: (user, token) => {
         localStorage.setItem('auth_token', token);
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+        // Reconnect Echo if it was disconnected
+        if (window.Echo) {
+            window.Echo.connect();
+        }
+
         set({ user, token, isAuthenticated: true });
     },
     clearAuth: () => {
         localStorage.removeItem('auth_token');
         delete axios.defaults.headers.common['Authorization'];
+        // Disconnect Echo if it exists to prevent 403/auth errors on logout
+        if (window.Echo) {
+            window.Echo.disconnect();
+        }
         set({ user: null, token: null, isAuthenticated: false });
     },
     fetchUser: async () => {
