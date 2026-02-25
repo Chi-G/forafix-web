@@ -86,7 +86,7 @@ const ClientDashboard = () => {
         };
     }, [user]);
 
-    const [isInternalLoading, setIsInternalLoading] = useState(true);
+
 
     const [selectedAgentForBooking, setSelectedAgentForBooking] = useState<any>(null);
 
@@ -112,18 +112,9 @@ const ClientDashboard = () => {
         }
     });
 
-    // 3-second artificial loading for UX
-    useEffect(() => {
-        // Echo auth headers are handled dynamically in bootstrap.js getter
 
-        setIsInternalLoading(true);
-        const timer = setTimeout(() => {
-            setIsInternalLoading(false);
-        }, 3000);
-        return () => clearTimeout(timer);
-    }, [category, location, activeTab]);
 
-    const isLoading = isAgentsLoading || isServicesLoading || isInternalLoading;
+    const isLoading = isAgentsLoading || isServicesLoading;
 
     // Client-side search & tab filtering
     const filteredAgents = useMemo(() => agents?.filter((agent: any) => {
@@ -412,7 +403,14 @@ const ClientDashboard = () => {
                                             >
                                                 All Categories
                                             </button>
-                                            {services?.map((svc: any) => {
+                                            {services?.filter((svc: any) => [
+                                                'Home Cleaning', 
+                                                'AC Maintenance', 
+                                                'Plumbing Works', 
+                                                'Laundry & Ironing', 
+                                                'Generator Repair', 
+                                                'Gardening'
+                                            ].includes(svc.name)).map((svc: any) => {
                                                 const svcCategory = svc.slug?.toUpperCase() || '';
                                                 return (
                                                     <button 
@@ -690,7 +688,7 @@ const ClientDashboard = () => {
                                 { to: '/cl/bookings',       icon: Briefcase,    label: 'My Bookings',  color: 'text-[#14a800]', bg: 'bg-[#14a800]/8 dark:bg-[#14a800]/10' },
                                 { to: '/cl/messages/rooms/', icon: MessageCircle, label: 'Messages',     color: 'text-blue-600',  bg: 'bg-blue-50 dark:bg-blue-900/10' },
                                 { to: '/cl/settings',       icon: SettingsIcon, label: 'Settings',     color: 'text-purple-600',bg: 'bg-purple-50 dark:bg-purple-900/10' },
-                                { to: '/cl/settings#help',  icon: HelpCircle,   label: 'Help & Support',color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-900/10' },
+                                { to: '/cl/settings?tab=help',  icon: HelpCircle,   label: 'Help & Support',color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-900/10' },
                             ].map(item => (
                                 <Link
                                     key={item.to}

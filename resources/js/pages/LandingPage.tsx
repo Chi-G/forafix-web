@@ -87,7 +87,7 @@ const LandingPage = () => {
 
                                     <div className="flex flex-wrap items-center gap-3">
                                         <span className="text-xs font-bold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">Popular:</span>
-                                        {['Cleaning', 'AC Repair', 'Plumbing'].map(tag => (
+                                        {['Home Cleaning', 'AC Maintenance', 'Plumbing Works'].map(tag => (
                                             <button 
                                                 key={tag}
                                                 onClick={() => navigate(`/cl/find-service`)}
@@ -145,10 +145,10 @@ const LandingPage = () => {
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             {[
-                                { name: 'House Cleaning', img: '/images/cleaning.png', icon: Sparkles, count: '120+ Agents', color: 'bg-orange-50' },
-                                { name: 'AC & Repairs', img: '/images/ac_repair.png', icon: Wrench, count: '85+ Agents', color: 'bg-blue-50' },
-                                { name: 'Plumbing', img: '/images/plumbing.png', icon: LifeBuoy, count: '64+ Agents', color: 'bg-cyan-50' },
-                                { name: 'Market Runs', img: '/images/market_runs.png', icon: ShoppingBasket, count: '42+ Agents', color: 'bg-green-50' }
+                                { name: 'Home Cleaning', img: '/images/cleaning.png', icon: Sparkles, count: '120+ Agents', color: 'bg-orange-50' },
+                                { name: 'AC Maintenance', img: '/images/ac_repair.png', icon: Wrench, count: '85+ Agents', color: 'bg-blue-50' },
+                                { name: 'Plumbing Works', img: '/images/plumbing.png', icon: LifeBuoy, count: '64+ Agents', color: 'bg-cyan-50' },
+                                { name: 'Laundry & Ironing', img: '/images/market_runs.png', icon: ShoppingBasket, count: '42+ Agents', color: 'bg-green-50' }
                             ].map((cat, i) => (
                                 <Link 
                                     key={i} 

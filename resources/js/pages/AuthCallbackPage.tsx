@@ -16,23 +16,14 @@ const AuthCallbackPage = () => {
 
             if (token) {
                 try {
-                    // Set token temporarily to fetch user info
-                    localStorage.setItem('auth_token', token);
-                    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                    // Just set the token and flip isAuthenticated to true.
+                    // The main App component's reactive useEffect will handle fetchUser().
+                    // We set a placeholder user if needed, or just set token.
+                    setAuth({ name: 'User', role: 'CLIENT' } as any, token);
                     
-                    const response = await axios.get('/api/me');
-                    const user = response.data;
-                    
-                    setAuth(user, token);
-                    
-                    // Always redirect to profile page for both CLIENT and AGENT after Google login
-                    // as it acts as a "Welcome/Overview" and confirms account details.
-                    if (user.uuid) {
-                        navigate(`/cl/${user.uuid}`);
-                    } else {
-                        // Fallback in case UUID is somehow missing
-                        navigate(user.role === 'AGENT' ? '/agent/dashboard' : '/cl/find-service');
-                    }
+                    // Redirect to a safe authenticated route.
+                    // App.tsx and ProtectedRoute will handle role-based navigation naturally.
+                    navigate('/cl/find-service');
                 } catch (error) {
                     console.error('Auth callback failed:', error);
                     navigate('/login?error=oauth_callback_failed');

@@ -19,15 +19,20 @@ window.Echo = new Echo({
     cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
     forceTLS: true,
     enabledTransports: ['ws', 'wss'],
-    authEndpoint: '/api/broadcasting/auth',
-    auth: {
-        headers: {
-            get Authorization() {
-                return `Bearer ${localStorage.getItem('auth_token')}`;
-            },
-            set Authorization(value) {
-                // No-op to prevent "Cannot set property Authorization which has only a getter"
-            },
-        },
+    authorizer: (channel, options) => {
+        return {
+            authorize: (socketId, callback) => {
+                axios.post('/broadcasting/auth', {
+                    socket_id: socketId,
+                    channel_name: channel.name
+                })
+                    .then(response => {
+                        callback(false, response.data);
+                    })
+                    .catch(error => {
+                        callback(true, error);
+                    });
+            }
+        };
     },
 });
