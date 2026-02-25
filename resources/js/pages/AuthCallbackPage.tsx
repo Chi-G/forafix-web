@@ -25,11 +25,13 @@ const AuthCallbackPage = () => {
                     
                     setAuth(user, token);
                     
-                    // Redirect based on role
-                    if (user.role === 'AGENT') {
-                        navigate('/agent/dashboard');
+                    // Always redirect to profile page for both CLIENT and AGENT after Google login
+                    // as it acts as a "Welcome/Overview" and confirms account details.
+                    if (user.uuid) {
+                        navigate(`/cl/${user.uuid}`);
                     } else {
-                        navigate('/cl/find-service');
+                        // Fallback in case UUID is somehow missing
+                        navigate(user.role === 'AGENT' ? '/agent/dashboard' : '/cl/find-service');
                     }
                 } catch (error) {
                     console.error('Auth callback failed:', error);

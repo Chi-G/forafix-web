@@ -2,26 +2,17 @@ import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
-import {
-    User as UserIcon,
-    MapPin,
-    ShieldCheck,
-    Loader2,
-    ChevronLeft,
-    Star,
-    Briefcase,
-    MessageCircle,
-    Calendar,
-    Verified,
-    Save,
-    CheckCircle2,
-    Camera,
-    Mail,
-    Zap,
-    FileText
+import { 
+    Star, Shield, MapPin, Briefcase, Calendar, Clock, CheckCircle2, 
+    MessageSquare, ShieldCheck, Mail, Phone, ExternalLink, Camera, 
+    AlertCircle, Loader2, User as UserIcon, Settings, X, ChevronRight, 
+    LayoutGrid, Share2, Info, ChevronLeft, Zap, FileText, Save, 
+    MessageCircle, Verified 
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useAuthStore } from '../store/useAuthStore';
+import Avatar from '../components/Avatar';
+import CameraCaptureModal from '../components/CameraCaptureModal';
 
 const ClientProfileViewPage = () => {
     const { uuid } = useParams<{ uuid: string }>();
@@ -29,6 +20,7 @@ const ClientProfileViewPage = () => {
 
     const [isSaving, setIsSaving] = useState(false);
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+    const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
     const [isUploadingDoc, setIsUploadingDoc] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -52,7 +44,7 @@ const ClientProfileViewPage = () => {
             setLocation(currentUser.agent_profile?.location_base || '');
             setSkillsString(currentUser.agent_profile?.skills?.join(', ') || '');
             setPhone(currentUser.phone || '');
-            setAvatarPreview(currentUser.avatar_url || '');
+            setAvatarPreview(currentUser.avatar_url || currentUser.avatar || '');
         }
     }, [currentUser]);
 
@@ -79,6 +71,10 @@ const ClientProfileViewPage = () => {
     const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
+        handlePhotoUpload(file);
+    };
+
+    const handlePhotoUpload = async (file: File) => {
         const reader = new FileReader();
         reader.onloadend = () => setAvatarPreview(reader.result as string);
         reader.readAsDataURL(file);
@@ -164,7 +160,9 @@ const ClientProfileViewPage = () => {
 
     // ─── Display data: prefer live currentUser for own profile ─────────────
     const displayName    = isOwnProfile ? (currentUser?.name   ?? profile.name)   : profile.name;
-    const displayAvatar  = isOwnProfile ? (currentUser?.avatar_url ?? profile.avatar_url) : profile.avatar_url;
+    const displayAvatar  = isOwnProfile 
+        ? (currentUser?.avatar_url ?? currentUser?.avatar ?? profile.avatar_url ?? profile.avatar)
+        : (profile.avatar_url ?? profile.avatar);
     const agentProfile   = isOwnProfile ? currentUser?.agent_profile : profile.agent_profile;
 
     // ─── EDIT PANEL (own profile only) ────────────────────────────────────
@@ -185,12 +183,13 @@ const ClientProfileViewPage = () => {
             {/* Avatar upload */}
             <section className="bg-white rounded-3xl border border-neutral-200 p-6 shadow-sm flex items-center gap-6">
                 <div className="relative group shrink-0">
-                    <div className="w-20 h-20 rounded-2xl bg-neutral-100 overflow-hidden border-2 border-neutral-50 shadow-sm flex items-center justify-center">
-                        {avatarPreview ? (
-                            <img src={avatarPreview} className="w-full h-full object-cover" alt="avatar" />
-                        ) : (
-                            <UserIcon className="w-8 h-8 text-neutral-300" />
-                        )}
+                    <div className="w-20 h-20 rounded-2xl bg-neutral-100 overflow-hidden border-2 border-neutral-50 shadow-sm flex items-center justify-center relative">
+                        <Avatar 
+                            src={avatarPreview} 
+                            name={name} 
+                            sizeClassName="w-full h-full"
+                            className="rounded-2xl"
+                        />
                         {isUploadingAvatar && (
                             <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
                                 <Loader2 className="w-6 h-6 animate-spin text-[#14a800]" />
@@ -204,7 +203,16 @@ const ClientProfileViewPage = () => {
                 </div>
                 <div>
                     <p className="font-black text-neutral-900 text-sm">Profile Photo</p>
-                    <p className="text-xs text-neutral-400 mt-0.5">Click the camera icon to upload</p>
+                    <div className="flex items-center gap-3 mt-1.5">
+                        <p className="text-xs text-neutral-400">Click icon to upload or</p>
+                        <button 
+                            type="button"
+                            onClick={() => setIsCameraModalOpen(true)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 bg-neutral-900 hover:bg-black text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95"
+                        >
+                            <Camera className="w-3 h-3" /> Snap Photo
+                        </button>
+                    </div>
                 </div>
             </section>
 
@@ -364,13 +372,12 @@ const ClientProfileViewPage = () => {
                         <div className="flex items-end justify-between -mt-14 mb-5">
                             <div className="relative">
                                 <div className="w-28 h-28 rounded-[2rem] bg-white border-4 border-white shadow-xl overflow-hidden flex items-center justify-center">
-                                    {displayAvatar ? (
-                                        <img src={displayAvatar} alt={displayName} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <div className="w-full h-full bg-[#14a800]/10 flex items-center justify-center">
-                                            <span className="text-4xl font-black text-[#14a800]">{displayName?.[0]}</span>
-                                        </div>
-                                    )}
+                                    <Avatar 
+                                        src={displayAvatar} 
+                                        name={displayName} 
+                                        sizeClassName="w-full h-full"
+                                        className="rounded-none"
+                                    />
                                 </div>
                                 {profile.is_vetted && (
                                     <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-[#14a800] rounded-full flex items-center justify-center border-2 border-white shadow-md">
@@ -512,6 +519,12 @@ const ClientProfileViewPage = () => {
                 )}
 
             </main>
+
+            <CameraCaptureModal 
+                isOpen={isCameraModalOpen}
+                onClose={() => setIsCameraModalOpen(false)}
+                onCapture={handlePhotoUpload}
+            />
         </div>
     );
 };

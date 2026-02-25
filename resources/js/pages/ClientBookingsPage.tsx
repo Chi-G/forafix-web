@@ -17,6 +17,10 @@ import {
 } from 'lucide-react';
 import { formatNaira, cn } from '../lib/utils';
 import { Link, useNavigate } from 'react-router-dom';
+import BookingDetailModal from '../components/BookingDetailModal';
+import Avatar from '../components/Avatar';
+import { useBookingStore } from '../store/useBookingStore';
+import { toast } from 'react-hot-toast';
 
 const formatDate = (dateString: string) => {
     return new Intl.DateTimeFormat('en-US', {
@@ -41,6 +45,13 @@ const ClientBookingsPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 5;
 
+    const [selectedBooking, setSelectedBooking] = useState<any>(null);
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+    const [immediateCancel, setImmediateCancel] = useState(false);
+    const [confirmingCancelId, setConfirmingCancelId] = useState<number | null>(null);
+
+    const { updateStatus, isLoading: isUpdating } = useBookingStore();
+
     const { data: bookings, isLoading, refetch } = useQuery({
         queryKey: ['client-bookings'],
         queryFn: async () => {
@@ -48,6 +59,27 @@ const ClientBookingsPage = () => {
             return response.data;
         }
     });
+
+    const handleViewDetails = (booking: any) => {
+        setSelectedBooking(booking);
+        setImmediateCancel(false);
+        setIsDetailModalOpen(true);
+    };
+
+    const handleCancelClick = (booking: any) => {
+        setConfirmingCancelId(booking.id);
+    };
+
+    const handleConfirmCancel = async (id: number) => {
+        try {
+            await updateStatus(id, 'CANCELLED');
+            toast.success('Booking cancelled successfully');
+            setConfirmingCancelId(null);
+            refetch();
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || 'Failed to cancel booking');
+        }
+    };
 
     const filteredBookings = useMemo(() => {
         if (!bookings) return [];
@@ -150,106 +182,137 @@ const ClientBookingsPage = () => {
                     </Link>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 gap-6">
-                    {paginatedBookings.map((booking: any) => (
-                        <div key={booking.id} className="bg-white rounded-[2.5rem] border-2 border-neutral-100 hover:border-[#14a800]/30 transition-all p-4 sm:p-8 flex flex-col lg:flex-row gap-8 shadow-sm hover:shadow-xl hover:shadow-green-50/50 group">
-                            {/* Pro Info Section */}
-                            <div className="lg:w-1/3 flex items-start gap-6 border-b lg:border-b-0 lg:border-r border-neutral-100 pb-6 lg:pb-0 lg:pr-8">
-                                <div className="relative">
-                                    <div className="w-20 h-20 bg-brand-50 rounded-[1.5rem] flex items-center justify-center text-3xl font-black text-[#14a800] border-2 border-white shadow-lg shadow-green-100">
-                                        {booking.agent?.name?.[0]}
+                <div className="space-y-12">
+                    <div className="grid grid-cols-1 gap-6">
+                        {paginatedBookings.map((booking: any) => (
+                            <div key={booking.id} className="bg-white rounded-[2.5rem] border-2 border-neutral-100 hover:border-[#14a800]/30 transition-all p-4 sm:p-8 flex flex-col lg:flex-row gap-8 shadow-sm hover:shadow-xl hover:shadow-green-50/50 group">
+                                {/* Pro Info Section */}
+                                <div className="lg:w-1/3 flex items-start gap-6 border-b lg:border-b-0 lg:border-r border-neutral-100 pb-6 lg:pb-0 lg:pr-8">
+                                    <div className="relative">
+                                        <Avatar 
+                                            src={booking.agent?.avatar_url || booking.agent?.avatar} 
+                                            name={booking.agent?.name} 
+                                            sizeClassName="w-20 h-20"
+                                            className="bg-brand-50 rounded-[1.5rem] border-2 border-white shadow-lg shadow-green-100"
+                                        />
+                                        <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-white rounded-full flex items-center justify-center border border-neutral-100 shadow-sm">
+                                            <ShieldCheck className="w-4 h-4 text-[#14a800]" />
+                                        </div>
                                     </div>
-                                    <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-white rounded-full flex items-center justify-center border border-neutral-100 shadow-sm">
-                                        <ShieldCheck className="w-4 h-4 text-[#14a800]" />
+                                    <div className="flex-1">
+                                        <h3 className="text-xl font-black text-neutral-900 mb-1 group-hover:text-[#14a800] transition-colors">{booking.agent?.name}</h3>
+                                        <p className="text-xs font-black text-neutral-400 uppercase tracking-widest mb-4">Certified Expert</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            <Link to={`/cl/messages/rooms/${booking.agent?.uuid}`} className="p-2 text-neutral-400 hover:text-[#14a800] hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-xl transition-all border border-neutral-100 dark:border-neutral-800">
+                                                <MessageSquare className="w-5 h-5" />
+                                            </Link>
+                                            <Link to={`/service/${booking.agent?.uuid}`} className="p-2 text-neutral-400 hover:text-[#14a800] hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-xl transition-all border border-neutral-100 dark:border-neutral-800">
+                                                <ExternalLink className="w-5 h-5" />
+                                            </Link>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="flex-1">
-                                    <h3 className="text-xl font-black text-neutral-900 mb-1 group-hover:text-[#14a800] transition-colors">{booking.agent?.name}</h3>
-                                    <p className="text-xs font-black text-neutral-400 uppercase tracking-widest mb-4">Certified Expert</p>
-                                    <div className="flex flex-wrap gap-2">
-                                        <Link to={`/cl/messages/rooms/${booking.agent?.uuid}`} className="p-2 text-neutral-400 hover:text-[#14a800] hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-xl transition-all border border-neutral-100 dark:border-neutral-800">
-                                            <MessageSquare className="w-5 h-5" />
-                                        </Link>
-                                        <Link to={`/service/${booking.agent?.uuid}`} className="p-2 text-neutral-400 hover:text-[#14a800] hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-xl transition-all border border-neutral-100 dark:border-neutral-800">
-                                            <ExternalLink className="w-5 h-5" />
-                                        </Link>
+
+                                {/* Service Details Section */}
+                                <div className="flex-1 space-y-6">
+                                    <div className="flex items-start justify-between">
+                                        <div>
+                                            <div className={cn(
+                                                "inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] border mb-4",
+                                                getStatusColor(booking.status)
+                                            )}>
+                                                {booking.status === 'PENDING' && <Clock className="w-3 h-3" />}
+                                                {booking.status === 'ACCEPTED' && <Calendar className="w-3 h-3" />}
+                                                {booking.status === 'COMPLETED' && <CheckCircle2 className="w-3 h-3" />}
+                                                {booking.status === 'CANCELLED' && <AlertCircle className="w-3 h-3" />}
+                                                {booking.status}
+                                            </div>
+                                            <h4 className="text-2xl font-black text-neutral-900 tracking-tight">{booking.service?.name}</h4>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-xs font-black text-neutral-400 uppercase tracking-widest mb-1">Total Amount</p>
+                                            <p className="text-2xl font-black text-neutral-900">{formatNaira(booking.total_price)}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        <div className="flex items-center gap-3 text-neutral-600">
+                                            <div className="w-10 h-10 bg-neutral-50 rounded-xl flex items-center justify-center border border-neutral-100">
+                                                <Calendar className="w-5 h-5 text-neutral-400" />
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Date</p>
+                                                <p className="text-sm font-bold text-neutral-900">{formatDate(booking.scheduled_at)}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-3 text-neutral-600">
+                                            <div className="w-10 h-10 bg-neutral-50 rounded-xl flex items-center justify-center border border-neutral-100">
+                                                <Clock className="w-5 h-5 text-neutral-400" />
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Arrival Window</p>
+                                                <p className="text-sm font-bold text-neutral-900">{formatTime(booking.scheduled_at)}</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-3 text-neutral-600 col-span-1 md:col-span-2 lg:col-span-1">
+                                            <div className="w-10 h-10 bg-neutral-50 rounded-xl flex items-center justify-center border border-neutral-100">
+                                                <MapPin className="w-5 h-5 text-neutral-400" />
+                                            </div>
+                                            <div className="flex-1">
+                                                <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Work Address</p>
+                                                <p className="text-sm font-bold text-neutral-900 truncate max-w-[200px]">{booking.address}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center justify-between pt-6 border-t border-neutral-100">
+                                        <p className="text-xs font-bold text-neutral-400 italic">Booked on {formatDate(booking.created_at)}</p>
+                                        <div className="flex gap-4">
+                                            {booking.status === 'PENDING' && (
+                                                <div className="flex items-center gap-2">
+                                                    {confirmingCancelId === booking.id ? (
+                                                        <div className="flex items-center gap-2 animate-in slide-in-from-right-2 duration-300">
+                                                            <button 
+                                                                onClick={() => handleConfirmCancel(booking.id)}
+                                                                disabled={isUpdating}
+                                                                className="px-4 py-2.5 bg-red-600 text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-red-700 transition-all active:scale-95 shadow-lg shadow-red-100"
+                                                            >
+                                                                {isUpdating ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Confirm'}
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => setConfirmingCancelId(null)}
+                                                                className="px-4 py-2.5 bg-neutral-100 text-neutral-500 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-neutral-200 transition-all"
+                                                            >
+                                                                Keep
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <button 
+                                                            onClick={() => handleCancelClick(booking)}
+                                                            className="px-6 py-2.5 bg-neutral-100 text-neutral-500 rounded-full text-xs font-black uppercase tracking-widest hover:bg-red-50 hover:text-red-500 transition-all active:scale-95"
+                                                        >
+                                                            Cancel Request
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            )}
+                                            {booking.status === 'COMPLETED' && (
+                                                <button className="flex items-center gap-2 px-6 py-2.5 bg-brand-50 text-[#14a800] rounded-full text-xs font-black uppercase tracking-widest hover:bg-brand-100 transition-all active:scale-95 border border-[#14a800]/10">
+                                                    <RotateCcw className="w-3 h-3" /> Re-book Expert
+                                                </button>
+                                            )}
+                                            <button 
+                                                onClick={() => handleViewDetails(booking)} 
+                                                className="px-8 py-2.5 bg-neutral-900 text-white rounded-full text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-md active:scale-95"
+                                            >
+                                                View Details
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Service Details Section */}
-                            <div className="flex-1 space-y-6">
-                                <div className="flex items-start justify-between">
-                                    <div>
-                                        <div className={cn(
-                                            "inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-[0.2em] border mb-4",
-                                            getStatusColor(booking.status)
-                                        )}>
-                                            {booking.status === 'PENDING' && <Clock className="w-3 h-3" />}
-                                            {booking.status === 'ACCEPTED' && <Calendar className="w-3 h-3" />}
-                                            {booking.status === 'COMPLETED' && <CheckCircle2 className="w-3 h-3" />}
-                                            {booking.status === 'CANCELLED' && <AlertCircle className="w-3 h-3" />}
-                                            {booking.status}
-                                        </div>
-                                        <h4 className="text-2xl font-black text-neutral-900 tracking-tight">{booking.service?.name}</h4>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-xs font-black text-neutral-400 uppercase tracking-widest mb-1">Total Amount</p>
-                                        <p className="text-2xl font-black text-neutral-900">{formatNaira(booking.total_price)}</p>
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    <div className="flex items-center gap-3 text-neutral-600">
-                                        <div className="w-10 h-10 bg-neutral-50 rounded-xl flex items-center justify-center border border-neutral-100">
-                                            <Calendar className="w-5 h-5 text-neutral-400" />
-                                        </div>
-                                        <div>
-                                            <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Date</p>
-                                            <p className="text-sm font-bold text-neutral-900">{formatDate(booking.scheduled_at)}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-3 text-neutral-600">
-                                        <div className="w-10 h-10 bg-neutral-50 rounded-xl flex items-center justify-center border border-neutral-100">
-                                            <Clock className="w-5 h-5 text-neutral-400" />
-                                        </div>
-                                        <div>
-                                            <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Arrival Window</p>
-                                            <p className="text-sm font-bold text-neutral-900">{formatTime(booking.scheduled_at)}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-3 text-neutral-600 col-span-1 md:col-span-2 lg:col-span-1">
-                                        <div className="w-10 h-10 bg-neutral-50 rounded-xl flex items-center justify-center border border-neutral-100">
-                                            <MapPin className="w-5 h-5 text-neutral-400" />
-                                        </div>
-                                        <div className="flex-1">
-                                            <p className="text-[10px] font-black text-neutral-400 uppercase tracking-widest">Work Address</p>
-                                            <p className="text-sm font-bold text-neutral-900 truncate max-w-[200px]">{booking.address}</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center justify-between pt-6 border-t border-neutral-100">
-                                    <p className="text-xs font-bold text-neutral-400 italic">Booked on {formatDate(booking.created_at)}</p>
-                                    <div className="flex gap-4">
-                                        {booking.status === 'PENDING' && (
-                                            <button className="px-6 py-2.5 bg-neutral-100 text-neutral-500 rounded-full text-xs font-black uppercase tracking-widest hover:bg-neutral-200 transition-all active:scale-95">
-                                                Cancel Request
-                                            </button>
-                                        )}
-                                        {booking.status === 'COMPLETED' && (
-                                            <button className="flex items-center gap-2 px-6 py-2.5 bg-brand-50 text-[#14a800] rounded-full text-xs font-black uppercase tracking-widest hover:bg-brand-100 transition-all active:scale-95 border border-[#14a800]/10">
-                                                <RotateCcw className="w-3 h-3" /> Re-book Expert
-                                            </button>
-                                        )}
-                                        <button onClick={() => navigate(`/service/${booking.agent?.uuid}`)} className="px-8 py-2.5 bg-neutral-900 text-white rounded-full text-xs font-black uppercase tracking-widest hover:bg-black transition-all shadow-md active:scale-95">
-                                            View Details
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                     
                     {/* Pagination Controls */}
                     {totalPages > 1 && (
@@ -290,6 +353,14 @@ const ClientBookingsPage = () => {
                     )}
                 </div>
             )}
+
+            <BookingDetailModal 
+                booking={selectedBooking} 
+                isOpen={isDetailModalOpen} 
+                onClose={() => setIsDetailModalOpen(false)}
+                onStatusUpdate={refetch}
+                initialConfirmCancel={immediateCancel}
+            />
         </div>
     );
 };

@@ -11,6 +11,7 @@ export interface User {
     loyalty_points?: number;
     balance?: number;
     avatar_url?: string;
+    avatar?: string;
     agent_profile?: AgentProfile;
     created_at: string;
 }
