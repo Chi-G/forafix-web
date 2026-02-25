@@ -39,8 +39,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         try {
             const response = await axios.get('/me');
             set({ user: response.data, isAuthenticated: true });
-        } catch (error) {
-            get().clearAuth();
+        } catch (error: any) {
+            // Only clear auth on 401 Unauthorized
+            if (error.response?.status === 401) {
+                get().clearAuth();
+            }
         }
     },
     updateProfile: async (data) => {

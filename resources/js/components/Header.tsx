@@ -17,6 +17,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useHeaderStore } from '../store/useHeaderStore';
 import { useNotificationStore } from '../store/useNotificationStore';
 import { cn } from '../lib/utils';
+import Avatar from './Avatar';
 
 const Header = () => {
     const { user, clearAuth, isAuthenticated } = useAuthStore();
@@ -214,9 +215,12 @@ const Header = () => {
                                         onClick={() => setProfileOpen(o => !o)}
                                         className="flex items-center gap-2 hover:opacity-80 transition-opacity"
                                     >
-                                        <div className="w-9 h-9 bg-brand-50 dark:bg-[#14a800]/20 rounded-full flex items-center justify-center font-black text-[#14a800] text-sm border-2 border-white dark:border-neutral-800 shadow-sm">
-                                            {user?.name?.[0]}
-                                        </div>
+                                        <Avatar 
+                                            src={user?.avatar_url || user?.avatar} 
+                                            name={user?.name} 
+                                            sizeClassName="w-9 h-9"
+                                            className="border-2 border-white dark:border-neutral-800 shadow-sm"
+                                        />
                                         <ChevronDown className={cn('w-4 h-4 text-neutral-400 dark:text-neutral-500 transition-transform', profileOpen && 'rotate-180')} />
                                     </button>
 
@@ -347,9 +351,12 @@ const Header = () => {
 
                                 {/* User identity */}
                                 <div className="flex items-center gap-3 px-3 py-3 mb-2 bg-neutral-50 dark:bg-neutral-800 rounded-xl">
-                                    <div className="w-10 h-10 bg-brand-50 dark:bg-[#14a800]/20 rounded-full flex items-center justify-center font-black text-[#14a800] text-sm border-2 border-white dark:border-neutral-700 shadow-sm shrink-0">
-                                        {user?.name?.[0]}
-                                    </div>
+                                    <Avatar 
+                                        src={user?.avatar_url || user?.avatar} 
+                                        name={user?.name} 
+                                        sizeClassName="w-10 h-10"
+                                        className="border-2 border-white dark:border-neutral-700 shadow-sm"
+                                    />
                                     <div className="min-w-0">
                                         <p className="font-bold text-neutral-900 dark:text-neutral-100 text-sm truncate">{user?.name}</p>
                                         <p className="text-[10px] font-black text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">{user?.role}</p>
