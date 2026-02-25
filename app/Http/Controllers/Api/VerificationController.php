@@ -52,7 +52,15 @@ class VerificationController extends Controller
             return response()->json(['message' => 'Email already verified.'], 400);
         }
 
-        $user->sendEmailVerificationNotification();
+        try {
+            $user->sendEmailVerificationNotification();
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Verification Resend Failed: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Failed to send verification email. Please contact support or try again later.',
+                'debug' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
+        }
 
         return response()->json(['message' => 'Verification link sent.']);
     }
