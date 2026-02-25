@@ -37,8 +37,8 @@ const AgentRegisterPage = () => {
                 role: 'AGENT',
             });
             const { user, access_token } = response.data;
-            setAuth(user, access_token);
-            navigate('/agent/dashboard');
+            // No setAuth here because they need to verify first
+            navigate('/auth/verify-email', { state: { email } });
         } catch (err: any) {
             setError(err.response?.data?.message || 'Registration failed. Please try again.');
         } finally {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import axios from 'axios';
 import { useAuthStore } from '../store/useAuthStore';
 import { useThemeStore } from '../store/useThemeStore';
 import toast from 'react-hot-toast';
@@ -318,9 +319,64 @@ const IdentityVerification = () => {
 
 // ── 5. Password & Security ───────────────────────────────────────────────────
 const PasswordSecurity = () => {
+    const { user, fetchUser } = useAuthStore();
     const [show, setShow] = useState({ cur: false, new: false, confirm: false });
-    const [twoFA, setTwoFA] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [twoFAModal, setTwoFAModal] = useState(false);
+    const [twoFAStep, setTwoFAStep] = useState<'qr' | 'confirm'>('qr');
+    const [qrCode, setQrCode] = useState('');
+    const [secret, setSecret] = useState('');
+    const [confirmationCode, setConfirmationCode] = useState('');
+    const [disablePassword, setDisablePassword] = useState('');
+    const [showDisableModal, setShowDisableModal] = useState(false);
+
     const toggle = (k: keyof typeof show) => setShow(s => ({ ...s, [k]: !s[k] }));
+
+    const handleEnable2FA = async () => {
+        setIsLoading(true);
+        try {
+            const response = await axios.post('/two-factor/enable');
+            setQrCode(response.data.qr_code);
+            setSecret(response.data.secret);
+            setTwoFAStep('qr');
+            setTwoFAModal(true);
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || 'Failed to initiate 2FA setup.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleConfirm2FA = async () => {
+        setIsLoading(true);
+        try {
+            await axios.post('/two-factor/confirm', { code: confirmationCode });
+            toast.success('Two-factor authentication enabled!');
+            setTwoFAModal(false);
+            fetchUser(); // Refresh user state to show 2FA is enabled
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || 'Invalid code. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleDisable2FA = async () => {
+        setIsLoading(true);
+        try {
+            await axios.post('/two-factor/disable', { password: disablePassword });
+            toast.success('Two-factor authentication disabled.');
+            setShowDisableModal(false);
+            setDisablePassword('');
+            fetchUser();
+        } catch (err: any) {
+            toast.error(err.response?.data?.message || 'Incorrect password.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const is2FAEnabled = !!user?.two_factor_confirmed_at;
 
     return (
         <Section title="Password & Security" subtitle="Keep your account safe">
@@ -345,14 +401,76 @@ const PasswordSecurity = () => {
                     <div className="flex items-center justify-between p-4 rounded-2xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700">
                         <div>
                             <p className="font-black text-sm text-neutral-900 dark:text-neutral-100 font-inter">Authenticator app (2FA)</p>
-                            <p className="text-xs text-neutral-500 dark:text-neutral-400 font-inter mt-0.5">{twoFA ? 'Currently enabled' : 'Adds an extra layer of security'}</p>
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400 font-inter mt-0.5">{is2FAEnabled ? 'Currently enabled' : 'Adds an extra layer of security'}</p>
                         </div>
-                        <button onClick={() => { setTwoFA(v => !v); toast.success(twoFA ? '2FA disabled' : '2FA enabled!'); }}
-                            className={cn('w-12 h-6 rounded-full transition-colors relative', twoFA ? 'bg-[#14a800]' : 'bg-neutral-300 dark:bg-neutral-700')}>
-                            <div className={cn('absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform', twoFA ? 'left-6' : 'left-0.5')} />
+                        <button 
+                            onClick={() => is2FAEnabled ? setShowDisableModal(true) : handleEnable2FA()}
+                            disabled={isLoading}
+                            className={cn('w-12 h-6 rounded-full transition-colors relative', is2FAEnabled ? 'bg-[#14a800]' : 'bg-neutral-300 dark:bg-neutral-700')}
+                        >
+                            <div className={cn('absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform', is2FAEnabled ? 'left-6' : 'left-0.5')} />
                         </button>
                     </div>
                 </div>
+
+                {/* 2FA Enable Modal */}
+                {twoFAModal && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setTwoFAModal(false)}>
+                        <div className="bg-white dark:bg-neutral-900 rounded-3xl shadow-2xl p-8 w-full max-w-md m-4 border border-neutral-100 dark:border-neutral-800 animate-in zoom-in-95" onClick={e => e.stopPropagation()}>
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-xl font-black text-neutral-900 dark:text-neutral-100 tracking-tight">Security Setup</h3>
+                                <button onClick={() => setTwoFAModal(false)} className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"><X className="w-5 h-5 text-neutral-400" /></button>
+                            </div>
+
+                            {twoFAStep === 'qr' ? (
+                                <div className="space-y-6 text-center">
+                                    <p className="text-sm text-neutral-500 dark:text-neutral-400 font-medium">Scan this QR code with your authenticator app (like Google Authenticator or Authy).</p>
+                                    <div className="bg-white p-4 rounded-2xl inline-block border border-neutral-100 mx-auto" dangerouslySetInnerHTML={{ __html: qrCode }} />
+                                    <div className="p-4 bg-neutral-50 dark:bg-neutral-800 rounded-xl border border-neutral-100 dark:border-neutral-700">
+                                        <p className="text-[10px] uppercase font-black text-neutral-400 tracking-widest mb-1">Secret Key</p>
+                                        <code className="text-xs font-mono font-bold text-neutral-700 dark:text-neutral-300 break-all">{secret}</code>
+                                    </div>
+                                    <Btn className="w-full" onClick={() => setTwoFAStep('confirm')}>I've scanned it</Btn>
+                                </div>
+                            ) : (
+                                <div className="space-y-6">
+                                    <p className="text-sm text-neutral-500 dark:text-neutral-400 font-medium text-center">Enter the 6-digit code from your app to confirm.</p>
+                                    <Input 
+                                        placeholder="000 000" 
+                                        className="text-center text-2xl tracking-[0.3em] font-black"
+                                        maxLength={6}
+                                        value={confirmationCode}
+                                        onChange={e => setConfirmationCode(e.target.value)}
+                                    />
+                                    <div className="flex gap-3">
+                                        <Btn className="flex-1" onClick={handleConfirm2FA} disabled={confirmationCode.length < 6 || isLoading}>Verify & Enable</Btn>
+                                        <Btn variant="outline" onClick={() => setTwoFAStep('qr')}>Back</Btn>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* 2FA Disable Modal */}
+                {showDisableModal && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setShowDisableModal(false)}>
+                        <div className="bg-white dark:bg-neutral-900 rounded-3xl shadow-2xl p-8 w-full max-w-sm m-4 border border-neutral-100 dark:border-neutral-800 animate-in zoom-in-95" onClick={e => e.stopPropagation()}>
+                            <h3 className="text-xl font-black text-neutral-900 dark:text-neutral-100 tracking-tight mb-4 text-center">Disable Security?</h3>
+                            <p className="text-sm text-red-500 font-medium text-center mb-6">You're removing an essential layer of security. Please enter your password to continue.</p>
+                            <Input 
+                                type="password" 
+                                placeholder="Account Password" 
+                                value={disablePassword}
+                                onChange={e => setDisablePassword(e.target.value)}
+                            />
+                            <div className="flex gap-3 mt-6">
+                                <Btn variant="danger" className="flex-1" onClick={handleDisable2FA} disabled={!disablePassword || isLoading}>Disable 2FA</Btn>
+                                <Btn variant="outline" className="flex-1" onClick={() => setShowDisableModal(false)}>Keep it on</Btn>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 <div className="pt-6 border-t border-neutral-100 dark:border-neutral-800">
                     <h3 className="font-black text-neutral-800 dark:text-neutral-200 mb-4">Active Sessions</h3>

@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Broadcast;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\OAuthController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\VerificationController;
+use App\Http\Controllers\Api\ForgotPasswordController;
+use App\Http\Controllers\Api\TwoFactorController;
 
 Broadcast::routes(['middleware' => ['auth:sanctum']]);
 
@@ -15,6 +18,14 @@ Route::post('/login', [AuthController::class, 'login']);
 // Google OAuth
 Route::get('/auth/google', [OAuthController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [OAuthController::class, 'handleGoogleCallback']);
+
+// Email Verification
+Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])->name('verification.verify');
+Route::post('/email/resend', [VerificationController::class, 'resend'])->middleware(['throttle:6,1']);
+
+// Password Reset
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
+Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])->name('password.reset');
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
@@ -37,7 +48,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/agent/profile', [\App\Http\Controllers\Api\AgentController::class, 'update']);
     Route::post('/upload/avatar', [\App\Http\Controllers\Api\MediaController::class, 'uploadAvatar']);
     Route::post('/payments/initialize', [\App\Http\Controllers\Api\PaymentController::class, 'initialize']);
+
+    // 2FA
+    Route::post('/two-factor/enable', [TwoFactorController::class, 'enable']);
+    Route::post('/two-factor/confirm', [TwoFactorController::class, 'confirm']);
+    Route::post('/two-factor/disable', [TwoFactorController::class, 'disable']);
 });
+
+Route::post('/two-factor/challenge', [TwoFactorController::class, 'challenge']);
 
 Route::post('/webhooks/paystack', [\App\Http\Controllers\Api\PaymentController::class, 'webhook']);
 

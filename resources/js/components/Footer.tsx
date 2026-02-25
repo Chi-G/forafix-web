@@ -67,7 +67,7 @@ const Footer = () => {
                 
                 <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-xs font-bold uppercase tracking-widest">
                     <div className="flex flex-wrap justify-center gap-8">
-                        <span>&copy; 2026 Forafix Global Inc.</span>
+                        <span>&copy; 2026 Forafix.</span>
                         <Link to="/terms" className="hover:text-white">Terms of Service</Link>
                         <Link to="/privacy" className="hover:text-white">Privacy Policy</Link>
                         <button onClick={openCookieSettings} className="hover:text-white uppercase font-bold">Cookie Settings</button>

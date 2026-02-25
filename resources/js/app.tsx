@@ -26,6 +26,10 @@ import ClientSettingsPage from './pages/ClientSettingsPage';
 import PaymentSuccessPage from './pages/PaymentSuccessPage';
 import TermsOfServicePage from './pages/TermsOfServicePage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import VerifyEmailPage from './pages/VerifyEmailPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
+import TwoFactorChallengePage from './pages/TwoFactorChallengePage';
 
 // Components
 import ProtectedRoute from './components/ProtectedRoute';
@@ -71,6 +75,10 @@ const App = () => {
                                     <Route path="/register/client" element={<ClientRegisterPage />} />
                                     <Route path="/register/agent" element={<AgentRegisterPage />} />
                                     <Route path="/auth/callback" element={<AuthCallbackPage />} />
+                                    <Route path="/auth/verify-email" element={<VerifyEmailPage />} />
+                                    <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
+                                    <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
+                                    <Route path="/auth/2fa-challenge" element={<TwoFactorChallengePage />} />
                                 </Route>
 
                                 {/* Public but accessible while logged in */}

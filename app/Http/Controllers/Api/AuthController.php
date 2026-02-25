@@ -35,12 +35,16 @@ class AuthController extends Controller
             ]);
         }
 
+        event(new \Illuminate\Auth\Events\Registered($user));
+        \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\WelcomeEmail($user));
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
             'user' => $user->load('agentProfile'),
+            'message' => 'Registration successful. Please verify your email.'
         ]);
     }
 
@@ -53,6 +57,22 @@ class AuthController extends Controller
         }
 
         $user = User::where('email', $request->email)->firstOrFail();
+
+        if (!$user->hasVerifiedEmail()) {
+            return response()->json([
+                'message' => 'Your email address is not verified.',
+                'error_code' => 'EMAIL_NOT_VERIFIED'
+            ], 403);
+        }
+
+        if ($user->two_factor_confirmed_at) {
+            return response()->json([
+                'message' => 'Two-factor authentication required.',
+                'error_code' => 'TWO_FACTOR_REQUIRED',
+                'email' => $user->email
+            ], 202);
+        }
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([

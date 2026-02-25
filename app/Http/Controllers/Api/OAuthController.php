@@ -58,7 +58,11 @@ class OAuthController extends Controller
                     'avatar' => $googleUser->avatar,
                     'password' => bcrypt(Str::random(16)),
                     'role' => 'CLIENT',
+                    'email_verified_at' => now(),
                 ]);
+
+                event(new \Illuminate\Auth\Events\Registered($user));
+                \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\WelcomeEmail($user));
             }
 
             $token = $user->createToken('auth_token')->plainTextToken;
