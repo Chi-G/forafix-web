@@ -58,7 +58,25 @@ class BookingController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $booking->update(['status' => $request->status]);
+        $newStatus = $request->status;
+
+        // Role-based restrictions
+        if ($user->role === 'CLIENT') {
+            if ($newStatus !== 'CANCELLED') {
+                return response()->json(['message' => 'Clients can only cancel bookings.'], 403);
+            }
+            if (!in_array($booking->status, ['PENDING', 'ACCEPTED'])) {
+                return response()->json(['message' => 'This booking cannot be cancelled anymore.'], 403);
+            }
+        }
+
+        if ($user->role === 'AGENT') {
+            if (!in_array($newStatus, ['ACCEPTED', 'DECLINED', 'COMPLETED'])) {
+                return response()->json(['message' => 'Invalid status update for agent.'], 403);
+            }
+        }
+
+        $booking->update(['status' => $newStatus]);
 
         event(new \App\Events\BookingStatusChanged($booking->load(['client', 'agent', 'service'])));
 
