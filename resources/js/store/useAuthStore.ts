@@ -37,8 +37,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         localStorage.setItem('auth_token', token);
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-        // Reconnect Echo if it was disconnected
-        if (window.Echo) {
+        // Connect Echo if it's not connected and we have a valid user ID
+        if (window.Echo && user?.id) {
             window.Echo.connect();
             window.Echo.private(`App.Models.User.${user.id}`)
                 .listen('.balance.updated', () => {
@@ -53,7 +53,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         delete axios.defaults.headers.common['Authorization'];
         // Disconnect Echo if it exists to prevent 403/auth errors on logout
         if (window.Echo) {
-            window.Echo.leave(`App.Models.User.${get().user?.id}`);
+            const userId = get().user?.id;
+            if (userId) {
+                window.Echo.leave(`App.Models.User.${userId}`);
+            }
             window.Echo.disconnect();
         }
         set({ user: null, token: null, isAuthenticated: false });
@@ -64,7 +67,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             const user = response.data;
             set({ user, isAuthenticated: true });
 
-            if (window.Echo && user) {
+            if (window.Echo && user?.id) {
+                window.Echo.connect();
                 window.Echo.private(`App.Models.User.${user.id}`)
                     .listen('.balance.updated', () => {
                         get().fetchUser();
