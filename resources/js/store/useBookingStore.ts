@@ -10,6 +10,7 @@ interface BookingState {
     createBooking: (bookingData: any) => Promise<Booking>;
     updateStatus: (id: number, status: BookingStatus) => Promise<void>;
     initializePayment: (bookingId: number) => Promise<any>;
+    payWithWallet: (bookingId: number) => Promise<any>;
 }
 
 export const useBookingStore = create<BookingState>((set, get) => ({
@@ -58,8 +59,13 @@ export const useBookingStore = create<BookingState>((set, get) => ({
         }
     },
 
-    initializePayment: async (bookingId) => {
+    initializePayment: async (bookingId: number) => {
         const response = await axios.post('/payments/initialize', { booking_id: bookingId });
+        return response.data;
+    },
+
+    payWithWallet: async (bookingId: number) => {
+        const response = await axios.post('/payments/wallet', { booking_id: bookingId });
         return response.data;
     },
 }));

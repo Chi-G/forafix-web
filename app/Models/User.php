@@ -35,6 +35,10 @@ class User extends Authenticatable implements \Illuminate\Contracts\Auth\MustVer
         'two_factor_secret',
         'two_factor_recovery_codes',
         'two_factor_confirmed_at',
+        'address',
+        'city',
+        'postal_code',
+        'notification_preferences',
     ];
 
     /**
@@ -74,6 +78,7 @@ class User extends Authenticatable implements \Illuminate\Contracts\Auth\MustVer
             'is_vetted' => 'boolean',
             'balance' => 'decimal:2',
             'two_factor_confirmed_at' => 'datetime',
+            'notification_preferences' => 'json',
         ];
     }
 
@@ -94,9 +99,19 @@ class User extends Authenticatable implements \Illuminate\Contracts\Auth\MustVer
         return $this->hasOne(AgentProfile::class);
     }
 
+    public function paymentMethods()
+    {
+        return $this->hasMany(PaymentMethod::class);
+    }
+
     public function services()
     {
         return $this->belongsToMany(Service::class);
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
     }
 
     public function notifications()

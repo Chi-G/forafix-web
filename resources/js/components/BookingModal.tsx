@@ -9,12 +9,14 @@ import {
     CheckCircle2,
     ArrowRight,
     ShieldCheck,
+    CreditCard,
     Info,
     LayoutGrid,
     FileText
 } from 'lucide-react';
 import { cn, formatNaira } from '../lib/utils';
 import { useBookingStore } from '../store/useBookingStore';
+import { useAuthStore } from '../store/useAuthStore';
 import { toast } from 'react-hot-toast';
 
 interface BookingModalProps {
@@ -33,8 +35,16 @@ const BookingModal = ({ agent, isOpen, onClose }: BookingModalProps) => {
     const [address, setAddress] = useState('');
     const [district, setDistrict] = useState('');
     const [notes, setNotes] = useState('');
+    const [paymentMethod, setPaymentMethod] = useState<'PAYSTACK' | 'WALLET'>('PAYSTACK');
     
-    const { createBooking, initializePayment, isLoading } = useBookingStore();
+    const { user, fetchUser } = useAuthStore();
+    const { createBooking, initializePayment, payWithWallet, isLoading } = useBookingStore();
+
+    useEffect(() => {
+        if (isOpen) {
+            fetchUser();
+        }
+    }, [isOpen]);
 
     useEffect(() => {
         if (isOpen && agent?.services?.length > 0) {
@@ -76,14 +86,26 @@ const BookingModal = ({ agent, isOpen, onClose }: BookingModalProps) => {
             
             const booking = await createBooking(bookingData);
             
-            // Initialize payment
-            toast.loading('Redirecting to payment...');
-            const paymentResponse = await initializePayment(booking.id);
-            
-            if (paymentResponse.data?.authorization_url) {
-                window.location.href = paymentResponse.data.authorization_url;
+            if (paymentMethod === 'WALLET') {
+                const t = toast.loading('Processing wallet payment...');
+                try {
+                    await payWithWallet(booking.id);
+                    toast.success('Booking confirmed and paid with wallet!', { id: t });
+                    onClose();
+                    window.location.href = '/cl/bookings';
+                } catch (err: any) {
+                    toast.error(err.response?.data?.message || 'Wallet payment failed', { id: t });
+                }
             } else {
-                throw new Error('Payment initialization failed. Please contact support.');
+                // Initialize Paystack payment
+                toast.loading('Redirecting to payment...');
+                const paymentResponse = await initializePayment(booking.id);
+                
+                if (paymentResponse.data?.authorization_url) {
+                    window.location.href = paymentResponse.data.authorization_url;
+                } else {
+                    throw new Error('Payment initialization failed. Please contact support.');
+                }
             }
         } catch (err: any) {
             const errorMsg = err.response?.data?.message || err.message || 'An error occurred. Please try again.';
@@ -312,6 +334,53 @@ const BookingModal = ({ agent, isOpen, onClose }: BookingModalProps) => {
                                         placeholder="Entry codes, pets, or specific instructions..."
                                         className="w-full px-6 py-4 bg-white dark:bg-neutral-900 border-2 border-neutral-100 dark:border-neutral-700 rounded-2xl font-medium text-sm text-neutral-900 dark:text-neutral-100 focus:border-[#14a800] outline-none"
                                     />
+                                </div>
+
+                                <div className="pt-6 border-t border-neutral-200 dark:border-neutral-700">
+                                    <label className="text-xs font-black text-neutral-400 dark:text-neutral-500 uppercase tracking-widest block mb-4">Select Payment Method</label>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <button
+                                            onClick={() => setPaymentMethod('PAYSTACK')}
+                                            className={cn(
+                                                "p-6 rounded-[2rem] border-2 text-left transition-all relative group",
+                                                paymentMethod === 'PAYSTACK' 
+                                                    ? "border-[#14a800] bg-[#14a800]/5 dark:bg-[#14a800]/10 ring-4 ring-[#14a800]/10" 
+                                                    : "border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-800/50 hover:border-neutral-200 dark:hover:border-neutral-700"
+                                            )}
+                                        >
+                                            <div className="flex items-center gap-3 mb-2">
+                                                <CreditCard className={cn("w-5 h-5", paymentMethod === 'PAYSTACK' ? "text-[#14a800]" : "text-neutral-400")} />
+                                                <span className="font-black text-sm text-neutral-900 dark:text-neutral-100">Paystack</span>
+                                            </div>
+                                            <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-bold leading-tight">Pay securely with card, bank transfer, or USSD.</p>
+                                        </button>
+
+                                        <button
+                                            disabled={(Number(user?.balance) || 0) < (selectedService?.base_price || 0)}
+                                            onClick={() => setPaymentMethod('WALLET')}
+                                            className={cn(
+                                                "p-6 rounded-[2rem] border-2 text-left transition-all relative group",
+                                                paymentMethod === 'WALLET' 
+                                                    ? "border-[#14a800] bg-[#14a800]/5 dark:bg-[#14a800]/10 ring-4 ring-[#14a800]/10" 
+                                                    : "border-neutral-100 dark:border-neutral-800 bg-white dark:bg-neutral-800/50 hover:border-neutral-200 dark:hover:border-neutral-700",
+                                                (Number(user?.balance) || 0) < (selectedService?.base_price || 0) && "opacity-50 cursor-not-allowed grayscale"
+                                            )}
+                                        >
+                                            <div className="flex items-center gap-3 mb-2">
+                                                <ShieldCheck className={cn("w-5 h-5", paymentMethod === 'WALLET' ? "text-[#14a800]" : "text-neutral-400")} />
+                                                <span className="font-black text-sm text-neutral-900 dark:text-neutral-100">Wallet</span>
+                                            </div>
+                                            <div className="flex flex-col gap-1">
+                                                <p className="text-[10px] text-neutral-500 dark:text-neutral-400 font-bold leading-tight">Pay with forafix wallet balance.</p>
+                                                <p className={cn(
+                                                    "text-[10px] font-black tracking-widest uppercase mt-1",
+                                                    (Number(user?.balance) || 0) < (selectedService?.base_price || 0) ? "text-red-500" : "text-[#14a800]"
+                                                )}>
+                                                    Bal: ₦{(Number(user?.balance) || 0).toLocaleString()}
+                                                </p>
+                                            </div>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

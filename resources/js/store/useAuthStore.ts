@@ -9,9 +9,17 @@ interface AuthState {
     setAuth: (user: User, token: string) => void;
     clearAuth: () => void;
     fetchUser: () => Promise<void>;
-    updateProfile: (data: { name: string; email: string; phone?: string }) => Promise<void>;
+    updateProfile: (data: {
+        name: string;
+        email: string;
+        phone?: string;
+        address?: string;
+        city?: string;
+        postal_code?: string;
+    }) => Promise<void>;
     updateAgentProfile: (data: { bio?: string; skills?: string[]; location_base?: string; is_available?: boolean }) => Promise<void>;
     uploadAvatar: (file: File) => Promise<void>;
+    logout: () => Promise<void>;
 }
 
 // Config axios
@@ -32,6 +40,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         // Reconnect Echo if it was disconnected
         if (window.Echo) {
             window.Echo.connect();
+            window.Echo.private(`App.Models.User.${user.id}`)
+                .listen('.balance.updated', () => {
+                    get().fetchUser();
+                });
         }
 
         set({ user, token, isAuthenticated: true });
@@ -41,6 +53,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         delete axios.defaults.headers.common['Authorization'];
         // Disconnect Echo if it exists to prevent 403/auth errors on logout
         if (window.Echo) {
+            window.Echo.leave(`App.Models.User.${get().user?.id}`);
             window.Echo.disconnect();
         }
         set({ user: null, token: null, isAuthenticated: false });
@@ -48,7 +61,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     fetchUser: async () => {
         try {
             const response = await axios.get('/me');
-            set({ user: response.data, isAuthenticated: true });
+            const user = response.data;
+            set({ user, isAuthenticated: true });
+
+            if (window.Echo && user) {
+                window.Echo.private(`App.Models.User.${user.id}`)
+                    .listen('.balance.updated', () => {
+                        get().fetchUser();
+                    });
+            }
         } catch (error: any) {
             // Only clear auth on 401 Unauthorized
             if (error.response?.status === 401) {
@@ -71,5 +92,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             headers: { 'Content-Type': 'multipart/form-data' }
         });
         set({ user: response.data });
+    },
+    logout: async () => {
+        try {
+            await axios.post('/logout');
+        } catch (error) {
+            console.error('Logout failed:', error);
+        } finally {
+            get().clearAuth();
+        }
     },
 }));
