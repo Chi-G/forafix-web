@@ -68,7 +68,7 @@ class OAuthController extends Controller
             $token = $user->createToken('auth_token')->plainTextToken;
 
             // Redirect back to frontend with token
-            $frontendUrl = env('APP_URL', 'http://localhost:8000');
+            $frontendUrl = config('app.url');
             return redirect($frontendUrl . '/auth/callback?token=' . $token);
 
         } catch (\Exception $e) {
