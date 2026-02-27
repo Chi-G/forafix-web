@@ -308,18 +308,7 @@ const ClientDashboard = () => {
                         )}
                     </div>
   
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 text-sm">
-                        <div className="flex items-center gap-1.5 text-blue-700 dark:text-blue-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" aria-hidden="true" viewBox="0 0 24 24" role="img" className="w-4 h-4 shrink-0" style={{ '--icon-color': '#1d4ed8', '--icon-color-bg': '#fff' } as React.CSSProperties}>
-                                <path fill="var(--icon-color, #1d4ed8)" fillRule="evenodd" vectorEffect="non-scaling-stroke" stroke="var(--icon-color, #1d4ed8)" strokeLinecap="round" strokeLinejoin="round" strokeMiterlimit="10" strokeWidth="1.5" d="M20.4 13.1c.8 1 .3 2.5-.9 2.9-.8.2-1.3 1-1.3 1.8 0 1.3-1.2 2.2-2.5 1.8-.8-.3-1.7 0-2.1.7-.7 1.1-2.3 1.1-3 0-.5-.7-1.3-1-2.1-.7-1.4.4-2.6-.6-2.6-1.8 0-.8-.5-1.6-1.3-1.8-1.2-.4-1.7-1.8-.9-2.9.5-.7.5-1.6 0-2.2-.9-1-.4-2.5.9-2.9.8-.2 1.3-1 1.3-1.8C5.9 5 7.1 4 8.3 4.5c.8.3 1.7 0 2.1-.7.7-1.1 2.3-1.1 3 0 .5.7 1.3 1 2.1.7 1.4-.5 2.6.5 2.6 1.7 0 .8.5 1.6 1.3 1.8 1.2.4 1.7 1.8.9 2.9-.4.6-.4 1.6.1 2.2z" clipRule="evenodd" />
-                                <path vectorEffect="non-scaling-stroke" stroke="var(--icon-color-bg, #fff)" strokeLinecap="round" strokeLinejoin="round" strokeMiterlimit="10" strokeWidth="1.5" d="M15.5 9.7L11 14.3l-2.5-2.5" />
-                            </svg>
-                            <span className="font-bold text-xs">Payment verified</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                            <span className="font-bold text-neutral-900 dark:text-neutral-100 text-xs">₦100k+ earned</span>
-                        </div>
-                        <div className="flex items-center gap-2 w-full sm:w-auto sm:ml-auto">
+                    <div className="flex items-center gap-2 w-full sm:w-auto sm:ml-auto">
                             <button
                                 onClick={() => setRatingTarget(agent)}
                                 className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 rounded-full border border-[#df7606]/40 text-[#df7606] text-[11px] sm:text-xs font-black hover:bg-[#df7606]/5 transition-all active:scale-95 whitespace-nowrap"
@@ -334,14 +323,13 @@ const ClientDashboard = () => {
                                 Book Now
                             </button>
                         </div>
-                    </div>
                 </div>
  
-                <div className="flex sm:flex-col gap-4 self-end sm:self-start">
+                <div className="absolute top-4 right-4 sm:top-8 sm:right-8">
                     <button
                         onClick={onToggleSave}
                         className={cn(
-                            "w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-neutral-200 dark:border-neutral-700 flex items-center justify-center transition-colors shadow-sm",
+                            "w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-neutral-200 dark:border-neutral-700 flex items-center justify-center transition-colors shadow-sm bg-white/80 dark:bg-neutral-900/80 backdrop-blur-sm",
                             isSaved ? "bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-900/30" : "hover:bg-neutral-50 dark:hover:bg-neutral-800"
                         )}
                     >
