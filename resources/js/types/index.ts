@@ -13,6 +13,7 @@ export interface User {
     avatar_url?: string;
     avatar?: string;
     agent_profile?: AgentProfile;
+    notification_preferences?: Record<string, boolean>;
     two_factor_confirmed_at?: string | null;
     created_at: string;
 }

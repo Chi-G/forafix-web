@@ -10,6 +10,12 @@ use App\Http\Controllers\Api\VerificationController;
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\Api\TwoFactorController;
 use App\Http\Controllers\Api\PasswordController;
+use App\Http\Controllers\Api\PaymentMethodController;
+use App\Http\Controllers\Api\NotificationSettingsController;
+use App\Http\Controllers\Api\StatsController;
+use App\Http\Controllers\Api\SupportController;
+use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\Api\WalletController;
 
 Broadcast::routes(['middleware' => ['auth:sanctum']]);
 
@@ -42,6 +48,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/users/notifications/read-all', [NotificationController::class, 'markAllAsRead']);
     Route::post('/users/notifications/{uuid}/read', [NotificationController::class, 'markAsRead']);
     Route::delete('/users/notifications', [NotificationController::class, 'clearAll']);
+    Route::put('/notification-settings', [NotificationSettingsController::class, 'update']);
 
     Route::get('/bookings', [\App\Http\Controllers\Api\BookingController::class, 'index']);
     Route::post('/bookings', [\App\Http\Controllers\Api\BookingController::class, 'store']);
@@ -49,6 +56,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/agent/profile', [\App\Http\Controllers\Api\AgentController::class, 'update']);
     Route::post('/upload/avatar', [\App\Http\Controllers\Api\MediaController::class, 'uploadAvatar']);
     Route::post('/payments/initialize', [\App\Http\Controllers\Api\PaymentController::class, 'initialize']);
+    Route::post('/payments/wallet', [\App\Http\Controllers\Api\PaymentController::class, 'payWithWallet']);
 
     // Password Update
     Route::post('/password/update', [PasswordController::class, 'update']);
@@ -57,6 +65,31 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/two-factor/enable', [TwoFactorController::class, 'enable']);
     Route::post('/two-factor/confirm', [TwoFactorController::class, 'confirm']);
     Route::post('/two-factor/disable', [TwoFactorController::class, 'disable']);
+    Route::delete('/user', [\App\Http\Controllers\Api\AuthController::class, 'deleteAccount']);
+    
+    // Sessions
+    Route::get('/sessions', [\App\Http\Controllers\Api\SessionController::class, 'index']);
+    Route::post('/sessions/revoke-others', [\App\Http\Controllers\Api\SessionController::class, 'revokeOthers']);
+    Route::delete('/sessions/{id}', [\App\Http\Controllers\Api\SessionController::class, 'destroy']);
+
+    // Payment Methods
+    Route::get('/payment-methods', [PaymentMethodController::class, 'index']);
+    Route::post('/payment-methods/initialize', [PaymentMethodController::class, 'initialize']);
+    Route::post('/payment-methods', [PaymentMethodController::class, 'store']);
+    Route::delete('/payment-methods/{paymentMethod}', [PaymentMethodController::class, 'destroy']);
+    // Custom set default route
+    Route::patch('/payment-methods/{paymentMethod}/default', [PaymentMethodController::class, 'setDefault']);
+
+    // Stats and Support
+    Route::get('/stats', [StatsController::class, 'index']);
+    Route::get('/help-support', [SupportController::class, 'index']);
+    Route::post('/feedback', [SupportController::class, 'storeFeedback']);
+    Route::post('/reports', [ReportController::class, 'store']);
+
+    // Wallet System
+    Route::get('/wallet/transactions', [WalletController::class, 'index']);
+    Route::post('/wallet/fund/initialize', [WalletController::class, 'initialize']);
+    Route::post('/wallet/fund/verify', [WalletController::class, 'verify']);
 });
 
 Route::post('/two-factor/challenge', [TwoFactorController::class, 'challenge']);

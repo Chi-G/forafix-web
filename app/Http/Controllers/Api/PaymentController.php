@@ -10,6 +10,72 @@ use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
+    public function payWithWallet(Request $request)
+    {
+        $request->validate([
+            'booking_id' => 'required|exists:bookings,id',
+        ]);
+
+        $booking = Booking::with('client', 'agent', 'service')->findOrFail($request->booking_id);
+        $user = $request->user();
+
+        // Ensure only the client who made the booking can pay
+        if ($booking->client_id !== $user->id) {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        if ($booking->status !== 'PENDING') {
+            return response()->json(['message' => 'Booking is already processed'], 400);
+        }
+
+        if ($user->balance < $booking->total_price) {
+            return response()->json(['message' => 'Insufficient wallet balance'], 400);
+        }
+
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($booking, $user) {
+            // Deduct balance
+            $user->balance -= $booking->total_price;
+            $user->save();
+
+            // Update booking
+            $booking->update(['status' => 'ACCEPTED']);
+
+            // Create Transaction record
+            \App\Models\Transaction::create([
+                'user_id' => $user->id,
+                'amount' => $booking->total_price,
+                'type' => 'debit',
+                'source' => 'booking_payment',
+                'description' => 'Payment for booking #' . $booking->id . ' (' . $booking->service->name . ')',
+                'reference' => 'WAL-' . $booking->id . '-' . time(),
+                'status' => 'success',
+            ]);
+
+            // Send Notifications/Emails
+            try {
+                // To Client: Receipt
+                \Illuminate\Support\Facades\Mail::to($user->email)
+                    ->send(new \App\Mail\BookingPaid($booking));
+                
+                // To Agent: New Job Notification
+                \Illuminate\Support\Facades\Mail::to($booking->agent->email)
+                    ->send(new \App\Mail\NewBookingForAgent($booking));
+
+            } catch (\Exception $e) {
+                Log::error('Failed to send booking notifications: ' . $e->getMessage());
+            }
+
+            // Dispatch real-time event
+            event(new \App\Events\BookingStatusChanged($booking->load(['client', 'agent', 'service'])));
+
+            return response()->json([
+                'message' => 'Payment successful!',
+                'booking' => $booking,
+                'balance' => $user->balance
+            ]);
+        });
+    }
+
     public function initialize(Request $request)
     {
         $request->validate([

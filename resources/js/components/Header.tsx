@@ -138,6 +138,21 @@ const Header = () => {
 
                         {isAuthenticated ? (
                             <>
+                                {/* Wallet Balance Pill */}
+                                {isClient && (
+                                    <Link 
+                                        to="/cl/settings?tab=billing" 
+                                        className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-all border border-neutral-200 dark:border-neutral-700 group"
+                                    >
+                                        <div className="w-5 h-5 rounded-full bg-[#14a800]/10 flex items-center justify-center">
+                                            <span className="text-[#14a800] text-[10px] font-black">₦</span>
+                                        </div>
+                                        <span className="text-xs font-black text-neutral-900 dark:text-neutral-100 group-hover:text-[#14a800] transition-colors">
+                                            {(Number(user?.balance) || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                        </span>
+                                    </Link>
+                                )}
+
                                 {/* Bell */}
                                 <div className="hidden sm:block relative" ref={notifRef}>
                                     <button 
@@ -363,7 +378,14 @@ const Header = () => {
                                     />
                                     <div className="min-w-0">
                                         <p className="font-bold text-neutral-900 dark:text-neutral-100 text-sm truncate">{user?.name}</p>
-                                        <p className="text-[10px] font-black text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">{user?.role}</p>
+                                        <div className="flex items-center gap-2">
+                                            <p className="text-[10px] font-black text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">{user?.role}</p>
+                                            {isClient && (
+                                                <span className="text-[10px] font-black text-[#14a800] bg-[#14a800]/10 px-1.5 py-0.5 rounded-full uppercase tracking-widest">
+                                                    ₦{(Number(user?.balance) || 0).toLocaleString()}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
 

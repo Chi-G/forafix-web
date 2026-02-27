@@ -37,8 +37,11 @@ class AuthController extends Controller
 
         event(new \Illuminate\Auth\Events\Registered($user));
         \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\WelcomeEmail($user));
-
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $tokenInstance = $user->createToken('auth_token');
+        $tokenInstance->accessToken->ip_address = $request->ip();
+        $tokenInstance->accessToken->user_agent = $request->userAgent();
+        $tokenInstance->accessToken->save();
+        $token = $tokenInstance->plainTextToken;
 
         return response()->json([
             'access_token' => $token,
@@ -73,7 +76,11 @@ class AuthController extends Controller
             ], 202);
         }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $tokenInstance = $user->createToken('auth_token');
+        $tokenInstance->accessToken->ip_address = $request->ip();
+        $tokenInstance->accessToken->user_agent = $request->userAgent();
+        $tokenInstance->accessToken->save();
+        $token = $tokenInstance->plainTextToken;
 
         return response()->json([
             'access_token' => $token,
@@ -99,6 +106,19 @@ class AuthController extends Controller
         $user->update($request->validated());
 
         return response()->json($user->load('agentProfile'));
+    }
+
+    public function deleteAccount(Request $request)
+    {
+        $user = $request->user();
+        
+        // Revoke all tokens
+        $user->tokens()->delete();
+        
+        // Delete the user
+        $user->delete();
+        
+        return response()->json(['message' => 'Account successfully deleted.']);
     }
 
     public function showByUuid($uuid)
