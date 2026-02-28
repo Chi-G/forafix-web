@@ -12,8 +12,10 @@ import {
     CreditCard,
     Info,
     LayoutGrid,
-    FileText
+    FileText,
+    Navigation
 } from 'lucide-react';
+import { LocationDetector } from './location/LocationDetector';
 import { cn, formatNaira } from '../lib/utils';
 import { useBookingStore } from '../store/useBookingStore';
 import { useAuthStore } from '../store/useAuthStore';
@@ -34,6 +36,7 @@ const BookingModal = ({ agent, isOpen, onClose }: BookingModalProps) => {
     const [time, setTime] = useState('');
     const [address, setAddress] = useState('');
     const [district, setDistrict] = useState('');
+    const [area, setArea] = useState('');
     const [notes, setNotes] = useState('');
     const [paymentMethod, setPaymentMethod] = useState<'PAYSTACK' | 'WALLET'>('PAYSTACK');
     
@@ -55,7 +58,37 @@ const BookingModal = ({ agent, isOpen, onClose }: BookingModalProps) => {
 
     if (!isOpen || !agent) return null;
 
-    const abuiaDistricts = ['Maitama', 'Asokoro', 'Wuse 2', 'Garki 1', 'Garki 2', 'Jabi', 'Utako', 'Guzape', 'Lugbe', 'Kubwa', 'Gwarinpa', 'Apo'];
+    const abujaDistricts = [
+        'Maitama', 'Asokoro', 'Wuse 2', 'Garki 1', 'Garki 2', 
+        'Jabi', 'Utako', 'Guzape', 'Lugbe', 'Kubwa', 
+        'Gwarinpa', 'Apo', 'Dutse', 'Dawaki', 'Mpape', 
+        'Karu', 'Nyanya', 'Galadimawa', 'Lokogoma', 'Life Camp',
+        'Kaba', 'Idu', 'Karmo', 'Dei-Dei'
+    ];
+
+    const DISTRICT_AREAS: Record<string, string[]> = {
+        'Maitama': ['Maitama Main', 'Maitama Extension', 'Ministers Hill'],
+        'Asokoro': ['Asokoro Main', 'Asokoro Extension', 'Sunrise Hills', 'Guzape'],
+        'Wuse 2': ['Central', 'Banex', 'Adetokunbo Ademola'],
+        'Gwarinpa': ['1st Avenue', '2nd Avenue', '3rd Avenue', '4th Avenue', '5th Avenue', 'Citec'],
+        'Kubwa': ['Phase 2', 'Phase 3', 'Phase 4', 'Arab Road', 'Federal Housing', 'Gado Nasko'],
+        'Dutse': ['Alhaji', 'Sagwari', 'Makaranta', 'Baupma'],
+        'Dawaki': ['Dawaki Main', 'News Engineering', 'Gwarinpa Extension'],
+        'Mpape': ['Mpape Main', 'Crush Rock', 'Berger Quarry'],
+        'Lugbe': ['Phase 1', 'Phase 2', 'Airport Road', 'Pyakasa', 'Kapwa', 'Federal Housing'],
+        'Garki 1': ['Area 1', 'Area 2', 'Area 3', 'Area 7', 'Area 8', 'Area 10', 'Area 11'],
+        'Garki 2': ['Area 11', 'Ladi Kwali', 'Garki Village'],
+        'Jabi': ['Jabi Central', 'Setraco', 'Jabi Lake'],
+        'Life Camp': ['Fish Market', 'Durnamis', 'Life Camp Extension'],
+        'Karu': ['Karu Site', 'Karu Extension', 'Jikwoyi'],
+        'Nyanya': ['Nyanya Market', 'Phase 4', 'Maza Maza'],
+        'Guzape': ['Guzape 1', 'Guzape 2', 'Asokoro Extension'],
+        'Apo': ['Apo Resettlement', 'Apo Legislative Quarters', 'Apo Village'],
+        'Lokogoma': ['Efab', 'Games Village', 'Sun City', 'Kabusa Garden', 'Galadimawa'],
+        'Karmo': ['Karmo Market', 'Karmo Industrial'],
+        'Dei-Dei': ['International Market', 'Building Materials'],
+        'Idu': ['Idu Industrial', 'Idu Train Station'],
+    };
     
     // Mock subcategories based on agent's services or main category
     const subCategories = agent.services?.[0]?.category === 'CLEANING' 
@@ -228,6 +261,7 @@ const BookingModal = ({ agent, isOpen, onClose }: BookingModalProps) => {
                                     <input 
                                         type="date" 
                                         value={date}
+                                        min={new Date().toISOString().split('T')[0]}
                                         onChange={(e) => setDate(e.target.value)}
                                         className="w-full px-8 py-5 bg-neutral-50 dark:bg-neutral-800/50 border-2 border-neutral-100 dark:border-neutral-700 rounded-3xl font-black text-neutral-900 dark:text-neutral-100 focus:border-[#14a800] outline-none transition-all cursor-pointer"
                                     />
@@ -259,17 +293,35 @@ const BookingModal = ({ agent, isOpen, onClose }: BookingModalProps) => {
                             <h4 className="text-xl font-bold text-neutral-900 dark:text-neutral-100 mb-6 flex items-center gap-2">
                                 <MapPin className="w-5 h-5 text-[#14a800]" /> Service Location
                             </h4>
+
+                            <div className="bg-neutral-50 dark:bg-neutral-800/50 p-6 rounded-3xl border-2 border-dashed border-neutral-200 dark:border-neutral-700">
+                                <LocationDetector 
+                                    onLocationDetected={(loc) => {
+                                        setDistrict(loc.area);
+                                        setAddress(loc.address);
+                                        // If the detected area contains one of our districts, select it
+                                        const foundDistrict = abujaDistricts.find(d => 
+                                            loc.area.toLowerCase().includes(d.toLowerCase()) || 
+                                            loc.address.toLowerCase().includes(d.toLowerCase())
+                                        );
+                                        if (foundDistrict) setDistrict(foundDistrict);
+                                    }} 
+                                />
+                            </div>
                             <div className="space-y-8">
                                 <div>
                                     <label className="text-xs font-black text-neutral-400 dark:text-neutral-500 uppercase tracking-widest block mb-4">Abuja District</label>
-                                    <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
-                                        {abuiaDistricts.map(d => (
+                                    <div className="grid grid-cols-3 md:grid-cols-4 gap-2 max-h-48 overflow-y-auto pr-2 no-scrollbar">
+                                        {abujaDistricts.map(d => (
                                             <button
                                                 key={d}
-                                                onClick={() => setDistrict(d)}
+                                                onClick={() => {
+                                                    setDistrict(d);
+                                                    setArea(''); // reset area when district changes
+                                                }}
                                                 className={cn(
                                                     "py-3 rounded-xl border-2 text-[10px] font-black uppercase tracking-wider transition-all",
-                                                    district === d ? "bg-neutral-900 dark:bg-neutral-700 border-neutral-900 dark:border-neutral-600 text-white" : "bg-white dark:bg-neutral-800 border-neutral-100 dark:border-neutral-700 text-neutral-400 dark:text-neutral-500"
+                                                    district === d ? "bg-neutral-900 dark:bg-neutral-700 border-neutral-900 dark:border-neutral-600 text-white" : "bg-white dark:bg-neutral-800 border-neutral-100 dark:border-neutral-700 text-neutral-400 dark:text-neutral-500 hover:border-neutral-200"
                                                 )}
                                             >
                                                 {d}
@@ -277,6 +329,26 @@ const BookingModal = ({ agent, isOpen, onClose }: BookingModalProps) => {
                                         ))}
                                     </div>
                                 </div>
+
+                                {district && DISTRICT_AREAS[district] && (
+                                    <div className="animate-in fade-in slide-in-from-left-4 duration-500">
+                                        <label className="text-xs font-black text-neutral-400 dark:text-neutral-500 uppercase tracking-widest block mb-4">Specific Area / Neighborhood</label>
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                                            {DISTRICT_AREAS[district].map(a => (
+                                                <button
+                                                    key={a}
+                                                    onClick={() => setArea(a)}
+                                                    className={cn(
+                                                        "py-3 rounded-xl border-2 text-[10px] font-black uppercase tracking-wider transition-all",
+                                                        area === a ? "bg-[#14a800] border-[#14a800] text-white shadow-lg shadow-[#14a800]/20" : "bg-white dark:bg-neutral-800 border-neutral-100 dark:border-neutral-700 text-neutral-400 dark:text-neutral-500 hover:border-neutral-200"
+                                                    )}
+                                                >
+                                                    {a}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                                 <div className="space-y-4">
                                     <label className="text-xs font-black text-neutral-400 dark:text-neutral-500 uppercase tracking-widest block">Street Address / Apartment Number</label>
                                     <input 
@@ -316,7 +388,7 @@ const BookingModal = ({ agent, isOpen, onClose }: BookingModalProps) => {
                                         </div>
                                         <div className="flex items-center gap-3 text-neutral-600 dark:text-neutral-400">
                                             <MapPin className="w-4 h-4 text-[#14a800]" />
-                                            <span className="font-bold text-sm">{district}</span>
+                                            <span className="font-bold text-sm">{area ? `${area}, ` : ''}{district}</span>
                                         </div>
                                     </div>
                                     <div className="space-y-2">
@@ -405,7 +477,7 @@ const BookingModal = ({ agent, isOpen, onClose }: BookingModalProps) => {
 
                     <button 
                         onClick={step === 4 ? handleSubmit : handleNext}
-                        disabled={isLoading || (step === 1 && (!selectedService || !jobDescription)) || (step === 2 && (!date || !time)) || (step === 3 && (!district || !address))}
+                        disabled={isLoading || (step === 1 && (!selectedService || !jobDescription)) || (step === 2 && (!date || !time)) || (step === 3 && (!district || !address || (DISTRICT_AREAS[district] && !area)))}
                         className={cn(
                             "px-14 py-6 rounded-full font-black text-lg transition-all flex items-center gap-3 shadow-2xl disabled:opacity-30 disabled:scale-100 active:scale-95",
                             step === 4 

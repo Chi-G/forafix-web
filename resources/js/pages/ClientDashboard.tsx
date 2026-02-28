@@ -28,9 +28,13 @@ import { cn, formatNaira } from '../lib/utils';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import BookingModal from '../components/BookingModal';
+import { useLocation as useGeoLocation } from '../hooks/useLocation';
+import { locationService } from '../services/locationService';
 
 const ClientDashboard = () => {
     const { user } = useAuthStore();
+    const { getCurrentPosition, permission } = useGeoLocation();
+    const [detectedDistrict, setDetectedDistrict] = useState<string>('');
     const [activeTab, setActiveTab] = useState('Best Matches');
     const [query, setQuery] = useState('');
     const [showFilters, setShowFilters] = useState(false);
@@ -90,7 +94,41 @@ const ClientDashboard = () => {
 
     const [selectedAgentForBooking, setSelectedAgentForBooking] = useState<any>(null);
 
-    const abuiaDistricts = ['Maitama', 'Asokoro', 'Wuse 2', 'Garki 1', 'Garki 2', 'Jabi', 'Utako', 'Guzape', 'Lugbe', 'Kubwa', 'Gwarinpa', 'Apo'];
+    const abujaDistricts = [
+        'Maitama', 'Asokoro', 'Wuse 2', 'Garki 1', 'Garki 2', 'Jabi', 'Utako', 
+        'Guzape', 'Lugbe', 'Kubwa', 'Gwarinpa', 'Apo', 'Dutse', 'Dawaki', 
+        'Mpape', 'Karu', 'Nyanya', 'Galadimawa', 'Lokogoma', 'Life Camp', 
+        'Kaba', 'Idu', 'Karmo', 'Dei-Dei'
+    ];
+
+    // Detect location on mount
+    useEffect(() => {
+        const detect = async () => {
+            try {
+                const coords = await getCurrentPosition();
+                const data = await locationService.reverseGeocode(coords.latitude, coords.longitude);
+                if (data.area) {
+                    setDetectedDistrict(data.area);
+                    
+                    // Auto-select detected district only if it matches our list for filtering
+                    const matchedDistrict = abujaDistricts.find(d => 
+                        data.area.toLowerCase().includes(d.toLowerCase()) || 
+                        data.formattedAddress?.toLowerCase().includes(d.toLowerCase())
+                    );
+                    
+                    if (matchedDistrict && !location) {
+                        setLocation(matchedDistrict);
+                    }
+                }
+            } catch (err) {
+                console.error('Initial detection failed:', err);
+            }
+        };
+
+        if (permission === 'granted' || permission === 'prompt') {
+            detect();
+        }
+    }, [permission, getCurrentPosition]);
 
     const { data: agents, isLoading: isAgentsLoading } = useQuery({
         queryKey: ['dashboard-agents', category, location],
@@ -287,8 +325,6 @@ const ClientDashboard = () => {
                             </span>
                             <span className="text-neutral-400 dark:text-neutral-500 text-[10px] sm:text-xs">({agentRatingCount})</span>
                         </div>
-                        <span className="text-neutral-300 dark:text-neutral-700">•</span>
-                        <span className="font-bold text-neutral-700 dark:text-neutral-300">50+ Jobs</span>
                     </div>
                     
                     <p className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 leading-relaxed mb-4 sm:mb-6 line-clamp-2 italic">
@@ -425,7 +461,7 @@ const ClientDashboard = () => {
                                             className="w-full bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-xl px-4 py-2.5 text-sm font-bold text-neutral-700 dark:text-neutral-300 outline-none focus:ring-2 focus:ring-[#14a800]/20"
                                         >
                                             <option value="">All Locations</option>
-                                            {abuiaDistricts.map(d => <option key={d} value={d}>{d}</option>)}
+                                            {abujaDistricts.map(d => <option key={d} value={d}>{d}</option>)}
                                         </select>
                                     </div>
                                 </div>

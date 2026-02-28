@@ -54,4 +54,18 @@ class AgentController extends Controller
 
         return response()->json($user->load('agentProfile'));
     }
+    public function togglePreferred(Request $request, $agentId)
+    {
+        $user = $request->user();
+        $agent = User::where('id', $agentId)->where('role', 'AGENT')->firstOrFail();
+
+        $user->preferredAgents()->toggle($agent->id);
+
+        $isPreferred = $user->preferredAgents()->where('agent_id', $agentId)->exists();
+
+        return response()->json([
+            'message' => $isPreferred ? 'Added to preferred' : 'Removed from preferred',
+            'is_preferred' => $isPreferred
+        ]);
+    }
 }

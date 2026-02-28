@@ -101,6 +101,15 @@ const formatTime = (dateStr: string) => {
 
 const getInitial = (name: string) => name?.charAt(0)?.toUpperCase() || '?';
 
+const maskSensitiveInfo = (text: string) => {
+    if (!text) return text;
+    // Mask phone numbers (Nigerian formats + international)
+    let masked = text.replace(/(\+?234|0)[789][01]\d{2}\d{2}(\d{4})/g, '•••• $2');
+    // Mask emails
+    masked = masked.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '••••@••••.•••');
+    return masked;
+};
+
 const STATUS_COLORS: Record<string, string> = {
     ACCEPTED: 'bg-blue-50 text-blue-700',
     PENDING: 'bg-amber-50 text-amber-700',
@@ -479,7 +488,16 @@ const ChatPanel = ({
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    <button className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-neutral-100 text-neutral-500 transition-colors">
+                    <button 
+                        disabled={selectedRoom.booking?.status !== 'COMPLETED' && selectedRoom.booking?.status !== 'CLOSED'}
+                        title={selectedRoom.booking?.status === 'COMPLETED' || selectedRoom.booking?.status === 'CLOSED' ? "Call Agent" : "Phone calls enabled after job completion"}
+                        className={cn(
+                            "w-9 h-9 flex items-center justify-center rounded-full transition-colors",
+                            (selectedRoom.booking?.status === 'COMPLETED' || selectedRoom.booking?.status === 'CLOSED')
+                                ? "hover:bg-neutral-100 text-neutral-500" 
+                                : "text-neutral-300 cursor-not-allowed opacity-50"
+                        )}
+                    >
                         <Phone className="w-4 h-4" />
                     </button>
                     <button className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-neutral-100 text-neutral-500 transition-colors">
@@ -498,6 +516,16 @@ const ChatPanel = ({
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-3">
+                {/* Safety Prompt */}
+                <div className="flex justify-center my-4 animate-in fade-in slide-in-from-top-4 duration-700">
+                    <div className="bg-blue-50/80 dark:bg-blue-900/20 border border-blue-100/50 dark:border-blue-900/30 px-4 py-2.5 rounded-2xl flex items-center gap-3 backdrop-blur-sm">
+                        <ShieldCheck className="w-4 h-4 text-blue-600 dark:text-blue-400 shrink-0" />
+                        <p className="text-[11px] font-bold text-blue-700 dark:text-blue-300 leading-tight">
+                            Keep all communication here for your safety and our quality guarantee.
+                        </p>
+                    </div>
+                </div>
+
                 {messages.length === 0 ? (
                     <div className="flex items-center justify-center h-full">
                         <p className="text-sm text-neutral-400 font-medium">No messages yet. Say hello!</p>
@@ -535,7 +563,7 @@ const ChatPanel = ({
                                             'px-4 py-3 rounded-2xl text-sm font-medium leading-relaxed shadow-sm',
                                             isOwn ? 'bg-[#14a800] text-white rounded-br-sm' : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-bl-sm'
                                         )}>
-                                            {msg.body}
+                                            {maskSensitiveInfo(msg.body)}
                                         </div>
                                     )}
                                     <span className="text-[10px] text-neutral-400 font-medium px-1 flex items-center gap-1">

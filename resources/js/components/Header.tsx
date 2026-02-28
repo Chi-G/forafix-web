@@ -11,19 +11,48 @@ import {
     X,
     Home,
     Search,
-    Settings
+    Settings,
+    MapPin
 } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 import { useHeaderStore } from '../store/useHeaderStore';
 import { useNotificationStore } from '../store/useNotificationStore';
 import { cn } from '../lib/utils';
 import Avatar from './Avatar';
+import { useLocation as useGeoLocation } from '../hooks/useLocation';
+import { locationService } from '../services/locationService';
 
 const Header = () => {
     const { user, clearAuth, isAuthenticated } = useAuthStore();
     const { extraActions } = useHeaderStore();
-    const location = useLocation();
+    const routerLocation = useLocation();
     const navigate = useNavigate();
+    
+    // New Geolocation Logic
+    const { getCurrentPosition, permission } = useGeoLocation();
+    const [displayLocation, setDisplayLocation] = useState<string>('Detecting...');
+
+    useEffect(() => {
+        const detect = async () => {
+            try {
+                const coords = await getCurrentPosition();
+                const data = await locationService.reverseGeocode(coords.latitude, coords.longitude);
+                if (data.area && data.area !== 'Unknown' && data.area !== 'Unknown Area') {
+                    setDisplayLocation(`${data.area}, ${data.city}`);
+                } else {
+                    setDisplayLocation('Abuja, NG');
+                }
+            } catch (err) {
+                setDisplayLocation('Abuja, NG');
+            }
+        };
+
+        if (permission === 'granted' || permission === 'prompt') {
+            detect();
+        } else if (permission === 'denied') {
+            setDisplayLocation('Abuja, NG');
+        }
+    }, [permission, getCurrentPosition]);
 
     const isClient = user?.role !== 'AGENT';
 
@@ -71,7 +100,7 @@ const Header = () => {
     useEffect(() => {
         setMobileOpen(false);
         setProfileOpen(false);
-    }, [location.pathname]);
+    }, [routerLocation.pathname]);
 
     const navLinks = isAuthenticated
         ? [
@@ -79,19 +108,19 @@ const Header = () => {
                 to: isClient ? '/cl/find-service' : '/agent/dashboard',
                 label: isClient ? 'Find Services' : 'Dashboard',
                 icon: Search,
-                active: location.pathname.includes('find-service') || location.pathname.includes('dashboard'),
+                active: routerLocation.pathname.includes('find-service') || routerLocation.pathname.includes('dashboard'),
             },
             {
                 to: isClient ? '/cl/bookings' : '/bookings',
                 label: isClient ? 'My Bookings' : 'My Jobs',
                 icon: Briefcase,
-                active: location.pathname === '/cl/bookings' || location.pathname === '/bookings',
+                active: routerLocation.pathname === '/cl/bookings' || routerLocation.pathname === '/bookings',
             },
             {
                 to: '/cl/messages/rooms/',
                 label: 'Messages',
                 icon: MessageCircle,
-                active: location.pathname.includes('messages'),
+                active: routerLocation.pathname.includes('messages'),
             },
         ]
         : [
@@ -140,17 +169,27 @@ const Header = () => {
                             <>
                                 {/* Wallet Balance Pill */}
                                 {isClient && (
-                                    <Link 
-                                        to="/cl/settings?tab=billing" 
-                                        className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-all border border-neutral-200 dark:border-neutral-700 group"
-                                    >
-                                        <div className="w-5 h-5 rounded-full bg-[#14a800]/10 flex items-center justify-center">
-                                            <span className="text-[#14a800] text-[10px] font-black">₦</span>
+                                    <div className="flex items-center gap-4">
+                                        {/* Location Indicator */}
+                                        <div className="flex items-center gap-1.5 px-3 py-1.5 text-neutral-500 dark:text-neutral-400">
+                                            <MapPin className="w-3.5 h-3.5 text-[#14a800]" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest truncate max-w-[200px]">
+                                                {displayLocation}
+                                            </span>
                                         </div>
-                                        <span className="text-xs font-black text-neutral-900 dark:text-neutral-100 group-hover:text-[#14a800] transition-colors">
-                                            {(Number(user?.balance) || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                                        </span>
-                                    </Link>
+
+                                        <Link 
+                                            to="/cl/settings?tab=billing" 
+                                            className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-all border border-neutral-200 dark:border-neutral-700 group"
+                                        >
+                                            <div className="w-5 h-5 rounded-full bg-[#14a800]/10 flex items-center justify-center">
+                                                <span className="text-[#14a800] text-[10px] font-black">₦</span>
+                                            </div>
+                                            <span className="text-xs font-black text-neutral-900 dark:text-neutral-100 group-hover:text-[#14a800] transition-colors">
+                                                {(Number(user?.balance) || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                            </span>
+                                        </Link>
+                                    </div>
                                 )}
 
                                 {/* Bell */}
@@ -345,7 +384,7 @@ const Header = () => {
                             to="/cl/notifications"
                             className={cn(
                                 'flex items-center justify-between px-3 py-3.5 rounded-xl font-bold text-sm transition-all mb-1',
-                                location.pathname === '/cl/notifications'
+                                routerLocation.pathname === '/cl/notifications'
                                     ? 'bg-[#14a800]/10 text-[#14a800]'
                                     : 'text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800'
                             )}

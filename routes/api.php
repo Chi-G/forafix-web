@@ -57,6 +57,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/upload/avatar', [\App\Http\Controllers\Api\MediaController::class, 'uploadAvatar']);
     Route::post('/payments/initialize', [\App\Http\Controllers\Api\PaymentController::class, 'initialize']);
     Route::post('/payments/wallet', [\App\Http\Controllers\Api\PaymentController::class, 'payWithWallet']);
+    Route::post('/payments/release-funds', [\App\Http\Controllers\Api\PaymentController::class, 'releaseFunds']);
 
     // Password Update
     Route::post('/password/update', [PasswordController::class, 'update']);
@@ -96,8 +97,14 @@ Route::post('/two-factor/challenge', [TwoFactorController::class, 'challenge']);
 
 Route::post('/webhooks/paystack', [\App\Http\Controllers\Api\PaymentController::class, 'webhook']);
 
+// Public Location Services
+Route::post('/location/reverse-geocode', [\App\Http\Controllers\Api\LocationController::class, 'reverseGeocode']);
+Route::get('/location/search', [\App\Http\Controllers\Api\LocationController::class, 'searchPlaces']);
+Route::get('/location/place-details/{placeId}', [\App\Http\Controllers\Api\LocationController::class, 'getPlaceDetails']);
+
 Route::get('/services', [\App\Http\Controllers\Api\ServiceController::class, 'index']);
 Route::get('/services/{service}', [\App\Http\Controllers\Api\ServiceController::class, 'show']);
 Route::get('/agents', [\App\Http\Controllers\Api\AgentController::class, 'index']);
+Route::post('/agents/{agentId}/preferred', [\App\Http\Controllers\Api\AgentController::class, 'togglePreferred']);
 Route::get('/agents/{uuid}', [\App\Http\Controllers\Api\AgentController::class, 'show']);
 Route::get('/users/{uuid}', [AuthController::class, 'showByUuid']);
