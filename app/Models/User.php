@@ -39,6 +39,7 @@ class User extends Authenticatable implements \Illuminate\Contracts\Auth\MustVer
         'city',
         'postal_code',
         'notification_preferences',
+        'pending_balance',
     ];
 
     /**
@@ -77,6 +78,7 @@ class User extends Authenticatable implements \Illuminate\Contracts\Auth\MustVer
             'password' => 'hashed',
             'is_vetted' => 'boolean',
             'balance' => 'decimal:2',
+            'pending_balance' => 'decimal:2',
             'two_factor_confirmed_at' => 'datetime',
             'notification_preferences' => 'json',
         ];
@@ -122,5 +124,15 @@ class User extends Authenticatable implements \Illuminate\Contracts\Auth\MustVer
     public function unreadNotifications()
     {
         return $this->hasMany(Notification::class)->whereNull('read_at');
+    }
+
+    public function preferredAgents()
+    {
+        return $this->belongsToMany(User::class, 'preferred_agents', 'user_id', 'agent_id')->withTimestamps();
+    }
+
+    public function preferredBy()
+    {
+        return $this->belongsToMany(User::class, 'preferred_agents', 'agent_id', 'user_id')->withTimestamps();
     }
 }

@@ -10,8 +10,12 @@ export interface User {
     is_vetted?: boolean;
     loyalty_points?: number;
     balance?: number;
+    pending_balance?: number;
     avatar_url?: string;
     avatar?: string;
+    address?: string;
+    city?: string;
+    postal_code?: string;
     agent_profile?: AgentProfile;
     notification_preferences?: Record<string, boolean>;
     two_factor_confirmed_at?: string | null;

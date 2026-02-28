@@ -48,7 +48,7 @@ class BookingController extends Controller
         // Only agent can accept/decline, only client can cancel?
         // Let's keep it simple for now and allow status update if authorized
         $request->validate([
-            'status' => 'required|in:PENDING,ACCEPTED,DECLINED,COMPLETED,CANCELLED',
+            'status' => 'required|in:PENDING,ACCEPTED,DECLINED,PAID_ESCROW,COMPLETED,CLOSED,CANCELLED',
         ]);
 
         $user = Auth::user();
@@ -62,16 +62,32 @@ class BookingController extends Controller
 
         // Role-based restrictions
         if ($user->role === 'CLIENT') {
-            if ($newStatus !== 'CANCELLED') {
-                return response()->json(['message' => 'Clients can only cancel bookings.'], 403);
-            }
-            if (!in_array($booking->status, ['PENDING', 'ACCEPTED'])) {
-                return response()->json(['message' => 'This booking cannot be cancelled anymore.'], 403);
+            // Clients can cancel pending/accepted bookings or close completed ones
+            if ($newStatus === 'CANCELLED') {
+                if (!in_array($booking->status, ['PENDING', 'ACCEPTED'])) {
+                    return response()->json(['message' => 'This booking cannot be cancelled anymore.'], 403);
+                }
+            } elseif ($newStatus === 'CLOSED') {
+                if ($booking->status !== 'COMPLETED') {
+                    return response()->json(['message' => 'You can only close a booking after it is completed.'], 403);
+                }
+                // Release funds logic will be handled here or in a separate controller
+            } else {
+                return response()->json(['message' => 'Unauthorized status update for client.'], 403);
             }
         }
 
         if ($user->role === 'AGENT') {
-            if (!in_array($newStatus, ['ACCEPTED', 'DECLINED', 'COMPLETED'])) {
+            // Agents can accept/decline pending bookings or mark paid ones as completed
+            if (in_array($newStatus, ['ACCEPTED', 'DECLINED'])) {
+                if ($booking->status !== 'PENDING') {
+                    return response()->json(['message' => 'Can only accept/decline pending bookings.'], 403);
+                }
+            } elseif ($newStatus === 'COMPLETED') {
+                if ($booking->status !== 'PAID_ESCROW') {
+                    return response()->json(['message' => 'Can only complete bookings that have been paid.'], 403);
+                }
+            } else {
                 return response()->json(['message' => 'Invalid status update for agent.'], 403);
             }
         }

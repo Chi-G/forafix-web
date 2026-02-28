@@ -8,6 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class Booking extends Model
 {
     use HasFactory;
+    const STATUS_PENDING = 'PENDING';
+    const STATUS_ACCEPTED = 'ACCEPTED';
+    const STATUS_PAID_ESCROW = 'PAID_ESCROW';
+    const STATUS_COMPLETED = 'COMPLETED';
+    const STATUS_CLOSED = 'CLOSED';
+    const STATUS_CANCELLED = 'CANCELLED';
+    const STATUS_DECLINED = 'DECLINED';
+
     protected $fillable = [
         'client_id',
         'agent_id',
