@@ -61,11 +61,11 @@ Forafix is a premium, real-time marketplace connecting clients with skilled prof
    MAIL_PORT=2525
    MAIL_USERNAME=your_username
    MAIL_PASSWORD=your_password
-   ```
+   ``` 
 
 6. **Run the application:**
    ```bash
-   # Terminal 1: Vite dev server
+   # Terminal 1: Vite on dev server
    npm run dev
 
    # Terminal 2: PHP server
