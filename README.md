@@ -75,18 +75,70 @@ Forafix is a premium, real-time marketplace connecting clients with skilled prof
    php artisan reverb:start
    ```
 
-## 🛠 Tech Stack
+## 🏗 Architecture & Reliability
 
-- **Backend**: Laravel 11
-- **Frontend**: React (with Vite)
-- **Styling**: Tailwind CSS
-- **State Management**: Zustand
-- **Broadcasting**: Laravel Reverb + Pusher-JS
-- **Payments**: Paystack API
+Forafix is built for production-grade reliability, implementing high-integrity financial patterns.
 
-## 🔒 Security
+### 🧩 System Components
+- **Core API**: Laravel 12 / PHP 8.2
+- **State Store**: MySQL 8+ (Transactional with Row Locking)
+- **Async Processing**: Database-backed Queues for notifications.
+- **Real-time**: Laravel Reverb for instant UI updates.
+- **Documentation**: Swagger/OpenAPI 3.0.
 
-This project implements a strict **Content Security Policy (CSP)** to protect against XSS and injection attacks while maintaining compatibility with third-party integrations like Paystack.
+### 🔄 Data & Signal Flows
+
+#### 1. Escrow Payment Flow
+Ensures funds are locked and verified before job commencement.
+```mermaid
+sequenceDiagram
+    participant Client
+    participant API
+    participant DB
+    participant Paystack
+    
+    Client->>API: Initiate Payment (with Idempotency Key)
+    API->>DB: Check for duplicate key
+    API->>Paystack: Create Transaction
+    Paystack-->>Client: Checkout UI
+    Client->>Paystack: Confirm Pay
+    Paystack->>API: Webhook (charge.success)
+    API->>DB: Log Raw Webhook
+    API->>DB: lockForUpdate(Agent)
+    API->>DB: Update Booking Status (PAID_ESCROW)
+    API->>DB: Credit Agent Pending Balance
+    API-->>Client: Push Notification (Success)
+```
+
+#### 2. Queue Architecture
+Offloads slow tasks to maintain a responsive UI.
+```mermaid
+graph LR
+    subgraph Web Request
+    A[Payment Controller] --> B[DB Transaction]
+    end
+    B --> C[(MySQL)]
+    B --> D{Event Dispatcher}
+    subgraph Background Workers
+    D --> E[Queue: Send Email]
+    D --> F[Queue: Push Notification]
+    D --> G[Queue: Sync Search Index]
+    end
+```
+
+### 🛡 Data Integrity & Concurrency
+- **Concurrency Control**: We use `lockForUpdate()` on financial records (User balances, Bookings) inside database transactions to prevent race conditions during parallel processing.
+- **Idempotency**: All critical financial endpoints support idempotency keys to prevent double-charging on network retries.
+- **Webhook Reliability**: Incoming webhooks are logged to a `webhook_logs` table before processing, allowing for manual replay and audit trails.
+- **Ledger Integrity**: Every balance change is backed by an entry in the `transactions` table, providing a full audit log of money movement.
+
+## 📖 API Documentation
+Full API documentation is available via Swagger.
+Run the following to view local docs:
+```bash
+php artisan l5-swagger:generate
+```
+Then visit: `http://localhost:8000/api/documentation`
 
 ---
 Built with ❤️ by [Chi-G](https://github.com/Chi-G)

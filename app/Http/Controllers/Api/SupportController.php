@@ -6,8 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Models\Feedback;
 use Illuminate\Http\Request;
 
+use OpenApi\Attributes as OA;
+
+#[OA\Tag(name: "Support", description: "Customer help and feedback")]
 class SupportController extends Controller
 {
+    #[OA\Get(
+        path: "/api/help-support",
+        summary: "Get support contact information",
+        tags: ["Support"]
+    )]
+    #[OA\Response(response: 200, description: "Success")]
     public function index()
     {
         return response()->json([
@@ -37,6 +46,22 @@ class SupportController extends Controller
         ]);
     }
 
+    #[OA\Post(
+        path: "/api/feedback",
+        summary: "Submit user feedback",
+        tags: ["Support"],
+        security: [["sanctum" => []]]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ["content"],
+            properties: [
+                new OA\Property(property: "content", type: "string", minLength: 5)
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: "Success")]
     public function storeFeedback(Request $request)
     {
         $request->validate([

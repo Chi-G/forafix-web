@@ -7,8 +7,18 @@ use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
+use OpenApi\Attributes as OA;
+
+#[OA\Tag(name: "Analytics", description: "User activity and marketplace statistics")]
 class StatsController extends Controller
 {
+    #[OA\Get(
+        path: "/api/stats",
+        summary: "Get user activity statistics and history",
+        tags: ["Analytics"],
+        security: [["sanctum" => []]]
+    )]
+    #[OA\Response(response: 200, description: "Success")]
     public function index(Request $request)
     {
         $user = $request->user();

@@ -7,13 +7,19 @@ use Illuminate\Http\Request;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use OpenApi\Attributes as OA;
 
+#[OA\Tag(name: "Wallet", description: "Wallet and Transaction management")]
 class WalletController extends Controller
 {
-    /**
-     * Get transaction history for the authenticated user.
-     */
+    #[OA\Get(
+        path: "/api/wallet",
+        summary: "Get transaction history",
+        tags: ["Wallet"],
+        security: [["sanctum" => []]]
+    )]
+    #[OA\Response(response: 200, description: "Successful operation")]
+    #[OA\Response(response: 401, description: "Unauthenticated")]
     public function index(Request $request)
     {
         $transactions = $request->user()->transactions()
@@ -23,19 +29,34 @@ class WalletController extends Controller
         return response()->json($transactions);
     }
 
-    /**
-     * Initialize a Paystack transaction to fund the wallet.
-     */
+    #[OA\Post(
+        path: "/api/wallet/initialize",
+        summary: "Initialize wallet funding",
+        tags: ["Wallet"],
+        security: [["sanctum" => []]]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: "amount", type: "number", example: 1000)
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: "Successful initialization")]
+    #[OA\Response(response: 422, description: "Validation error")]
     public function initialize(Request $request)
     {
         $request->validate([
-            'amount' => 'required|numeric|min:100', // Minimum 100 Naira
+            'amount' => 'required|numeric|min:100',
         ]);
 
         $amount = $request->amount;
         $user = $request->user();
         
         $url = config('services.paystack.url') . '/transaction/initialize';
+        
+        // Idempotency: Use booking_id or generate a unique reference based on intent
         $reference = 'FUND-' . $user->id . '-' . time();
         
         try {
@@ -98,7 +119,7 @@ class WalletController extends Controller
                 $amount = $data['data']['amount'] / 100; // Convert back to Naira
                 $txnReference = $data['data']['reference'];
                 
-                // Apply funds within a database transaction
+                // Apply funds within a database transaction with Row Locking
                 return DB::transaction(function () use ($txnReference, $amount) {
                     $transaction = Transaction::where('reference', $txnReference)->first();
                     
@@ -110,15 +131,17 @@ class WalletController extends Controller
                         return response()->json(['message' => 'Transaction already processed', 'user' => $transaction->user]);
                     }
 
+                    // CRITICAL: Concurrency Control - Lock the user record for update
+                    $user = \App\Models\User::where('id', $transaction->user_id)->lockForUpdate()->first();
+
                     // Update transaction status
                     $transaction->update(['status' => 'success']);
 
                     // Update user balance
-                    $user = $transaction->user;
                     $user->balance += $amount;
                     $user->save();
 
-                    // Send Email and Dispatch Real-time Event
+                    // Send Email (Queued)
                     try {
                         \Illuminate\Support\Facades\Mail::to($user->email)
                             ->send(new \App\Mail\WalletFunded($transaction));

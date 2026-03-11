@@ -8,13 +8,30 @@ use App\Models\PaymentMethod;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
+use OpenApi\Attributes as OA;
+
+#[OA\Tag(name: "Payment Methods", description: "Credit card and authorization management")]
 class PaymentMethodController extends Controller
 {
+    #[OA\Get(
+        path: "/api/payment-methods",
+        summary: "List user saved payment methods",
+        tags: ["Payment Methods"],
+        security: [["sanctum" => []]]
+    )]
+    #[OA\Response(response: 200, description: "Success")]
     public function index(Request $request)
     {
         return $request->user()->paymentMethods()->orderBy('is_default', 'desc')->get();
     }
 
+    #[OA\Post(
+        path: "/api/payment-methods/initialize",
+        summary: "Initialize card verification (N50 charge)",
+        tags: ["Payment Methods"],
+        security: [["sanctum" => []]]
+    )]
+    #[OA\Response(response: 200, description: "Initialization session created")]
     public function initialize(Request $request)
     {
         $url = config('services.paystack.url') . '/transaction/initialize';
@@ -43,6 +60,22 @@ class PaymentMethodController extends Controller
         }
     }
 
+    #[OA\Post(
+        path: "/api/payment-methods",
+        summary: "Verify and save card after Paystack checkout",
+        tags: ["Payment Methods"],
+        security: [["sanctum" => []]]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ["reference"],
+            properties: [
+                new OA\Property(property: "reference", type: "string")
+            ]
+        )
+    )]
+    #[OA\Response(response: 201, description: "Card saved")]
     public function store(Request $request)
     {
         $request->validate([
@@ -86,6 +119,14 @@ class PaymentMethodController extends Controller
         return response()->json($paymentMethod, 201);
     }
 
+    #[OA\Delete(
+        path: "/api/payment-methods/{paymentMethod}",
+        summary: "Delete saved card",
+        tags: ["Payment Methods"],
+        security: [["sanctum" => []]]
+    )]
+    #[OA\Parameter(name: "paymentMethod", in: "path", required: true, schema: new OA\Schema(type: "integer"))]
+    #[OA\Response(response: 204, description: "Deleted")]
     public function destroy(PaymentMethod $paymentMethod)
     {
         if ($paymentMethod->user_id !== auth()->id()) {
@@ -96,6 +137,14 @@ class PaymentMethodController extends Controller
         return response()->json(null, 204);
     }
 
+    #[OA\Patch(
+        path: "/api/payment-methods/{paymentMethod}/default",
+        summary: "Set card as default",
+        tags: ["Payment Methods"],
+        security: [["sanctum" => []]]
+    )]
+    #[OA\Parameter(name: "paymentMethod", in: "path", required: true, schema: new OA\Schema(type: "integer"))]
+    #[OA\Response(response: 200, description: "Success")]
     public function setDefault(Request $request, PaymentMethod $paymentMethod)
     {
         if ($paymentMethod->user_id !== $request->user()->id) {
