@@ -111,7 +111,7 @@ const LandingPage = () => {
                                     className="flex flex-col sm:flex-row gap-4 pt-4"
                                 >
                                     <form onSubmit={handleSearch} className="flex-1 max-w-md group">
-                                        <div className="relative flex items-center bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-lg group-focus-within:ring-4 group-focus-within:ring-brand-500/10 group-focus-within:border-brand-500 transition-all duration-300">
+                                        <div className="relative flex items-center bg-white dark:!bg-neutral-950 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-lg group-focus-within:ring-4 group-focus-within:ring-brand-500/10 group-focus-within:border-brand-500 transition-all duration-300">
                                             <div className="pl-5">
                                                 <Search className="w-5 h-5 text-neutral-400 group-focus-within:text-brand-500 transition-colors" />
                                             </div>
@@ -120,7 +120,7 @@ const LandingPage = () => {
                                                 value={searchQuery}
                                                 onChange={(e) => setSearchQuery(e.target.value)}
                                                 placeholder="What do you need help with?" 
-                                                className="w-full h-16 bg-transparent px-4 focus:outline-none text-neutral-800 dark:text-neutral-100 font-bold placeholder:text-neutral-400" 
+                                                className="w-full h-16 bg-transparent dark:!bg-transparent px-4 focus:outline-none text-neutral-900 dark:text-white font-bold placeholder:text-neutral-400 dark:placeholder:text-neutral-500" 
                                             />
                                             <div className="pr-2">
                                                 <button type="submit" className="bg-brand-600 hover:bg-brand-700 text-white h-12 px-6 rounded-xl font-bold transition-all flex items-center gap-2 active:scale-95 shadow-lg shadow-brand-500/20">
