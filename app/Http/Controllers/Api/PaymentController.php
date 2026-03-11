@@ -6,10 +6,27 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
+use OpenApi\Attributes as OA;
 
+#[OA\Tag(name: "Payments", description: "Gateway and Escrow Management")]
 class PaymentController extends Controller
 {
+    #[OA\Post(
+        path: "/api/payments/pay-with-wallet",
+        summary: "Pay for a booking using wallet balance (Escrow)",
+        tags: ["Payments"],
+        security: [["sanctum" => []]]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            properties: [
+                new OA\Property(property: "booking_id", type: "integer")
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: "Payment successful")]
+    #[OA\Response(response: 400, description: "Invalid state or insufficient balance")]
     public function payWithWallet(Request $request)
     {
         $request->validate([
@@ -28,11 +45,14 @@ class PaymentController extends Controller
             return response()->json(['message' => 'Agent must accept the booking before payment.'], 400);
         }
 
-        if ($user->balance < $booking->total_price) {
-            return response()->json(['message' => 'Insufficient wallet balance'], 400);
-        }
-
         return \Illuminate\Support\Facades\DB::transaction(function () use ($booking, $user) {
+            // CRITICAL: Lock user for update to prevent race conditions on balance
+            $user = \App\Models\User::where('id', $user->id)->lockForUpdate()->first();
+
+            if ($user->balance < $booking->total_price) {
+                throw new \Exception('Insufficient wallet balance');
+            }
+
             // Deduct from Client balance
             $user->balance -= $booking->total_price;
             $user->save();
@@ -94,7 +114,8 @@ class PaymentController extends Controller
         }
 
         return \Illuminate\Support\Facades\DB::transaction(function () use ($booking) {
-            $agent = $booking->agent;
+            // CRITICAL: Lock Agent for update for balance safety
+            $agent = \App\Models\User::where('id', $booking->agent_id)->lockForUpdate()->first();
             
             // Calculate payout again or store it in booking table? 
             // For now, let's recalculate based on the same 80/20 logic
@@ -164,6 +185,12 @@ class PaymentController extends Controller
         ], 500);
     }
 
+    #[OA\Post(
+        path: "/api/webhooks/paystack",
+        summary: "Paystack Webhook Handler",
+        tags: ["Payments"]
+    )]
+    #[OA\Response(response: 200, description: "OK")]
     public function webhook(Request $request)
     {
         // Paystack sends a POST request with a signature
@@ -171,41 +198,75 @@ class PaymentController extends Controller
         $secret = config('services.paystack.secret');
 
         if ($signature !== hash_hmac('sha512', $request->getContent(), $secret)) {
+            Log::warning('Paystack: Invalid Webhook Signature');
             return response()->json(['message' => 'Invalid signature'], 401);
         }
 
-        $event = $request->input('event');
-        $data = $request->input('data');
+        $payload = $request->all();
+        $event = $payload['event'] ?? null;
+        $data = $payload['data'] ?? null;
+
+        // CRITICAL: Log raw webhook for audit and recovery
+        $webhookLog = \App\Models\WebhookLog::create([
+            'provider' => 'paystack',
+            'event' => $event,
+            'payload' => $payload,
+            'headers' => $request->headers->all(),
+            'processed' => false
+        ]);
 
         if ($event === 'charge.success') {
-            $bookingId = $data['metadata']['booking_id'] ?? null;
-            if ($bookingId) {
-                $booking = Booking::with(['client', 'agent', 'service'])->find($bookingId);
-                if ($booking && $booking->status === 'ACCEPTED') {
-                    // Calculate Payout
-                    $commissionRate = 0.20;
-                    $payoutAmount = $booking->total_price * (1 - $commissionRate);
-
-                    // Move to Agent pending_balance
-                    $agent = $booking->agent;
-                    $agent->pending_balance += $payoutAmount;
-                    $agent->save();
-
-                    $booking->update(['status' => 'PAID_ESCROW']); 
-                    
-                    // Send Emails
-                    try {
-                        \Illuminate\Support\Facades\Mail::to($booking->client->email)->send(new \App\Mail\BookingPaid($booking));
-                        \Illuminate\Support\Facades\Mail::to($booking->agent->email)->send(new \App\Mail\NewBookingForAgent($booking));
-                    } catch (\Exception $e) {
-                        Log::error('Failed to send booking notifications: ' . $e->getMessage());
-                    }
-
-                    event(new \App\Events\BookingStatusChanged($booking->load(['client', 'agent', 'service'])));
+            try {
+                $status = $this->processChargeSuccess($data);
+                if ($status === 'skipped') {
+                    $webhookLog->update(['processed' => true, 'error' => 'Duplicate or redundant event']);
+                } else {
+                    $webhookLog->update(['processed' => true]);
                 }
+            } catch (\Exception $e) {
+                Log::error('Webhook Processing Error: ' . $e->getMessage());
+                $webhookLog->update(['error' => $e->getMessage()]);
             }
         }
 
         return response()->json(['status' => 'success']);
+    }
+
+    protected function processChargeSuccess($data)
+    {
+        $bookingId = $data['metadata']['booking_id'] ?? null;
+        
+        if (!$bookingId) return;
+
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($bookingId) {
+            $booking = Booking::where('id', $bookingId)->lockForUpdate()->first();
+            
+            if (!$booking || $booking->status === 'PAID_ESCROW') {
+                return 'skipped'; // Already processed
+            }
+
+            if (in_array($booking->status, ['PENDING', 'ACCEPTED'])) {
+                // Calculate Payout
+                $commissionRate = 0.20;
+                $payoutAmount = $booking->total_price * (1 - $commissionRate);
+
+                // Move to Agent pending_balance
+                $agent = \App\Models\User::where('id', $booking->agent_id)->lockForUpdate()->first();
+                $agent->pending_balance += $payoutAmount;
+                $agent->save();
+
+                $booking->update(['status' => 'PAID_ESCROW']); 
+                
+                // Send Emails (Queued)
+                try {
+                    \Illuminate\Support\Facades\Mail::to($booking->client->email)->send(new \App\Mail\BookingPaid($booking));
+                    \Illuminate\Support\Facades\Mail::to($booking->agent->email)->send(new \App\Mail\NewBookingForAgent($booking));
+                } catch (\Exception $e) {
+                    Log::error('Failed to send booking notifications: ' . $e->getMessage());
+                }
+
+                event(new \App\Events\BookingStatusChanged($booking->load(['client', 'agent', 'service'])));
+            }
+        });
     }
 }

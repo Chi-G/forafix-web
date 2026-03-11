@@ -8,11 +8,19 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Auth\Events\Verified;
 
+use OpenApi\Attributes as OA;
+
+#[OA\Tag(name: "Verification", description: "Email and identity verification")]
 class VerificationController extends Controller
 {
-    /**
-     * Verify the user's email address.
-     */
+    #[OA\Get(
+        path: "/api/email/verify/{id}/{hash}",
+        summary: "Verify email address via signed link",
+        tags: ["Verification"]
+    )]
+    #[OA\Parameter(name: "id", in: "path", required: true, schema: new OA\Schema(type: "integer"))]
+    #[OA\Parameter(name: "hash", in: "path", required: true, schema: new OA\Schema(type: "string"))]
+    #[OA\Response(response: 302, description: "Redirect to login")]
     public function verify(Request $request, $id, $hash)
     {
         $user = User::findOrFail($id);
@@ -32,9 +40,21 @@ class VerificationController extends Controller
         return redirect(env('APP_URL') . '/login?verified=1');
     }
 
-    /**
-     * Resend the email verification notification.
-     */
+    #[OA\Post(
+        path: "/api/email/resend",
+        summary: "Resend email verification link",
+        tags: ["Verification"]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ["email"],
+            properties: [
+                new OA\Property(property: "email", type: "string", format: "email")
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: "Link sent")]
     public function resend(Request $request)
     {
         $request->validate([

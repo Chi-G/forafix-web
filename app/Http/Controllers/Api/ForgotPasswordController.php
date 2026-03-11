@@ -9,11 +9,26 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Auth\Events\PasswordReset;
 
+use OpenApi\Attributes as OA;
+
+#[OA\Tag(name: "Security")]
 class ForgotPasswordController extends Controller
 {
-    /**
-     * Send a reset link to the given user.
-     */
+    #[OA\Post(
+        path: "/api/forgot-password",
+        summary: "Send password reset link to email",
+        tags: ["Security"]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ["email"],
+            properties: [
+                new OA\Property(property: "email", type: "string", format: "email")
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: "Reset link sent")]
     public function sendResetLinkEmail(Request $request)
     {
         $request->validate(['email' => 'required|email']);
@@ -30,9 +45,24 @@ class ForgotPasswordController extends Controller
             : response()->json(['message' => __($status)], 400);
     }
 
-    /**
-     * Reset the given user's password.
-     */
+    #[OA\Post(
+        path: "/api/reset-password",
+        summary: "Reset password using token",
+        tags: ["Security"]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ["token", "email", "password", "password_confirmation"],
+            properties: [
+                new OA\Property(property: "token", type: "string"),
+                new OA\Property(property: "email", type: "string", format: "email"),
+                new OA\Property(property: "password", type: "string", format: "password"),
+                new OA\Property(property: "password_confirmation", type: "string", format: "password")
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: "Password reset successful")]
     public function reset(Request $request)
     {
         $request->validate([

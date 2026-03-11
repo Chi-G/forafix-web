@@ -10,8 +10,17 @@ use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 
+use OpenApi\Attributes as OA;
+
+#[OA\Tag(name: "OAuth", description: "Social authentication management")]
 class OAuthController extends Controller
 {
+    #[OA\Get(
+        path: "/api/auth/google",
+        summary: "Get Google OAuth redirect URL",
+        tags: ["OAuth"]
+    )]
+    #[OA\Response(response: 200, description: "Success")]
     public function redirectToGoogle()
     {
         try {

@@ -9,8 +9,31 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
+use OpenApi\Attributes as OA;
+
+#[OA\Tag(name: "Reports", description: "Agent complaint and dispute system")]
 class ReportController extends Controller
 {
+    #[OA\Post(
+        path: "/api/reports",
+        summary: "Submit a report/compliant against an agent",
+        tags: ["Reports"],
+        security: [["sanctum" => []]]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ["agent_name", "type", "description"],
+            properties: [
+                new OA\Property(property: "agent_name", type: "string"),
+                new OA\Property(property: "agent_uuid", type: "string", format: "uuid"),
+                new OA\Property(property: "type", type: "string"),
+                new OA\Property(property: "description", type: "string"),
+                new OA\Property(property: "evidence", type: "string", description: "Base64 encoded image")
+            ]
+        )
+    )]
+    #[OA\Response(response: 201, description: "Report submitted")]
     public function store(Request $request)
     {
         $request->validate([

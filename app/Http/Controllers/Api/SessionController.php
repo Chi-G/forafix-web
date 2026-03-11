@@ -8,11 +8,18 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Carbon\Carbon;
 
+use OpenApi\Attributes as OA;
+
+#[OA\Tag(name: "Sessions", description: "Active device and token management")]
 class SessionController extends Controller
 {
-    /**
-     * Get all active sessions for the current user.
-     */
+    #[OA\Get(
+        path: "/api/sessions",
+        summary: "List all active user sessions and tokens",
+        tags: ["Sessions"],
+        security: [["sanctum" => []]]
+    )]
+    #[OA\Response(response: 200, description: "Success")]
     public function index(Request $request)
     {
         $user = $request->user();
@@ -69,9 +76,14 @@ class SessionController extends Controller
         return response()->json($allSessions->sortByDesc('last_activity')->unique('id')->values());
     }
 
-    /**
-     * Revoke a specific session or token.
-     */
+    #[OA\Delete(
+        path: "/api/sessions/{id}",
+        summary: "Revoke a specific session or token",
+        tags: ["Sessions"],
+        security: [["sanctum" => []]]
+    )]
+    #[OA\Parameter(name: "id", in: "path", required: true, schema: new OA\Schema(type: "string"))]
+    #[OA\Response(response: 200, description: "Session revoked")]
     public function destroy(Request $request, $id)
     {
         $user = $request->user();
@@ -109,9 +121,13 @@ class SessionController extends Controller
         return response()->json(['message' => 'Session not found.'], 404);
     }
 
-    /**
-     * Revoke all other sessions and tokens.
-     */
+    #[OA\Post(
+        path: "/api/sessions/revoke-others",
+        summary: "Revoke all other active sessions and tokens",
+        tags: ["Sessions"],
+        security: [["sanctum" => []]]
+    )]
+    #[OA\Response(response: 200, description: "Sessions revoked")]
     public function revokeOthers(Request $request)
     {
         $user = $request->user();

@@ -8,8 +8,18 @@ use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+use OpenApi\Attributes as OA;
+
+#[OA\Tag(name: "Bookings", description: "Service booking management")]
 class BookingController extends Controller
 {
+    #[OA\Get(
+        path: "/api/bookings",
+        summary: "List user bookings",
+        tags: ["Bookings"],
+        security: [["sanctum" => []]]
+    )]
+    #[OA\Response(response: 200, description: "Success")]
     public function index()
     {
         $user = Auth::user();
@@ -28,6 +38,24 @@ class BookingController extends Controller
         return response()->json($bookings);
     }
 
+    #[OA\Post(
+        path: "/api/bookings",
+        summary: "Create a new booking",
+        tags: ["Bookings"],
+        security: [["sanctum" => []]]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ["service_id", "agent_id", "scheduled_at"],
+            properties: [
+                new OA\Property(property: "service_id", type: "integer", example: 1),
+                new OA\Property(property: "agent_id", type: "integer", example: 2),
+                new OA\Property(property: "scheduled_at", type: "string", format: "date-time")
+            ]
+        )
+    )]
+    #[OA\Response(response: 201, description: "Booking Created")]
     public function store(\App\Http\Requests\StoreBookingRequest $request)
     {
         $service = Service::findOrFail($request->service_id);
@@ -43,6 +71,28 @@ class BookingController extends Controller
         return response()->json($booking->load(['agent', 'service']), 201);
     }
 
+    #[OA\Patch(
+        path: "/api/bookings/{booking}",
+        summary: "Update booking status",
+        tags: ["Bookings"],
+        security: [["sanctum" => []]]
+    )]
+    #[OA\Parameter(
+        name: "booking",
+        in: "path",
+        required: true,
+        schema: new OA\Schema(type: "integer")
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ["status"],
+            properties: [
+                new OA\Property(property: "status", type: "string", enum: ["PENDING", "ACCEPTED", "DECLINED", "PAID_ESCROW", "COMPLETED", "CLOSED", "CANCELLED"])
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: "Success")]
     public function update(Request $request, Booking $booking)
     {
         // Only agent can accept/decline, only client can cancel?

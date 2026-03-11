@@ -7,8 +7,30 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
+use OpenApi\Attributes as OA;
+
+#[OA\Tag(name: "Media", description: "File and image upload management")]
 class MediaController extends Controller
 {
+    #[OA\Post(
+        path: "/api/upload/avatar",
+        summary: "Upload and update user profile picture",
+        tags: ["Media"],
+        security: [["sanctum" => []]]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\MediaType(
+            mediaType: "multipart/form-data",
+            schema: new OA\Schema(
+                required: ["avatar"],
+                properties: [
+                    new OA\Property(property: "avatar", type: "string", format: "binary")
+                ]
+            )
+        )
+    )]
+    #[OA\Response(response: 200, description: "Success")]
     public function uploadAvatar(Request $request)
     {
         $request->validate([

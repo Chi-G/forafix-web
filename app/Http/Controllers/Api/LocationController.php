@@ -10,20 +10,27 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+use OpenApi\Attributes as OA;
+
+#[OA\Tag(name: "Location", description: "Geospatial and mapping services")]
 class LocationController extends Controller
 {
-    private string $googleMapsUrl;
-    private string $apiKey;
-
-    public function __construct()
-    {
-        $this->googleMapsUrl = config('services.google.maps_url', 'https://maps.googleapis.com/maps/api');
-        $this->apiKey = config('services.google.key') ?? '';
-    }
-
-    /**
-     * Reverse geocode: coordinates → address/area name
-     */
+    #[OA\Post(
+        path: "/api/location/reverse-geocode",
+        summary: "Convert coordinates to address/area name",
+        tags: ["Location"]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ["latitude", "longitude"],
+            properties: [
+                new OA\Property(property: "latitude", type: "number", format: "float", example: 9.0765),
+                new OA\Property(property: "longitude", type: "number", format: "float", example: 7.3986)
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: "Success")]
     public function reverseGeocode(Request $request)
     {
         $request->validate([
@@ -221,6 +228,13 @@ class LocationController extends Controller
         }
     }
 
+    #[OA\Get(
+        path: "/api/location/search",
+        summary: "Search for places/addresses (Google Autocomplete)",
+        tags: ["Location"]
+    )]
+    #[OA\Parameter(name: "q", in: "query", required: true, schema: new OA\Schema(type: "string", minLength: 3))]
+    #[OA\Response(response: 200, description: "Success")]
     public function searchPlaces(Request $request)
     {
         $request->validate(['q' => 'required|string|min:3|max:100']);
@@ -254,6 +268,13 @@ class LocationController extends Controller
         return response()->json(['predictions' => []]);
     }
 
+    #[OA\Get(
+        path: "/api/location/place-details/{placeId}",
+        summary: "Get specific place details by ID",
+        tags: ["Location"]
+    )]
+    #[OA\Parameter(name: "placeId", in: "path", required: true, schema: new OA\Schema(type: "string"))]
+    #[OA\Response(response: 200, description: "Success")]
     public function getPlaceDetails(string $placeId)
     {
         if (!$this->apiKey) return response()->json(['error' => 'Google API Key missing'], 400);

@@ -8,11 +8,18 @@ use PragmaRX\Google2FALaravel\Facade as Google2FA;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
+use OpenApi\Attributes as OA;
+
+#[OA\Tag(name: "Security")]
 class TwoFactorController extends Controller
 {
-    /**
-     * Enable 2FA for the user.
-     */
+    #[OA\Post(
+        path: "/api/two-factor/enable",
+        summary: "Enable 2FA (Generates Secret & QR Code)",
+        tags: ["Security"],
+        security: [["sanctum" => []]]
+    )]
+    #[OA\Response(response: 200, description: "Success")]
     public function enable(Request $request)
     {
         $user = $request->user();
@@ -42,6 +49,23 @@ class TwoFactorController extends Controller
     /**
      * Confirm 2FA setup.
      */
+    #[OA\Post(
+        path: "/api/two-factor/confirm",
+        summary: "Confirm 2FA setup with a code",
+        tags: ["Security"],
+        security: [["sanctum" => []]]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ["code"],
+            properties: [
+                new OA\Property(property: "code", type: "string", example: "123456")
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: "Success")]
+    #[OA\Response(response: 422, description: "Invalid Code")]
     public function confirm(Request $request)
     {
         $request->validate([
@@ -67,9 +91,22 @@ class TwoFactorController extends Controller
         return response()->json(['message' => 'Invalid verification code.'], 422);
     }
 
-    /**
-     * Disable 2FA.
-     */
+    #[OA\Post(
+        path: "/api/two-factor/disable",
+        summary: "Disable 2FA",
+        tags: ["Security"],
+        security: [["sanctum" => []]]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ["password"],
+            properties: [
+                new OA\Property(property: "password", type: "string", format: "password")
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: "Success")]
     public function disable(Request $request)
     {
         $request->validate([
@@ -91,9 +128,23 @@ class TwoFactorController extends Controller
         return response()->json(['message' => '2FA disabled successfully.']);
     }
 
-    /**
-     * Handle 2FA challenge during login.
-     */
+    #[OA\Post(
+        path: "/api/two-factor/challenge",
+        summary: "Verify 2FA code during login",
+        tags: ["Security"]
+    )]
+    #[OA\RequestBody(
+        required: true,
+        content: new OA\JsonContent(
+            required: ["email", "code"],
+            properties: [
+                new OA\Property(property: "email", type: "string", format: "email"),
+                new OA\Property(property: "code", type: "string")
+            ]
+        )
+    )]
+    #[OA\Response(response: 200, description: "Success")]
+    #[OA\Response(response: 422, description: "Invalid Code")]
     public function challenge(Request $request)
     {
         $request->validate([

@@ -1,0 +1,1654 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Forafix API Documentation",
+        "description": "Marketplace API with Wallet, Escrow and Booking management",
+        "contact": {
+            "email": "support@forafix.com"
+        },
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/agents": {
+            "get": {
+                "tags": [
+                    "Agents"
+                ],
+                "summary": "List vetted agents with optional filters",
+                "operationId": "70bc981fb9324a2341cfb805a5d04b45",
+                "parameters": [
+                    {
+                        "name": "category",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "location",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/agents/{uuid}": {
+            "get": {
+                "tags": [
+                    "Agents"
+                ],
+                "summary": "Get specific agent by UUID",
+                "operationId": "859c066bbbf8d30ab39088e9b023040d",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/agent/profile": {
+            "post": {
+                "tags": [
+                    "Agents"
+                ],
+                "summary": "Update agent-specific profile details",
+                "operationId": "39994cd8b61d5cec0f4fef0eee0ae730",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "bio": {
+                                        "type": "string"
+                                    },
+                                    "is_available": {
+                                        "type": "boolean"
+                                    },
+                                    "location_base": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/agents/{agentId}/preferred": {
+            "post": {
+                "tags": [
+                    "Agents"
+                ],
+                "summary": "Toggle agent in user's preferred list",
+                "operationId": "35307a96c3ac0bf0e97d00687ecf8233",
+                "parameters": [
+                    {
+                        "name": "agentId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/register": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Register a new user",
+                "operationId": "8e4e3cb7b46126f4696379d3c7eeb4ad",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "password_confirmation",
+                                    "role"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "example": "CLIENT",
+                                        "enum": [
+                                            "CLIENT",
+                                            "AGENT"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "422": {
+                        "description": "Validation Error"
+                    }
+                }
+            }
+        },
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Login a user",
+                "operationId": "222b2625838e3c57e017987f73598fda",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "401": {
+                        "description": "Invalid Credentials"
+                    },
+                    "403": {
+                        "description": "Email Not Verified"
+                    },
+                    "202": {
+                        "description": "Two-Factor Required"
+                    }
+                }
+            }
+        },
+        "/api/me": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Get authenticated user details",
+                "operationId": "8367feff40ba10e43187792cad3132c1",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Logout user",
+                "operationId": "ad65cbbd4e9f201619eae184a5961a98",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/profile": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Update user profile",
+                "operationId": "b9b473236591c021f23302362a6e70b4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+1234567890"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "123 Main St"
+                                    },
+                                    "city": {
+                                        "type": "string",
+                                        "example": "New York"
+                                    },
+                                    "postal_code": {
+                                        "type": "string",
+                                        "example": "10001"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/user": {
+            "delete": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Delete user account",
+                "operationId": "539b5fc3022cbcb3757d9a8b9becb4c8",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/users/{uuid}": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Get public user profile by UUID",
+                "operationId": "4a93e86071c3fb0c51903e903abe9d0b",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "404": {
+                        "description": "User Not Found"
+                    }
+                }
+            }
+        },
+        "/api/bookings": {
+            "get": {
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "List user bookings",
+                "operationId": "4535e967ef15bc76dadf1efa40192f0d",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Create a new booking",
+                "operationId": "43e6dcca842886074084b8db86af7802",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "service_id",
+                                    "agent_id",
+                                    "scheduled_at"
+                                ],
+                                "properties": {
+                                    "service_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "agent_id": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "scheduled_at": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Booking Created"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/bookings/{booking}": {
+            "patch": {
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Update booking status",
+                "operationId": "f5e37a5f92b73028481b7c33aa16b523",
+                "parameters": [
+                    {
+                        "name": "booking",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "status"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "PENDING",
+                                            "ACCEPTED",
+                                            "DECLINED",
+                                            "PAID_ESCROW",
+                                            "COMPLETED",
+                                            "CLOSED",
+                                            "CANCELLED"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/forgot-password": {
+            "post": {
+                "tags": [
+                    "Security"
+                ],
+                "summary": "Send password reset link to email",
+                "operationId": "b7005af67cef64028a6bbf0c4256f136",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Reset link sent"
+                    }
+                }
+            }
+        },
+        "/api/reset-password": {
+            "post": {
+                "tags": [
+                    "Security"
+                ],
+                "summary": "Reset password using token",
+                "operationId": "b6e7b32be0980ee2d6c1440030814304",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "token",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "token": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Password reset successful"
+                    }
+                }
+            }
+        },
+        "/api/location/reverse-geocode": {
+            "post": {
+                "tags": [
+                    "Location"
+                ],
+                "summary": "Convert coordinates to address/area name",
+                "operationId": "5f5eec5055d5bf9d4e36bf00e8c623dd",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "latitude",
+                                    "longitude"
+                                ],
+                                "properties": {
+                                    "latitude": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 9.0765
+                                    },
+                                    "longitude": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 7.3986
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/location/search": {
+            "get": {
+                "tags": [
+                    "Location"
+                ],
+                "summary": "Search for places/addresses (Google Autocomplete)",
+                "operationId": "8e6dd66a6fe9b789634db367dc216e4e",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "minLength": 3
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/location/place-details/{placeId}": {
+            "get": {
+                "tags": [
+                    "Location"
+                ],
+                "summary": "Get specific place details by ID",
+                "operationId": "7a196cb433d8d2fd242cbdcbed24be6e",
+                "parameters": [
+                    {
+                        "name": "placeId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/upload/avatar": {
+            "post": {
+                "tags": [
+                    "Media"
+                ],
+                "summary": "Upload and update user profile picture",
+                "operationId": "9d9f7dd6bad72fa6048bfa400a2ec74a",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "avatar"
+                                ],
+                                "properties": {
+                                    "avatar": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/users/notifications": {
+            "get": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "List authenticated user notifications",
+                "operationId": "b08173d2eb2d86f8c005a929adae9261",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Clear all notifications",
+                "operationId": "cc0874c72cf06b2e040d594303628971",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/users/notifications/read-all": {
+            "post": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Mark all notifications as read",
+                "operationId": "f59411ce5067d06b6f08146809c52547",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/users/notifications/{uuid}/read": {
+            "post": {
+                "tags": [
+                    "Notifications"
+                ],
+                "summary": "Mark specific notification as read",
+                "operationId": "528ecfcbccf264d42c789d1e906abc1c",
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/notification-settings": {
+            "put": {
+                "tags": [
+                    "Notification Settings"
+                ],
+                "summary": "Update notification preferences",
+                "operationId": "61396d4a52b728b039c4529d2ce04db2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "preferences": {
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/google": {
+            "get": {
+                "tags": [
+                    "OAuth"
+                ],
+                "summary": "Get Google OAuth redirect URL",
+                "operationId": "5efc56bd975deb406b49a7597a3a6fca",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/password/update": {
+            "post": {
+                "tags": [
+                    "Security"
+                ],
+                "summary": "Change account password",
+                "operationId": "f644d024a05857e0ed3e85a6507fb398",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "current_password",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "current_password": {
+                                        "type": "string",
+                                        "format": "password"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password"
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "422": {
+                        "description": "Validation Error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/payments/pay-with-wallet": {
+            "post": {
+                "tags": [
+                    "Payments"
+                ],
+                "summary": "Pay for a booking using wallet balance (Escrow)",
+                "operationId": "478e6d7aa87755bfe31f0f30d91a6a78",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "booking_id": {
+                                        "type": "integer"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Payment successful"
+                    },
+                    "400": {
+                        "description": "Invalid state or insufficient balance"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/webhooks/paystack": {
+            "post": {
+                "tags": [
+                    "Payments"
+                ],
+                "summary": "Paystack Webhook Handler",
+                "operationId": "645d1ccbaf3b645a83b1d219a2a2fd71",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/payment-methods": {
+            "get": {
+                "tags": [
+                    "Payment Methods"
+                ],
+                "summary": "List user saved payment methods",
+                "operationId": "a959c227d7b72f2f51a3a871ae5db980",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Payment Methods"
+                ],
+                "summary": "Verify and save card after Paystack checkout",
+                "operationId": "016c669cd61a6d78063d64588752f802",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "reference"
+                                ],
+                                "properties": {
+                                    "reference": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Card saved"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/payment-methods/initialize": {
+            "post": {
+                "tags": [
+                    "Payment Methods"
+                ],
+                "summary": "Initialize card verification (N50 charge)",
+                "operationId": "26007d6e02de28bc4fa240cd60d56f09",
+                "responses": {
+                    "200": {
+                        "description": "Initialization session created"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/payment-methods/{paymentMethod}": {
+            "delete": {
+                "tags": [
+                    "Payment Methods"
+                ],
+                "summary": "Delete saved card",
+                "operationId": "b5230a687d1ca08eeaabf96affb9fb1a",
+                "parameters": [
+                    {
+                        "name": "paymentMethod",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Deleted"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/payment-methods/{paymentMethod}/default": {
+            "patch": {
+                "tags": [
+                    "Payment Methods"
+                ],
+                "summary": "Set card as default",
+                "operationId": "6d2c9a238068da24f08f651e918e144a",
+                "parameters": [
+                    {
+                        "name": "paymentMethod",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/reports": {
+            "post": {
+                "tags": [
+                    "Reports"
+                ],
+                "summary": "Submit a report/compliant against an agent",
+                "operationId": "c1de1ab9c8b14a6aecd662f68a247bab",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "agent_name",
+                                    "type",
+                                    "description"
+                                ],
+                                "properties": {
+                                    "agent_name": {
+                                        "type": "string"
+                                    },
+                                    "agent_uuid": {
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "type": {
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "type": "string"
+                                    },
+                                    "evidence": {
+                                        "description": "Base64 encoded image",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Report submitted"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/services": {
+            "get": {
+                "tags": [
+                    "Services"
+                ],
+                "summary": "List all service categories",
+                "operationId": "97de511018def32ca0ccbc800756c538",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/services/{slug}": {
+            "get": {
+                "tags": [
+                    "Services"
+                ],
+                "summary": "Get specific service by slug",
+                "operationId": "14262bc076f0332906ac8f923d209c09",
+                "parameters": [
+                    {
+                        "name": "slug",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/sessions": {
+            "get": {
+                "tags": [
+                    "Sessions"
+                ],
+                "summary": "List all active user sessions and tokens",
+                "operationId": "8db417cfbdb154beb6fcc56d6649967f",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/sessions/{id}": {
+            "delete": {
+                "tags": [
+                    "Sessions"
+                ],
+                "summary": "Revoke a specific session or token",
+                "operationId": "af1f4ecb5a27ba7214dfd7bd177b8e8d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Session revoked"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/sessions/revoke-others": {
+            "post": {
+                "tags": [
+                    "Sessions"
+                ],
+                "summary": "Revoke all other active sessions and tokens",
+                "operationId": "674b38f08b84d9553a7af39970263a11",
+                "responses": {
+                    "200": {
+                        "description": "Sessions revoked"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/stats": {
+            "get": {
+                "tags": [
+                    "Analytics"
+                ],
+                "summary": "Get user activity statistics and history",
+                "operationId": "15e4c40e8bf4ede8bde3c40ae809abc8",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/help-support": {
+            "get": {
+                "tags": [
+                    "Support"
+                ],
+                "summary": "Get support contact information",
+                "operationId": "82b8a955035e01787e8eefd1fbd3dda1",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                }
+            }
+        },
+        "/api/feedback": {
+            "post": {
+                "tags": [
+                    "Support"
+                ],
+                "summary": "Submit user feedback",
+                "operationId": "6d151b40d0c53b73a80f968bfd55fe46",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "content"
+                                ],
+                                "properties": {
+                                    "content": {
+                                        "type": "string",
+                                        "minLength": 5
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/two-factor/enable": {
+            "post": {
+                "tags": [
+                    "Security"
+                ],
+                "summary": "Enable 2FA (Generates Secret & QR Code)",
+                "operationId": "28f075298a32079c6c2fe8b82db539d7",
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/two-factor/confirm": {
+            "post": {
+                "tags": [
+                    "Security"
+                ],
+                "summary": "Confirm 2FA setup with a code",
+                "description": "Confirm 2FA setup.",
+                "operationId": "1d69bf9c0bcaf76f1e6693ff452d76fa",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "code"
+                                ],
+                                "properties": {
+                                    "code": {
+                                        "type": "string",
+                                        "example": "123456"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "422": {
+                        "description": "Invalid Code"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/two-factor/disable": {
+            "post": {
+                "tags": [
+                    "Security"
+                ],
+                "summary": "Disable 2FA",
+                "operationId": "a787111df98cc5c76450c248c068459e",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "password"
+                                ],
+                                "properties": {
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/two-factor/challenge": {
+            "post": {
+                "tags": [
+                    "Security"
+                ],
+                "summary": "Verify 2FA code during login",
+                "operationId": "46c55f91a5aead8c9a3b7fa187ca8baf",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "code"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    },
+                                    "code": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success"
+                    },
+                    "422": {
+                        "description": "Invalid Code"
+                    }
+                }
+            }
+        },
+        "/api/email/verify/{id}/{hash}": {
+            "get": {
+                "tags": [
+                    "Verification"
+                ],
+                "summary": "Verify email address via signed link",
+                "operationId": "6ed540fa14ef7f273aa29e8927d30c69",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "hash",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Redirect to login"
+                    }
+                }
+            }
+        },
+        "/api/email/resend": {
+            "post": {
+                "tags": [
+                    "Verification"
+                ],
+                "summary": "Resend email verification link",
+                "operationId": "43852a3070150f6782a13d075b970da4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Link sent"
+                    }
+                }
+            }
+        },
+        "/api/wallet": {
+            "get": {
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "Get transaction history",
+                "operationId": "c46516e6ae316194282761be57b0a915",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/wallet/initialize": {
+            "post": {
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "Initialize wallet funding",
+                "operationId": "7776032080ba4e26f06d64503fa1717b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "amount": {
+                                        "type": "number",
+                                        "example": 1000
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful initialization"
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Agents",
+            "description": "Vetted service professional management"
+        },
+        {
+            "name": "Authentication",
+            "description": "User registration and session management"
+        },
+        {
+            "name": "Bookings",
+            "description": "Service booking management"
+        },
+        {
+            "name": "Security"
+        },
+        {
+            "name": "Location",
+            "description": "Geospatial and mapping services"
+        },
+        {
+            "name": "Media",
+            "description": "File and image upload management"
+        },
+        {
+            "name": "Notifications",
+            "description": "In-app notification management"
+        },
+        {
+            "name": "Notification Settings",
+            "description": "User notification preference management"
+        },
+        {
+            "name": "OAuth",
+            "description": "Social authentication management"
+        },
+        {
+            "name": "Payments",
+            "description": "Gateway and Escrow Management"
+        },
+        {
+            "name": "Payment Methods",
+            "description": "Credit card and authorization management"
+        },
+        {
+            "name": "Reports",
+            "description": "Agent complaint and dispute system"
+        },
+        {
+            "name": "Services",
+            "description": "Service categories and catalog"
+        },
+        {
+            "name": "Sessions",
+            "description": "Active device and token management"
+        },
+        {
+            "name": "Analytics",
+            "description": "User activity and marketplace statistics"
+        },
+        {
+            "name": "Support",
+            "description": "Customer help and feedback"
+        },
+        {
+            "name": "Verification",
+            "description": "Email and identity verification"
+        },
+        {
+            "name": "Wallet",
+            "description": "Wallet and Transaction management"
+        }
+    ]
+}

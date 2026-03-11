@@ -80,7 +80,7 @@ class BookingFlowTest extends TestCase
         
         $this->assertDatabaseHas('bookings', [
             'id' => $booking->id,
-            'status' => 'ACCEPTED',
+            'status' => 'PAID_ESCROW',
         ]);
     }
 }

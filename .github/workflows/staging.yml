@@ -59,6 +59,7 @@ jobs:
             cd /home/forahiao/public_html/forafix_staging
             composer install --no-dev --optimize-autoloader --no-interaction
             php artisan migrate --force
+            php artisan l5-swagger:generate
             php artisan optimize:clear
             php artisan config:cache
             php artisan route:cache
