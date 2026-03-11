@@ -26,14 +26,14 @@ class SupportController extends Controller
                     'title' => 'App Support',
                     'desc' => 'Report bugs or issues with the Forafix app.',
                     'action' => 'Contact App Support',
-                    'href' => 'mailto:app-support@forafix.com'
+                    'href' => 'mailto:info@forafix.forahia.org.ng'
                 ],
                 [
                     'icon' => 'HelpCircle',
                     'title' => 'General Support',
                     'desc' => 'Questions about bookings, payments, or anything else.',
                     'action' => 'Contact Support',
-                    'href' => 'mailto:support@forafix.com'
+                    'href' => 'mailto:info@forafix.forahia.org.ng'
                 ],
                 [
                     'icon' => 'Star',
