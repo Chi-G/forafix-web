@@ -10,7 +10,7 @@ use OpenApi\Attributes as OA;
  *     version="1.0.0",
  *     description="Marketplace API with Wallet, Escrow and Booking management",
  *     @OA\Contact(
- *         email="support@forafix.com"
+ *         email="info@forafix.forahia.org.ng"
  *     )
  * )
  * @OA\SecurityScheme(
@@ -24,7 +24,7 @@ use OpenApi\Attributes as OA;
     title: "Forafix API Documentation",
     version: "1.0.0",
     description: "Marketplace API with Wallet, Escrow and Booking management",
-    contact: new OA\Contact(email: "support@forafix.com")
+    contact: new OA\Contact(email: "info@forafix.forahia.org.ng")
 )]
 #[OA\SecurityScheme(
     securityScheme: "sanctum",
