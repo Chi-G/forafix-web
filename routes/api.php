@@ -51,13 +51,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/notification-settings', [NotificationSettingsController::class, 'update']);
 
     Route::get('/bookings', [\App\Http\Controllers\Api\BookingController::class, 'index']);
-    Route::post('/bookings', [\App\Http\Controllers\Api\BookingController::class, 'store']);
+    Route::post('/bookings', [\App\Http\Controllers\Api\BookingController::class, 'store'])->middleware('idempotent');
     Route::patch('/bookings/{booking}', [\App\Http\Controllers\Api\BookingController::class, 'update']);
     Route::post('/agent/profile', [\App\Http\Controllers\Api\AgentController::class, 'update']);
     Route::post('/upload/avatar', [\App\Http\Controllers\Api\MediaController::class, 'uploadAvatar']);
-    Route::post('/payments/initialize', [\App\Http\Controllers\Api\PaymentController::class, 'initialize']);
-    Route::post('/payments/wallet', [\App\Http\Controllers\Api\PaymentController::class, 'payWithWallet']);
-    Route::post('/payments/release-funds', [\App\Http\Controllers\Api\PaymentController::class, 'releaseFunds']);
+    Route::post('/payments/initialize', [\App\Http\Controllers\Api\PaymentController::class, 'initialize'])->middleware('idempotent');
+    Route::post('/payments/wallet', [\App\Http\Controllers\Api\PaymentController::class, 'payWithWallet'])->middleware('idempotent');
+    Route::post('/payments/release-funds', [\App\Http\Controllers\Api\PaymentController::class, 'releaseFunds'])->middleware('idempotent');
 
     // Password Update
     Route::post('/password/update', [PasswordController::class, 'update']);
@@ -89,8 +89,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Wallet System
     Route::get('/wallet/transactions', [WalletController::class, 'index']);
-    Route::post('/wallet/fund/initialize', [WalletController::class, 'initialize']);
-    Route::post('/wallet/fund/verify', [WalletController::class, 'verify']);
+    Route::post('/wallet/fund/initialize', [WalletController::class, 'initialize'])->middleware('idempotent');
+    Route::post('/wallet/fund/verify', [WalletController::class, 'verify'])->middleware('idempotent');
 });
 
 Route::post('/two-factor/challenge', [TwoFactorController::class, 'challenge']);

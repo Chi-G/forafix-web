@@ -59,8 +59,9 @@ const LandingPage = () => {
     return (
         <div className="min-h-screen bg-white dark:bg-neutral-950 font-inter selection:bg-brand-100 selection:text-brand-900 transition-colors duration-300">
             <Helmet>
-                <title>Forafix | Abuja's #1 Home Service Marketplace</title>
-                <meta name="description" content="Find the best house cleaners, plumbers, electricians, and market runners in Abuja. Vetted professionals, secure payments, guaranteed satisfaction." />
+                <title>Forafix | Professional Home Services & Artisans in Abuja</title>
+                <meta name="description" content="Book vetted house cleaners, plumbers, electricians, and more in Abuja. Forafix connects you with trusted professionals for all your home repair and maintenance needs. Secure payments and guaranteed quality." />
+                <meta name="keywords" content="home services Abuja, house cleaning Abuja, plumber Abuja, electrician Abuja, handymen Abuja, Forafix, home maintenance Nigeria" />
             </Helmet>
 
             <main className="relative">
