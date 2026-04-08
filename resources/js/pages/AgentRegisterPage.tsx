@@ -29,7 +29,7 @@ const AgentRegisterPage = () => {
         }
 
         try {
-            const response = await axios.post('/register', {
+            const response = await axios.post('register', {
                 name,
                 email,
                 password,

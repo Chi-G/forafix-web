@@ -21,7 +21,7 @@ export const useBookingStore = create<BookingState>((set, get) => ({
     fetchBookings: async () => {
         set({ isLoading: true, error: null });
         try {
-            const response = await axios.get('/bookings');
+            const response = await axios.get('bookings');
             set({ bookings: response.data, isLoading: false });
         } catch (err: any) {
             set({ error: 'Failed to fetch bookings', isLoading: false });
@@ -31,7 +31,7 @@ export const useBookingStore = create<BookingState>((set, get) => ({
     createBooking: async (bookingData) => {
         set({ isLoading: true, error: null });
         try {
-            const response = await axios.post('/bookings', bookingData);
+            const response = await axios.post('bookings', bookingData);
             const newBooking = response.data;
             set((state) => ({
                 bookings: [newBooking, ...state.bookings],
@@ -60,12 +60,12 @@ export const useBookingStore = create<BookingState>((set, get) => ({
     },
 
     initializePayment: async (bookingId: number) => {
-        const response = await axios.post('/payments/initialize', { booking_id: bookingId });
+        const response = await axios.post('payments/initialize', { booking_id: bookingId });
         return response.data;
     },
 
     payWithWallet: async (bookingId: number) => {
-        const response = await axios.post('/payments/wallet', { booking_id: bookingId });
+        const response = await axios.post('payments/wallet', { booking_id: bookingId });
         return response.data;
     },
 }));

@@ -168,7 +168,7 @@ const AccountInfo = ({ user }: { user: any }) => {
     const handleCloseAccount = async () => {
         setIsLoading(true);
         try {
-            await axios.delete('/user');
+            await axios.delete('user');
             toast.success('Account closed. We are sorry to see you go.');
             await logout();
             window.location.href = '/';
@@ -283,7 +283,7 @@ const WalletPayments = () => {
 
     const fetchCards = async () => {
         try {
-            const { data } = await axios.get('/payment-methods');
+            const { data } = await axios.get('payment-methods');
             setCards(data);
         } catch (err) {
             toast.error('Failed to fetch payment methods.');
@@ -293,7 +293,7 @@ const WalletPayments = () => {
     const fetchHistory = async () => {
         setIsHistoryLoading(true);
         try {
-            const { data } = await axios.get('/wallet/transactions');
+            const { data } = await axios.get('wallet/transactions');
             setHistory(data.data);
         } catch (err) {
             console.error('Failed to fetch transaction history');
@@ -306,7 +306,7 @@ const WalletPayments = () => {
         setIsSaving(true);
         const t = toast.loading('Verifying funding...');
         try {
-            await axios.post('/wallet/fund/verify', { reference: ref });
+            await axios.post('wallet/fund/verify', { reference: ref });
             toast.success('Wallet funded successfully!', { id: t });
             await fetchUser();
             fetchHistory();
@@ -339,7 +339,7 @@ const WalletPayments = () => {
         
         setIsSaving(true);
         try {
-            const { data: response } = await axios.post('/wallet/fund/initialize', { amount });
+            const { data: response } = await axios.post('wallet/fund/initialize', { amount });
             if (response.status && response.data.authorization_url) {
                 window.location.href = response.data.authorization_url;
             } else {
@@ -396,7 +396,7 @@ const WalletPayments = () => {
 
         setIsSaving(true);
         try {
-            const { data: response } = await axios.post('/payment-methods/initialize', { email: form.email });
+            const { data: response } = await axios.post('payment-methods/initialize', { email: form.email });
             if (!response.status) throw new Error(response.message || 'Initialization failed');
             if (!(window as any).PaystackPop) throw new Error('Paystack SDK not loaded. Please refresh the page.');
 
@@ -423,7 +423,7 @@ const WalletPayments = () => {
 
     const handlePaymentCallback = async (reference: string) => {
         try {
-            const { data: finalData } = await axios.post('/payment-methods', { reference });
+            const { data: finalData } = await axios.post('payment-methods', { reference });
             setCards(p => [...p, finalData]);
             toast.success('Card added successfully!');
             setShowModal(false);
@@ -909,7 +909,7 @@ const PasswordSecurity = () => {
     const fetchSessions = async () => {
         setIsSessionsLoading(true);
         try {
-            const response = await axios.get('/sessions');
+            const response = await axios.get('sessions');
             setSessions(response.data);
         } catch (err) {
             console.error('Failed to fetch sessions:', err);
@@ -931,7 +931,7 @@ const PasswordSecurity = () => {
     const handleRevokeAll = async () => {
         setIsSessionsLoading(true);
         try {
-            await axios.post('/sessions/revoke-others');
+            await axios.post('sessions/revoke-others');
             toast.success('All other sessions revoked.');
             setSessions(prev => prev.filter(s => s.is_current));
         } catch (err: any) {
@@ -953,7 +953,7 @@ const PasswordSecurity = () => {
 
         setIsLoading(true);
         try {
-            await axios.post('/password/update', passForm);
+            await axios.post('password/update', passForm);
             toast.success('Password updated successfully!');
             setPassForm({ current_password: '', password: '', password_confirmation: '' });
         } catch (err: any) {
@@ -970,7 +970,7 @@ const PasswordSecurity = () => {
     const handleEnable2FA = async () => {
         setIsLoading(true);
         try {
-            const response = await axios.post('/two-factor/enable');
+            const response = await axios.post('two-factor/enable');
             setQrCode(response.data.qr_code);
             setSecret(response.data.secret);
             setTwoFAStep('qr');
@@ -985,7 +985,7 @@ const PasswordSecurity = () => {
     const handleConfirm2FA = async () => {
         setIsLoading(true);
         try {
-            const response = await axios.post('/two-factor/confirm', { code: confirmationCode });
+            const response = await axios.post('two-factor/confirm', { code: confirmationCode });
             toast.success('Two-factor authentication enabled!');
             setRecoveryCodes(response.data.recovery_codes || []);
             setTwoFAStep('recovery');
@@ -1000,7 +1000,7 @@ const PasswordSecurity = () => {
     const handleDisable2FA = async () => {
         setIsLoading(true);
         try {
-            await axios.post('/two-factor/disable', { password: disablePassword });
+            await axios.post('two-factor/disable', { password: disablePassword });
             toast.success('Two-factor authentication disabled.');
             setShowDisableModal(false);
             setDisablePassword('');
@@ -1244,7 +1244,7 @@ const NotificationSettings = () => {
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            await axios.put('/notification-settings', { preferences: prefs });
+            await axios.put('notification-settings', { preferences: prefs });
             toast.success('Notification preferences saved!');
             await fetchUser(); // Update global auth state
         } catch (err: any) {
@@ -1311,7 +1311,7 @@ const StatsTrends = ({ user }: { user: any }) => {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const { data } = await axios.get('/stats');
+                const { data } = await axios.get('stats');
                 setStatsData(data);
             } catch (err) {
                 console.error('Failed to fetch stats:', err);
@@ -1425,7 +1425,7 @@ const HelpSupport = () => {
     useEffect(() => {
         const fetchSupport = async () => {
             try {
-                const { data } = await axios.get('/help-support');
+                const { data } = await axios.get('help-support');
                 // Map icon names back to Lucide components
                 const iconMap: any = { Zap, HelpCircle, Star };
                 const refined = data.contacts.map((c: any) => ({
@@ -1448,7 +1448,7 @@ const HelpSupport = () => {
         }
         setIsSubmitting(true);
         try {
-            const { data } = await axios.post('/feedback', { content: feedback });
+            const { data } = await axios.post('feedback', { content: feedback });
             toast.success(data.message);
             setFeedback('');
         } catch (err: any) {
@@ -1520,7 +1520,7 @@ const Reports = () => {
 
         setIsSubmitting(true);
         try {
-            const { data } = await axios.post('/reports', {
+            const { data } = await axios.post('reports', {
                 agent_name: form.agentName,
                 agent_uuid: form.agentUuid,
                 type: form.type,

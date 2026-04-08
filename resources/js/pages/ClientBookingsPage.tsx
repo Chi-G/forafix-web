@@ -55,7 +55,7 @@ const ClientBookingsPage = () => {
     const { data: bookings, isLoading, refetch } = useQuery({
         queryKey: ['client-bookings'],
         queryFn: async () => {
-            const response = await axios.get('/bookings');
+            const response = await axios.get('bookings');
             return response.data;
         }
     });

@@ -17,7 +17,7 @@ const ForgotPasswordPage = () => {
         setMessage('');
 
         try {
-            const response = await axios.post('/forgot-password', { email });
+            const response = await axios.post('forgot-password', { email });
             setStatus('success');
             setMessage(response.data.message || 'If an account exists with that email, we have sent a password reset link.');
         } catch (err: any) {

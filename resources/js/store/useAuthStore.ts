@@ -24,7 +24,8 @@ interface AuthState {
 
 // Config axios
 const appPath = import.meta.env.VITE_APP_PATH || '';
-axios.defaults.baseURL = `${appPath}/api`;
+const cleanAppPath = appPath.replace(/\/+$/, '');
+axios.defaults.baseURL = `${cleanAppPath}/api/`;
 const token = localStorage.getItem('auth_token');
 if (token) {
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;

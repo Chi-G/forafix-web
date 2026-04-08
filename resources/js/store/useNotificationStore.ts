@@ -29,7 +29,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
     fetchNotifications: async () => {
         set({ isLoading: true });
         try {
-            const response = await axios.get('/users/notifications');
+            const response = await axios.get('users/notifications');
             // The API returns a paginated response, so we grab the data array
             set({ notifications: response.data.data || [] });
         } catch (error) {
@@ -54,7 +54,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
 
     markAllAsRead: async () => {
         try {
-            await axios.post('/users/notifications/read-all');
+            await axios.post('users/notifications/read-all');
             set((state) => ({
                 notifications: state.notifications.map((n) => ({
                     ...n,
@@ -68,7 +68,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
 
     clearNotifications: async () => {
         try {
-            await axios.delete('/users/notifications');
+            await axios.delete('users/notifications');
             set({ notifications: [] });
         } catch (error) {
             console.error('Failed to clear notifications:', error);

@@ -26,7 +26,7 @@ const ClientRegisterPage = () => {
         }
 
         try {
-            const response = await axios.post('/register', {
+            const response = await axios.post('register', {
                 name,
                 email,
                 password,
@@ -145,7 +145,7 @@ const ClientRegisterPage = () => {
                             type="button"
                             onClick={async () => {
                                 try {
-                                    const response = await axios.get('/auth/google');
+                                    const response = await axios.get('auth/google');
                                     window.location.href = response.data.url;
                                 } catch (err) {
                                     setError('Failed to initiate Google login.');

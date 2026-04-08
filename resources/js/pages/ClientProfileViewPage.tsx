@@ -96,7 +96,7 @@ const ClientProfileViewPage = () => {
         const formData = new FormData();
         formData.append('document', file);
         try {
-            await axios.post('/upload/verification', formData, {
+            await axios.post('upload/verification', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             setMessage({ type: 'success', text: 'ID document uploaded! Pending review.' });
