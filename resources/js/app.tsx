@@ -64,7 +64,7 @@ const App = () => {
             <HelmetProvider>
                 <QueryClientProvider client={queryClient}>
                     <Toaster />
-                    <BrowserRouter basename={import.meta.env.VITE_APP_PATH || '/'}>
+                    <BrowserRouter basename={(import.meta.env.VITE_APP_PATH === 'undefined' ? '' : import.meta.env.VITE_APP_PATH) || '/'}>
                         <Routes>
                             <Route element={<MainLayout />}>
                                 {/* Public-only Routes (Redirect to Dashboard if logged in) */}
