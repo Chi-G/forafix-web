@@ -19,6 +19,7 @@ interface NotificationState {
     markAllAsRead: () => Promise<void>;
     clearNotifications: () => Promise<void>;
     unreadCount: () => number;
+    addNotification: (notification: any) => void;
 }
 
 export const useNotificationStore = create<NotificationState>((set, get) => ({
@@ -75,4 +76,18 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
     },
 
     unreadCount: () => get().notifications.filter((n) => !n.read_at).length,
+
+    addNotification: (notification) => {
+        set((state) => ({
+            notifications: [
+                {
+                    uuid: Math.random().toString(36).substring(7),
+                    created_at: new Date().toISOString(),
+                    read_at: null,
+                    ...notification
+                },
+                ...state.notifications
+            ]
+        }));
+    },
 }));

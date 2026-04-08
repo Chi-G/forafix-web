@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { baseAsset } from "@/lib/assetHelper";
 import { Facebook, Twitter, Instagram } from 'lucide-react';
 import React from 'react';
 import { usePreferenceStore } from '../store/usePreferenceStore';
@@ -11,9 +12,10 @@ const Footer = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 mb-20">
                     <div className="col-span-2 lg:col-span-1">
-                        <Link to="/" className="mb-6 block hover:opacity-80 transition-opacity">
-                            <img src="/logo-no-char.png" alt="Forafix Icon" className="h-12 w-auto" />
-                        </Link>
+                        <div className="bg-neutral-800 dark:bg-transparent p-2 sm:p-2.5 rounded-2xl shadow-sm border border-neutral-700 dark:border-transparent transition-colors mb-6 w-fit">
+                            <img src={baseAsset("logo.png")} alt="Forafix Logo" className="h-10 sm:h-12 w-auto object-contain block dark:hidden" />
+                            <img src={baseAsset("logo-no-char.png")} alt="Forafix Logo" className="h-10 sm:h-12 w-auto object-contain hidden dark:block" />
+                        </div>
                         <p className="text-sm leading-relaxed mb-6 font-medium">Abuja's #1 marketplace for local household services and skilled agents.</p>
                         <div className="flex gap-4">
                             <div className="w-8 h-8 rounded-full bg-white/10 hover:bg-[#14a800] transition-colors cursor-pointer flex items-center justify-center">
@@ -72,9 +74,9 @@ const Footer = () => {
                         <Link to="/privacy" className="hover:text-white">Privacy Policy</Link>
                         <button onClick={openCookieSettings} className="hover:text-white uppercase font-bold">Cookie Settings</button>
                     </div>
-                    <div className="flex items-center gap-4">
-                        <Link to="https://forahia.org.ng" target="_blank" className="hover:text-white">Proudly owned by Forahia.</Link>
-                    </div>
+                    <p className="text-neutral-500 text-sm">
+                        © {new Date().getFullYear()} Forafix. A product of <a href="https://forahia.com" target="_blank" rel="noopener noreferrer" className="text-brand-600 hover:text-brand-500 font-medium transition-colors">Forahia</a>.
+                    </p>
                 </div>
             </div>
         </footer>

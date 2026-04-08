@@ -34,29 +34,29 @@ jobs:
         env:
           VITE_PUSHER_APP_KEY: ${{ secrets.VITE_PUSHER_APP_KEY }}
           VITE_PUSHER_APP_CLUSTER: ${{ secrets.VITE_PUSHER_APP_CLUSTER }}
+          VITE_APP_PATH: "/forafix_staging"
 
       - name: Deploy to Server via SCP
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.WHOGOHOST_SSH_HOST }}
-          username: ${{ secrets.WHOGOHOST_SSH_USER }}
+          host: ${{ secrets.HOSTINGER_SSH_HOST }}
+          username: ${{ secrets.HOSTINGER_SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.WHOGOHOST_SSH_PORT }}
+          port: ${{ secrets.HOSTINGER_SSH_PORT }}
           source: "."
-          target: "/home/forahiao/public_html/forafix_staging/"
+          target: "/home/u157985566/domains/forahia.com/public_html/forafix_staging"
           rm: false
           strip_components: 0
-          ignore_list: ".git*,node_modules,vendor,storage/*.key,storage/logs/*.log,.env"
 
       - name: Execute Post-Deployment Commands
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.WHOGOHOST_SSH_HOST }}
-          username: ${{ secrets.WHOGOHOST_SSH_USER }}
+          host: ${{ secrets.HOSTINGER_SSH_HOST }}
+          username: ${{ secrets.HOSTINGER_SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.WHOGOHOST_SSH_PORT }}
+          port: ${{ secrets.HOSTINGER_SSH_PORT }}
           script: |
-            cd /home/forahiao/public_html/forafix_staging
+            cd /home/u157985566/domains/forahia.com/public_html/forafix_staging
             composer install --no-dev --optimize-autoloader --no-interaction
             php artisan migrate --force
             php artisan l5-swagger:generate
