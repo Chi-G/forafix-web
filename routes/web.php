@@ -12,4 +12,4 @@ Route::redirect('/search', '/cl/find-service');
 
 Route::get('{any}', function () {
     return view('welcome');
-})->where('any', '^(?!api/).*');
+})->where('any', '^(?!(api|forafix/api)).*');

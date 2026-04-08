@@ -1,5 +1,6 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    RewriteBase /forafix/
     
     # Prevent potential loops if already in public/
     RewriteCond %{REQUEST_URI} !^/public/
