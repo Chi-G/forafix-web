@@ -6,11 +6,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/api/debug-path', function () {
+Route::get('/test-route', function () {
     return response()->json([
         'path' => request()->path(),
-        'url' => request()->fullUrl(),
-        'method' => request()->method(),
+        'uri' => request()->getRequestUri(),
+        'base' => request()->getBaseUrl(),
     ]);
 });
 
