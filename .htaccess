@@ -1,7 +1,13 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    
-    # Just shift everything into the public/ directory
-    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteBase /forafix/
+
+    # 1. First, try to serve existing assets from the public folder
+    RewriteCond %{DOCUMENT_ROOT}/forafix/public/$1 -f
     RewriteRule ^(.*)$ public/$1 [L]
+
+    # 2. Redirect everything else (API, routes) to our root proxy index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [L]
 </IfModule>
