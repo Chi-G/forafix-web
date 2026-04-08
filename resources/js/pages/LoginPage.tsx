@@ -137,8 +137,14 @@ const LoginPage = () => {
                             onClick={async () => {
                                 try {
                                     const response = await axios.get('auth/google');
-                                    window.location.href = response.data.url;
+                                    if (response.data && response.data.url) {
+                                        window.location.href = response.data.url;
+                                    } else {
+                                        console.error('Invalid Google Auth response:', response.data);
+                                        setError('Failed to get Google login URL. Please try again or use email login.');
+                                    }
                                 } catch (err) {
+                                    console.error('Google Auth error:', err);
                                     setError('Failed to initiate Google login.');
                                 }
                             }}
