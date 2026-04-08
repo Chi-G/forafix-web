@@ -1,12 +1,7 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /forafix/
-
-    # 1. Allow existing files/dirs to be served normally
-    RewriteCond %{REQUEST_FILENAME} -f [OR]
-    RewriteCond %{REQUEST_FILENAME} -d
-    RewriteRule ^ - [L]
-
-    # 2. Map all non-file requests to index.php with the path appended
-    RewriteRule ^(.*)$ public/index.php/$1 [L]
+    
+    # Just shift everything into the public/ directory
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>

@@ -20,4 +20,4 @@ Route::redirect('/search', '/cl/find-service');
 
 Route::get('{any}', function () {
     return view('welcome');
-})->where('any', '^(?!(api|forafix/api)).*');
+})->where('any', '^(?!(api|forafix/api|build|public|assets|favicon)).*');
