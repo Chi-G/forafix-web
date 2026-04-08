@@ -36,36 +36,13 @@ jobs:
           VITE_PUSHER_APP_CLUSTER: ${{ secrets.VITE_PUSHER_APP_CLUSTER }}
           VITE_APP_PATH: "/forafix_staging"
 
-      - name: Clean up dev files before SCP
+      - name: Deploy to Server via RSYNC
         run: |
-          rm -rf node_modules .git
-          rm -rf vendor
-
-      - name: Ensure Target Directory Exists
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.HOSTINGER_SSH_HOST }}
-          username: ${{ secrets.HOSTINGER_SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.HOSTINGER_SSH_PORT }}
-          timeout: 10m
-          script: |
-            mkdir -p /home/u157985566/domains/forahia.com/public_html/forafix_staging
-          
-      - name: Deploy to Server via SCP
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.HOSTINGER_SSH_HOST }}
-          username: ${{ secrets.HOSTINGER_SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.HOSTINGER_SSH_PORT }}
-          source: "."
-          target: "/home/u157985566/domains/forahia.com/public_html/forafix_staging"
-          rm: false
-          strip_components: 0
-          timeout: 10m
-          use_insecure_cipher: true
-          tar_tmp_path: "/home/u157985566"
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p ${{ secrets.HOSTINGER_SSH_PORT }} -H ${{ secrets.HOSTINGER_SSH_HOST }} >> ~/.ssh/known_hosts
+          rsync -avz --exclude='.git' --exclude='node_modules' --exclude='vendor' -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.HOSTINGER_SSH_PORT }}" ./ ${{ secrets.HOSTINGER_SSH_USER }}@${{ secrets.HOSTINGER_SSH_HOST }}:/home/u157985566/domains/forahia.com/public_html/forafix_staging/
 
       - name: Execute Post-Deployment Commands
         uses: appleboy/ssh-action@master
