@@ -1,7 +1,12 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
     
-    # Prevent potential loops if already in public/
+    # 1. If it's a virtual route (not a file/dir), send it straight to Laravel's index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ public/index.php [L]
+    
+    # 2. Otherwise, if it's a file but not in public/, redirect to public/ (for assets)
     RewriteCond %{REQUEST_URI} !^/public/
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>
