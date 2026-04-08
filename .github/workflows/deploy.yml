@@ -38,13 +38,14 @@ jobs:
           VITE_APP_PATH: "/forafix"
           ASSET_URL: "https://forahia.com/forafix"
 
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
       - name: Deploy to Server via RSYNC
         run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p ${{ secrets.HOSTINGER_SSH_PORT }} -H ${{ secrets.HOSTINGER_SSH_HOST }} >> ~/.ssh/known_hosts
-          rsync -avz --exclude='.git' --exclude='node_modules' --exclude='vendor' -e "ssh -i ~/.ssh/deploy_key -p ${{ secrets.HOSTINGER_SSH_PORT }}" ./ ${{ secrets.HOSTINGER_SSH_USER }}@${{ secrets.HOSTINGER_SSH_HOST }}:/home/u157985566/domains/forahia.com/public_html/forafix/
+          rsync -avz --exclude='.git' --exclude='node_modules' --exclude='vendor' -e "ssh -o StrictHostKeyChecking=no -p ${{ secrets.HOSTINGER_SSH_PORT }}" ./ ${{ secrets.HOSTINGER_SSH_USER }}@${{ secrets.HOSTINGER_SSH_HOST }}:/home/u157985566/domains/forahia.com/public_html/forafix/
 
       - name: Execute Post-Deployment Commands
         uses: appleboy/ssh-action@master
