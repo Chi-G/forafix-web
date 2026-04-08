@@ -57,7 +57,7 @@ jobs:
           strip_components: 0
           timeout: 10m
           use_insecure_cipher: true
-          tar_tmp_path: "/tmp"
+          tar_tmp_path: "/home/u157985566"
 
       - name: Execute Post-Deployment Commands
         uses: appleboy/ssh-action@master
