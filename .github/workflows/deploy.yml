@@ -43,6 +43,17 @@ jobs:
           # Note: Keeping vendor if you rely on it locally, but since post-deploy runs composer install, we could remove it too.
           # removing it to speed up the transfer significantly
           rm -rf vendor
+
+      - name: Ensure Target Directory Exists
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOSTINGER_SSH_HOST }}
+          username: ${{ secrets.HOSTINGER_SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.HOSTINGER_SSH_PORT }}
+          timeout: 10m
+          script: |
+            mkdir -p /home/u157985566/domains/forahia.com/public_html/forafix
           
       - name: Deploy to Server via SCP
         uses: appleboy/scp-action@master
