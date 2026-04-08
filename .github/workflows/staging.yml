@@ -35,6 +35,7 @@ jobs:
           VITE_PUSHER_APP_KEY: ${{ secrets.VITE_PUSHER_APP_KEY }}
           VITE_PUSHER_APP_CLUSTER: ${{ secrets.VITE_PUSHER_APP_CLUSTER }}
           VITE_APP_PATH: "/forafix_staging"
+          ASSET_URL: "https://forahia.com/forafix_staging"
 
       - name: Deploy to Server via RSYNC
         run: |
