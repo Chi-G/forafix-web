@@ -23,7 +23,8 @@ interface AuthState {
 }
 
 // Config axios
-axios.defaults.baseURL = '/api';
+const appPath = import.meta.env.VITE_APP_PATH || '';
+axios.defaults.baseURL = `${appPath}/api`;
 const token = localStorage.getItem('auth_token');
 if (token) {
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -63,7 +64,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     },
     fetchUser: async () => {
         try {
-            const response = await axios.get('/me');
+            const response = await axios.get('me');
             const user = response.data;
             set({ user, isAuthenticated: true });
 
@@ -82,24 +83,24 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         }
     },
     updateProfile: async (data) => {
-        const response = await axios.post('/profile', data);
+        const response = await axios.post('profile', data);
         set({ user: response.data });
     },
     updateAgentProfile: async (data) => {
-        const response = await axios.post('/agent/profile', data);
+        const response = await axios.post('agent/profile', data);
         set({ user: response.data });
     },
     uploadAvatar: async (file) => {
         const formData = new FormData();
         formData.append('avatar', file);
-        const response = await axios.post('/upload/avatar', formData, {
+        const response = await axios.post('upload/avatar', formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
         set({ user: response.data });
     },
     logout: async () => {
         try {
-            await axios.post('/logout');
+            await axios.post('logout');
         } catch (error) {
             console.error('Logout failed:', error);
         } finally {

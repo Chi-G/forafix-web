@@ -19,7 +19,7 @@ const LoginPage = () => {
         setError('');
         
         try {
-            const response = await axios.post('/login', { email, password });
+            const response = await axios.post('login', { email, password });
             
             if (response.status === 202 && response.data.error_code === 'TWO_FACTOR_REQUIRED') {
                 navigate('/auth/2fa-challenge', { state: { email: response.data.email } });
@@ -136,7 +136,7 @@ const LoginPage = () => {
                             type="button"
                             onClick={async () => {
                                 try {
-                                    const response = await axios.get('/auth/google');
+                                    const response = await axios.get('auth/google');
                                     window.location.href = response.data.url;
                                 } catch (err) {
                                     setError('Failed to initiate Google login.');

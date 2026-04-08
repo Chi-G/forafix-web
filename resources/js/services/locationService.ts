@@ -17,7 +17,7 @@ export const locationService = {
         latitude: number,
         longitude: number
     ): Promise<ReverseGeocodeResponse> => {
-        const { data } = await axios.post('/location/reverse-geocode', {
+        const { data } = await axios.post('location/reverse-geocode', {
             latitude,
             longitude,
         });
@@ -32,7 +32,7 @@ export const locationService = {
         mainText: string;
         secondaryText: string;
     }>> => {
-        const { data } = await axios.get('/location/search', {
+        const { data } = await axios.get('location/search', {
             params: { q: query },
         });
         return data.predictions;
@@ -45,7 +45,7 @@ export const locationService = {
         address: string;
         area: string;
     }> => {
-        const { data } = await axios.get(`/location/place-details/${placeId}`);
+        const { data } = await axios.get(`location/place-details/${placeId}`);
         return data;
     },
 
@@ -58,7 +58,7 @@ export const locationService = {
         longitude: number;
         isDefault: boolean;
     }) => {
-        const { data } = await axios.post('/user/locations', locationData);
+        const { data } = await axios.post('user/locations', locationData);
         return data;
     },
 };

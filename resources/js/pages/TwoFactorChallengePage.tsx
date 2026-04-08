@@ -20,7 +20,7 @@ const TwoFactorChallengePage = () => {
         setError('');
 
         try {
-            const response = await axios.post('/two-factor/challenge', {
+            const response = await axios.post('two-factor/challenge', {
                 email,
                 code,
             });

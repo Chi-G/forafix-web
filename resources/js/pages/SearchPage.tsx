@@ -19,7 +19,7 @@ const SearchPage = () => {
     const { data: services, isLoading } = useQuery({
         queryKey: ['services', query],
         queryFn: async () => {
-            const response = await axios.get('/services');
+            const response = await axios.get('services');
             // Basic frontend filtering for now, real filtering should be on backend
             const data = response.data;
             if (!query) return data;

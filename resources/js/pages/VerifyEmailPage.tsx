@@ -15,7 +15,7 @@ const VerifyEmailPage = () => {
         setIsLoading(true);
         setMessage('');
         try {
-            await axios.post('/email/resend', { email });
+            await axios.post('email/resend', { email });
             setMessage('Verification link resent! Please check your inbox.');
             setStatus('success');
         } catch (err: any) {

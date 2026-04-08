@@ -145,7 +145,7 @@ const ClientDashboard = () => {
     const { data: services, isLoading: isServicesLoading } = useQuery({
         queryKey: ['dashboard-services'],
         queryFn: async () => {
-            const response = await axios.get('/services');
+            const response = await axios.get('services');
             return response.data;
         }
     });

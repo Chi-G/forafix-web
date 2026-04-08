@@ -31,7 +31,7 @@ const NotificationsPage = () => {
     const { data, isLoading, isError } = useQuery({
         queryKey: ['notifications'],
         queryFn: async () => {
-            const response = await axios.get('/users/notifications');
+            const response = await axios.get('users/notifications');
             return response.data;
         }
     });
@@ -39,21 +39,21 @@ const NotificationsPage = () => {
     const notifications = data?.data || [];
 
     const markReadMutation = useMutation({
-        mutationFn: (uuid: string) => axios.post(`/users/notifications/${uuid}/read`),
+        mutationFn: (uuid: string) => axios.post(`users/notifications/${uuid}/read`),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['notifications'] });
         }
     });
 
     const markAllReadMutation = useMutation({
-        mutationFn: () => axios.post('/users/notifications/read-all'),
+        mutationFn: () => axios.post('users/notifications/read-all'),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['notifications'] });
         }
     });
 
     const clearAllMutation = useMutation({
-        mutationFn: () => axios.delete('/users/notifications'),
+        mutationFn: () => axios.delete('users/notifications'),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['notifications'] });
         }

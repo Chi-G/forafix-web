@@ -47,7 +47,7 @@ const LandingPage = () => {
     const { data: services, isLoading } = useQuery({
         queryKey: ['services'],
         queryFn: async () => {
-            const response = await axios.get('/services');
+            const response = await axios.get('services');
             return response.data;
         }
     });
