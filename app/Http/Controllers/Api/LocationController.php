@@ -15,6 +15,14 @@ use OpenApi\Attributes as OA;
 #[OA\Tag(name: "Location", description: "Geospatial and mapping services")]
 class LocationController extends Controller
 {
+    private string|null $apiKey;
+    private string $googleMapsUrl;
+
+    public function __construct()
+    {
+        $this->apiKey = config('services.google.key');
+        $this->googleMapsUrl = config('services.google.maps_url', 'https://maps.googleapis.com/maps/api');
+    }
     #[OA\Post(
         path: "/api/location/reverse-geocode",
         summary: "Convert coordinates to address/area name",

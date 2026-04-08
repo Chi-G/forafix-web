@@ -64,7 +64,7 @@ const App = () => {
             <HelmetProvider>
                 <QueryClientProvider client={queryClient}>
                     <Toaster />
-                    <BrowserRouter>
+                    <BrowserRouter basename="/forafix">
                         <Routes>
                             <Route element={<MainLayout />}>
                                 {/* Public-only Routes (Redirect to Dashboard if logged in) */}

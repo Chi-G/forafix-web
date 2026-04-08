@@ -36,6 +36,7 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { cn, formatNaira } from '../lib/utils';
 import { useAuthStore } from '../store/useAuthStore';
+import { baseAsset } from '../lib/assetHelper';
 
 const LandingPage = () => {
     const navigate = useNavigate();
@@ -134,7 +135,7 @@ const LandingPage = () => {
                                     <div className="flex -space-x-3 items-center px-2">
                                         {[1,2,3,4].map(i => (
                                             <div key={i} className="w-10 h-10 rounded-full border-2 border-white dark:border-neutral-950 bg-neutral-200 dark:bg-neutral-800 overflow-hidden shadow-sm">
-                                                <img src={`/images/avatar_${i}.png`} alt="user" className="w-full h-full object-cover" />
+                                                <img src={baseAsset(`images/avatar_${i}.png`)} alt="user" className="w-full h-full object-cover" />
                                             </div>
                                         ))}
                                         <div className="pl-6">
@@ -173,7 +174,7 @@ const LandingPage = () => {
                                 className="lg:col-span-5 relative"
                             >
                                 <div className="aspect-[4/5] rounded-[3rem] overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.15)] dark:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] border-8 border-white dark:border-neutral-900 bg-neutral-100 dark:bg-neutral-800">
-                                    <img src="/images/section_branding_nigerian.png" alt="Professional worker" className="w-full h-full object-cover object-right" />
+                                    <img src={baseAsset("images/section_branding_nigerian.png")} alt="Professional worker" className="w-full h-full object-cover object-right" />
                                     
                                     {/* Floating Stats UI */}
                                     <motion.div 
@@ -251,10 +252,10 @@ const LandingPage = () => {
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                             {[
-                                { name: 'Home Cleaning', img: '/images/cleaning_nigerian.png', icon: Sparkles, count: '120+', color: 'text-orange-500', bg: 'bg-orange-500/10' },
-                                { name: 'AC Maintenance', img: '/images/ac_repair_nigerian.png', icon: Wrench, count: '85+', color: 'text-blue-500', bg: 'bg-blue-500/10' },
-                                { name: 'Plumbing Works', img: '/images/plumbing_nigerian.png', icon: Droplets, count: '64+', color: 'text-cyan-500', bg: 'bg-cyan-500/10' },
-                                { name: 'Laundry & Ironing', img: '/images/laundry_nigerian.png', icon: Shirt, count: '42+', color: 'text-green-500', bg: 'bg-green-500/10' }
+                                { name: 'Home Cleaning', img: baseAsset('images/cleaning_nigerian.png'), icon: Sparkles, count: '120+', color: 'text-orange-500', bg: 'bg-orange-500/10' },
+                                { name: 'AC Maintenance', img: baseAsset('images/ac_repair_nigerian.png'), icon: Wrench, count: '85+', color: 'text-blue-500', bg: 'bg-blue-500/10' },
+                                { name: 'Plumbing Works', img: baseAsset('images/plumbing_nigerian.png'), icon: Droplets, count: '64+', color: 'text-cyan-500', bg: 'bg-cyan-500/10' },
+                                { name: 'Laundry & Ironing', img: baseAsset('images/laundry_nigerian.png'), icon: Shirt, count: '42+', color: 'text-green-500', bg: 'bg-green-500/10' }
                             ].map((cat, i) => (
                                 <motion.div
                                     key={i}
@@ -354,7 +355,7 @@ const LandingPage = () => {
                                 >
                                     <div className="absolute inset-0 bg-brand-600 rounded-full blur-[100px] opacity-20 animate-pulse" />
                                     <div className="relative rounded-[3rem] overflow-hidden shadow-2xl border-4 border-white/10 group cursor-pointer aspect-video sm:aspect-square bg-neutral-100 dark:bg-neutral-800">
-                                        <img src="/images/section_branding_nigerian.png" alt="Process demonstration" className="w-full h-full object-cover object-right opacity-80 group-hover:scale-105 transition-all duration-1000" />
+                                        <img src={baseAsset("images/section_branding_nigerian.png")} alt="Process demonstration" className="w-full h-full object-cover object-right opacity-80 group-hover:scale-105 transition-all duration-1000" />
                                         <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors">
                                             <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center text-brand-600 shadow-2xl group-hover:scale-110 transition-transform">
                                                 <PlayCircle className="w-12 h-12 fill-current" />
@@ -394,7 +395,7 @@ const LandingPage = () => {
                             <div className="flex items-center gap-4 bg-white dark:bg-neutral-800 p-4 rounded-2xl border border-neutral-100 dark:border-neutral-700 shadow-sm">
                                 <div className="flex -space-x-3">
                                     {[1,2,3,4].map(i => (
-                                        <img key={i} src={`/images/avatar_${i}.png`} className="w-10 h-10 rounded-full border-2 border-white dark:border-neutral-800" alt="user" />
+                                        <img key={i} src={baseAsset(`images/avatar_${i}.png`)} className="w-10 h-10 rounded-full border-2 border-white dark:border-neutral-800" alt="user" />
                                     ))}
                                 </div>
                                 <div className="text-sm">

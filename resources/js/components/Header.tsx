@@ -21,6 +21,7 @@ import { cn } from '../lib/utils';
 import Avatar from './Avatar';
 import { useLocation as useGeoLocation } from '../hooks/useLocation';
 import { locationService } from '../services/locationService';
+import { baseAsset } from '../lib/assetHelper';
 
 const Header = () => {
     const { user, clearAuth, isAuthenticated } = useAuthStore();
@@ -137,7 +138,8 @@ const Header = () => {
                     <div className="flex items-center gap-10">
                         <Link to="/" className="hover:opacity-80 transition-opacity flex items-center">
                             <div className="bg-neutral-800 dark:bg-transparent p-2 sm:p-2.5 rounded-2xl shadow-sm border border-neutral-700 dark:border-transparent transition-colors">
-                                <img src="/logo.png" alt="Forafix Logo" className="h-10 sm:h-12 w-auto object-contain" />
+                                <img src={baseAsset("logo.png")} alt="Forafix Logo" className="h-10 sm:h-12 w-auto object-contain block dark:hidden" />
+                                <img src={baseAsset("logo-no-char.png")} alt="Forafix Logo" className="h-10 sm:h-12 w-auto object-contain hidden dark:block" />
                             </div>
                         </Link>
 
@@ -351,7 +353,8 @@ const Header = () => {
                 {/* Drawer header */}
                 <div className="flex items-center justify-between px-6 h-16 sm:h-20 border-b border-neutral-100 dark:border-neutral-800 shrink-0">
                     <div className="bg-neutral-800 dark:bg-transparent p-1.5 rounded-xl transition-colors">
-                        <img src="/logo.png" alt="Forafix Logo" className="h-8 w-auto object-contain" />
+                        <img src={baseAsset("logo.png")} alt="Forafix" className="h-8 w-auto object-contain block dark:hidden" />
+                        <img src={baseAsset("logo-no-char.png")} alt="Forafix" className="h-8 w-auto object-contain hidden dark:block" />
                     </div>
                     <button
                         onClick={() => setMobileOpen(false)}
