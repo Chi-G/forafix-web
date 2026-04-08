@@ -19,10 +19,6 @@ use App\Http\Controllers\Api\WalletController;
 
 Broadcast::routes(['middleware' => ['auth:sanctum']]);
 
-Route::get('/api-check', function () {
-    return response()->json(['message' => 'api.php is loading correctly']);
-});
-
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
