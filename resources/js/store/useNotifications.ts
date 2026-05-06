@@ -10,7 +10,7 @@ export const useNotifications = () => {
     const { addNotification } = useNotificationStore();
 
     useEffect(() => {
-        if (!user) return;
+        if (!user || !window.Echo) return;
 
         const channel = window.Echo.private(`App.Models.User.${user.id}`);
 
@@ -55,8 +55,10 @@ export const useNotifications = () => {
         });
 
         return () => {
-            channel.stopListening('.booking.created');
-            channel.stopListening('.booking.status.changed');
+            if (channel) {
+                channel.stopListening('.booking.created');
+                channel.stopListening('.booking.status.changed');
+            }
         };
     }, [user, fetchBookings, addNotification]);
 };
