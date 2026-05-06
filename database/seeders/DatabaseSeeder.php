@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use App\Models\Service;
 use App\Models\AgentProfile;
+use App\Models\Service;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -16,7 +16,9 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // 0. Cleanup old services
+        \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
         Service::truncate();
+        \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
 
         // 1. Create Services first
         $services = [
@@ -74,13 +76,13 @@ class DatabaseSeeder extends Seeder
         // 4. Create Agents (70)
         $districts = ['Maitama', 'Wuse 2', 'Asokoro', 'Garki', 'Guzape', 'Jabi', 'Utako', 'Lugbe', 'Kubwa', 'Gwarinpa'];
         $firstNames = ['Kene', 'Zainab', 'Chidi', 'Aminu', 'Joy', 'Samuel', 'Blessing', 'David', 'Grace', 'Victor', 'Esther', 'Peter', 'Ruth', 'John', 'Mercy', 'Ade', 'Kemi', 'Yusuf', 'Halima', 'Tochi'];
-        
+
         $agentBios = [
-            "Certified professional with over 5 years of experience in high-end service delivery.",
-            "Dedicated specialist focused on detail and customer satisfaction in various Abuja districts.",
-            "Hardworking and reliable expert ready to tackle any cleaning or repair challenge.",
-            "Punctual and efficient professional catering to residential and corporate clients.",
-            "Committed to excellence with a track record of top-rated service delivery in Nigeria.",
+            'Certified professional with over 5 years of experience in high-end service delivery.',
+            'Dedicated specialist focused on detail and customer satisfaction in various Abuja districts.',
+            'Hardworking and reliable expert ready to tackle any cleaning or repair challenge.',
+            'Punctual and efficient professional catering to residential and corporate clients.',
+            'Committed to excellence with a track record of top-rated service delivery in Nigeria.',
         ];
 
         $agentCount = 1;
@@ -89,7 +91,7 @@ class DatabaseSeeder extends Seeder
                 $firstName = $firstNames[rand(0, count($firstNames) - 1)];
                 $lastName = $lastNames[rand(0, count($lastNames) - 1)];
                 $name = "{$firstName} {$lastName}";
-                $email = strtolower($firstName . "." . $lastName . "." . $agentCount . "@forafix.com");
+                $email = strtolower($firstName.'.'.$lastName.'.'.$agentCount.'@forafix.com');
 
                 $agent = User::updateOrCreate(
                     ['email' => $email],
@@ -97,7 +99,7 @@ class DatabaseSeeder extends Seeder
                         'name' => $name,
                         'password' => bcrypt('password'),
                         'role' => 'AGENT',
-                        'is_vetted' => (bool)rand(0, 1),
+                        'is_vetted' => (bool) rand(0, 1),
                         'balance' => rand(1000, 50000),
                         'uuid' => (string) Str::uuid(),
                     ]
@@ -111,7 +113,7 @@ class DatabaseSeeder extends Seeder
                         'location_base' => $district,
                         'skills' => ['Punctuality', 'Efficiency', 'Quality Work'],
                         'is_available' => true,
-                        'avatar_url' => "https://ui-avatars.com/api/?name=" . urlencode($name) . "&background=random",
+                        'avatar_url' => 'https://ui-avatars.com/api/?name='.urlencode($name).'&background=random',
                     ]
                 );
 
