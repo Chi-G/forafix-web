@@ -15,9 +15,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 0. Cleanup old services
         \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
         Service::truncate();
+        User::where('email', 'like', '%@forafix.com')->delete();
         \Illuminate\Support\Facades\Schema::enableForeignKeyConstraints();
 
         // 1. Create Services first
