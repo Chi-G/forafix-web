@@ -24,7 +24,6 @@ class OAuthController extends Controller
     public function redirectToGoogle()
     {
         try {
-            \Log::info('Google OAuth Redirect URI being sent: ' . config('services.google.redirect'));
             // Check if client ID and secret are set
             if (!config('services.google.client_id') || !config('services.google.client_secret')) {
                 throw new \Exception('Google OAuth credentials are not configured in services.php or .env file.');

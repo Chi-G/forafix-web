@@ -2,6 +2,8 @@
 
 Forafix is a premium, real-time marketplace connecting clients with skilled professionals (Agents) for home services like cleaning, repairs, plumbing, and electrical work.
 
+🌐 **Live Demo:** [https://forafix.laravel.cloud](https://forafix.laravel.cloud)
+
 ## ✨ Key Features
 
 - **Dynamic Service Booking**: Seamless booking flow with real-time availability.

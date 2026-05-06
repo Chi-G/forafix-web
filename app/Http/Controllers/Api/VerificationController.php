@@ -16,7 +16,7 @@ class VerificationController extends Controller
     #[OA\Get(
         path: "/api/email/verify/{id}/{hash}",
         summary: "Verify email address via signed link",
-        tags: ["Verification"]
+        tags: ["Verification"] 
     )]
     #[OA\Parameter(name: "id", in: "path", required: true, schema: new OA\Schema(type: "integer"))]
     #[OA\Parameter(name: "hash", in: "path", required: true, schema: new OA\Schema(type: "string"))]
@@ -30,14 +30,14 @@ class VerificationController extends Controller
         }
 
         if ($user->hasVerifiedEmail()) {
-            return redirect(env('APP_URL') . '/login?verified=1');
+            return redirect(rtrim(config('app.url'), '/') . '/login?verified=1');
         }
 
         if ($user->markEmailAsVerified()) {
             event(new Verified($user));
         }
 
-        return redirect(env('APP_URL') . '/login?verified=1');
+        return redirect(rtrim(config('app.url'), '/') . '/login?verified=1');
     }
 
     #[OA\Post(
